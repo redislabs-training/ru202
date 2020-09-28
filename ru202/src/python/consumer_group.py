@@ -2,6 +2,7 @@
 An example of consumer groups
 '''
 import random
+from threading import Thread
 from multiprocessing import Process
 from time import sleep
 from util.connection import get_connection
@@ -114,5 +115,6 @@ if __name__ == '__main__':
     for i in range(MEMBERS):
         consumers.append(new_consumer(f'BOB-{i}'))
 
-    Process(target=chaos_func, args=(consumers, )).start()
+    Thread(target=chaos_func, args=(consumers, )).start()
+    #Process(target=chaos_func, args=(consumers, )).start()
     producer_func()
