@@ -49,7 +49,7 @@ if __name__ == '__main__':
         retries = 0
 
         # Store the last known state, if any work was done, and report it
-        redis.hmset(sum_key, {
+        redis.hset(sum_key, mapping = {
             'last_id': last_id,
             'n_sum': n_sum,
         })
