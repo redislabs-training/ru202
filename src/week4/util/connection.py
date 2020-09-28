@@ -22,10 +22,10 @@ def get_connection(name=None):
         client_kwargs["username"] = USERNAME
 
     if PASSWORD:
-        client_kwargs["password"]
+        client_kwargs["password"] = PASSWORD
 
     redis = Redis(**client_kwargs)
-    
+
     if name is not None:
         redis.client_setname(name)
     return redis

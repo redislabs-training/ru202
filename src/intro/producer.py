@@ -38,7 +38,7 @@ def main():
         client_kwargs["username"] = USERNAME
 
     if PASSWORD:
-        client_kwargs["password"]
+        client_kwargs["password"] = PASSWORD
 
     redis = Redis(**client_kwargs)
 
