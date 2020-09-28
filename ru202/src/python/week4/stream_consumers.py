@@ -201,7 +201,7 @@ def aggregating_consumer_func(current_stream_key, last_message_id, current_hourl
             # time we read a message, depending on the nature of 
             # your workload you may be able to update it less
             # frequently, for example after reading 100 messages. 
-            redis.hmset(const.AGGREGATING_CONSUMER_STATE_KEY, {
+            redis.hset(const.AGGREGATING_CONSUMER_STATE_KEY, mapping = {
                 "current_stream_key": current_stream_key,
                 "last_message_id": last_message_id,
                 "current_hourly_total": current_hourly_total,
@@ -253,7 +253,7 @@ def averages_consumer_func():
             last_message_id = msg_id
 
             # Store current state in Redis.
-            redis.hmset(const.AVERAGES_CONSUMER_STATE_KEY, {
+            redis.hset(const.AVERAGES_CONSUMER_STATE_KEY, mapping = {
                 "last_message_id": last_message_id
             })
         else:

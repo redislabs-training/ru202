@@ -41,7 +41,7 @@ if __name__ == '__main__':
 
     # Store the last known state and report it
     if n_count != 0:
-        redis.hmset(sum_key, {
+        redis.hset(sum_key, mapping = {
             'last_id': last_id,
             'n_sum': n_sum,
         })
