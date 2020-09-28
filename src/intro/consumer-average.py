@@ -29,10 +29,24 @@ def get_rolling_average(results, window):
 
 
 def main():
-    global redis
-    redis = Redis(host=os.environ.get("REDIS_HOST", "localhost"),
-                  port=os.environ.get("REDIS_PORT", 6379),
-                  db=0, decode_responses=True)
+    HOST = os.environ.get("REDIS_HOST", "localhost")
+    PORT = os.environ.get("REDIS_PORT", 6379)
+    USERNAME = os.environ.get("REDIS_USER")
+    PASSWORD = os.environ.get("REDIS_PASSWORD")
+
+    client_kwargs = {
+    "host": HOST,
+    "port": PORT,
+    "decode_responses": True
+    }
+
+    if USERNAME:
+        client_kwargs["username"] = USERNAME
+
+    if PASSWORD:
+        client_kwargs["password"]
+
+    redis = Redis(**client_kwargs)
 
     stream_key = "stream:weather"
     group_name = "rolling_average_printer"
