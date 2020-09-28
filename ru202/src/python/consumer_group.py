@@ -116,5 +116,4 @@ if __name__ == '__main__':
         consumers.append(new_consumer(f'BOB-{i}'))
 
     Thread(target=chaos_func, args=(consumers, )).start()
-    #Process(target=chaos_func, args=(consumers, )).start()
     producer_func()
