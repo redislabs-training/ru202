@@ -40,3 +40,7 @@ $ python test_connection.py
 ```
 
 If this command outputs `True`, then you are setup and ready to run the example code as described in the course materials.
+
+## Questions?
+
+If you have questions about this repository, you can chat with our teaching assistants on the [Redis University Discord Server](https://discord.gg/3wseBzw).
