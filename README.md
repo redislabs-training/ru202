@@ -31,6 +31,18 @@ $ export REDIS_HOST=myredishostname
 $ export REDIS_PORT=6380
 ```
 
+If your Redis instance requires a password to connect, also set the `REDIS_PASSWORD` environment variable:
+
+```bash
+$ export REDIS_PASSWORD=secret123
+```
+
+If you are using Redis 6 and need to supply a user name when connecting, you should set the `REDIS_USER` environment variable:
+
+```bash
+$ export REDIS_USER=student
+```
+
 ## Test Your Connection to Redis
 
 To test your Redis connection and Python environment, run:
