@@ -22,6 +22,8 @@ $ . env/bin/activate
 $ pip install -r requirements.txt
 ```
 
+**Note:** Ensure you activate your virtual environment before running any of the sample code.
+
 ## Configuration
 
 By default, the code will assume that Redis is available on `localhost` at port `6379`.  If your Redis instance is running elsewhere, you will need to set the `REDIS_HOST` and/or `REDIS_PORT` environment variables.  For example, here's how to configure these to connect to Redis on `myredishostname` port `6380`:
