@@ -1,8 +1,24 @@
 # RU202 Redis Streams
 
-This repository contains the source code for the [RU202 Redis Streams Course](https://university.redislabs.com/courses/ru202/) at [Redis University](https://university.redislabs.com/).
+This repository contains the source code for the [RU202 Redis Streams Course](https://university.redislabs.com/courses/ru202/) at [Redis University](https://university.redislabs.com/).  These materials can be accessed by installing them locally on your machine, or through Docker.
 
-## Prerequisites
+## Optional Docker Environment
+
+You access these materials through a self-contained Docker lab environment including an IDE and Redis install that we have setup for you:
+
+```bash
+$ docker run --rm --name redis-lab -p:8888:8888 redisuniversity/ru202-lab
+```
+
+Once the container is up and running, simply point your browser at `http://localhost:8888/entry.html` to access the IDE, terminal sessions and Redis.  The source code is pre-installed, and the Python environment is setup for you.
+
+## Local Installation
+
+You may prefer to setup an environment for this course on your local machine.
+
+### Prerequisites
+
+(If you are using our Docker container, skip this section).
 
 In order to run the sample code, you will need:
 
@@ -10,7 +26,9 @@ In order to run the sample code, you will need:
 * Ability to run the `pip` command for Python 3
 * Access to a local or remote installation of [Redis](https://redis.io/download) version 5 or newer (local preferred)
 
-## Setup
+### Setup
+
+(If you are using our Docker container, skip this section).
 
 Execute these commands in your shell to clone the repository then create a Python virtual environment and install depdendencies:
 
@@ -24,7 +42,9 @@ $ pip install -r requirements.txt
 
 **Note:** Ensure you activate your virtual environment before running any of the sample code.
 
-## Configuration
+### Configuration
+
+(If you are using our Docker container, skip this section).
 
 By default, the code will assume that Redis is available on `localhost` at port `6379`.  If your Redis instance is running elsewhere, you will need to set the `REDIS_HOST` and/or `REDIS_PORT` environment variables.  For example, here's how to configure these to connect to Redis on `myredishostname` port `6380`:
 
@@ -45,7 +65,7 @@ If you are using Redis 6 and need to supply a user name when connecting, you sho
 $ export REDIS_USER=student
 ```
 
-## Test Your Connection to Redis
+### Test Your Connection to Redis
 
 To test your Redis connection and Python environment, run:
 
