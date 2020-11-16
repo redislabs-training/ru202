@@ -108,7 +108,8 @@ def chaos_func(consumers):
             print(f'CHAOS: Restarted {name}')
         sleep(random.random())
 
-if __name__ == '__main__':
+
+def main():
     setup()
 
     consumers = []
@@ -117,3 +118,7 @@ if __name__ == '__main__':
 
     Thread(target=chaos_func, args=(consumers, )).start()
     producer_func()
+
+
+if __name__ == '__main__':
+    main()
