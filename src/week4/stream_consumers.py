@@ -24,7 +24,7 @@
 # the last message ID that it read from the stream
 # for crash recovery purposes.
 
-# pylint: disable=too-many-locals
+# pylint: disable=too-many-locals,line-too-long
 
 import sys
 from datetime import datetime, timedelta
