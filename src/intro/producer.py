@@ -1,10 +1,10 @@
 # Use Case: Streams example with Python
 # Usage: Part of Redis University RU202 courseware
-from redis import Redis
 import random
 import time
 import json
 import os
+from redis import Redis
 
 class Measurement:
     def __init__(self):

@@ -1,13 +1,13 @@
 # Use Case: Streams example with Python
 # Usage: Part of Redis University RU202 courseware
-from redis import Redis
-from redis.exceptions import ResponseError
 from collections import deque
-import random
 import time
 import json
 import socket
 import os
+import sys
+from redis import Redis
+from redis.exceptions import ResponseError
 
 def print_yellow(text):
     print("\033[93m" + text + "\033[0m")
@@ -57,7 +57,7 @@ def main():
 
     if not redis.exists(stream_key):
         print(f"Stream {stream_key} does not exist.  Try running the producer first.")
-        exit(0)
+        sys.exit(0)
 
     try:
         redis.xgroup_create(stream_key, group_name)
@@ -71,7 +71,7 @@ def main():
         if len(results) > 0:
             print_yellow("Processing: " + json.dumps(results))
             print_yellow("Rolling Average: " + str(get_rolling_average(results, window)))
-        
+
         time.sleep(1)
 
 
