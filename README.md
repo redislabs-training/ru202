@@ -83,3 +83,7 @@ If this command outputs `True`, then you are setup and ready to run the example 
 ## Questions?
 
 If you have questions about this repository, you can chat with our teaching assistants on the [Redis University Discord Server](https://discord.gg/3wseBzw).
+
+### Subscribe to our YouTube Channel
+
+We'd love for you to [check out our YouTube channel](https://youtube.com/redislabs), and subscribe if you want to see more Redis videos!
