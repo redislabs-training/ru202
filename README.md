@@ -1,6 +1,6 @@
 # RU202 Redis Streams
 
-This repository contains the source code for the [RU202 Redis Streams Course](https://university.redislabs.com/courses/ru202/) at [Redis University](https://university.redislabs.com/).  These materials can be accessed by installing them locally on your machine, or through Docker.
+This repository contains the source code for the [RU202 Redis Streams Course](https://university.redis.com/courses/ru202/) at [Redis University](https://university.redis.com/).  These materials can be accessed by installing them locally on your machine, or through Docker.
 
 ## Optional Docker Environment
 
@@ -28,7 +28,7 @@ In order to run the sample code, you will need:
 
 If you're using Windows, check out the following resources for help with running Redis:
 
-* [Redis Labs Blog - Running Redis on Windows 10](https://redislabs.com/blog/redis-on-windows-10/)
+* [Redis Labs Blog - Running Redis on Windows 10](https://redis.com/blog/redis-on-windows-10/)
 * [Microsoft - Windows Subsystem for Linux Installation Guide for Windows 10](https://docs.microsoft.com/en-us/windows/wsl/install-win10)
 
 ### Setup
@@ -86,4 +86,4 @@ If you have questions about this repository, you can chat with our teaching assi
 
 ### Subscribe to our YouTube Channel
 
-We'd love for you to [check out our YouTube channel](https://youtube.com/redislabs), and subscribe if you want to see more Redis videos!
+We'd love for you to [check out our YouTube channel](https://youtube.com/redisinc), and subscribe if you want to see more Redis videos!
