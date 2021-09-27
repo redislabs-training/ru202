@@ -28,7 +28,7 @@ In order to run the sample code, you will need:
 
 If you're using Windows, check out the following resources for help with running Redis:
 
-* [Redis Labs Blog - Running Redis on Windows 10](https://redis.com/blog/redis-on-windows-10/)
+* [Redis Blog - Running Redis on Windows 10](https://redis.com/blog/redis-on-windows-10/)
 * [Microsoft - Windows Subsystem for Linux Installation Guide for Windows 10](https://docs.microsoft.com/en-us/windows/wsl/install-win10)
 
 ### Setup
