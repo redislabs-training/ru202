@@ -8,6 +8,6 @@ services:
     
     volumes:
       - $PWD/redisdata:/var/lib/redis
-      - $PWS/redis.conf:/usr/local/etc/redis/redis.conf
+      - $PWD/redis.conf:/usr/local/etc/redis/redis.conf
 
   
