@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  redis:
+    image: "redis:6.2.6-alpine"
+    command: redis-server 
+    ports:
+      - "6379:6379"
+    
+    volumes:
+      - $PWD/redisdata:/var/lib/redis
+      - $PWD/redis.conf:/usr/local/etc/redis/redis.conf
+
+  
