@@ -1,13 +1,14 @@
-version: '3.8'
+version: "3.9"
 services:
   redis:
-    image: "redis:6.2.6-alpine"
-    command: redis-server 
+    container_name: "redis_ru202"
+    image: "redis:7.0.2"
+    command: "redis-server --appendonly yes"
     ports:
       - "6379:6379"
-    
     volumes:
-      - $PWD/redisdata:/var/lib/redis
-      - $PWD/redis.conf:/usr/local/etc/redis/redis.conf
-
-  
+      - $PWD/redisdata:/data
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
