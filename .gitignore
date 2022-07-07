@@ -1,6 +1,8 @@
 env/
 venv/
+redisdata/
 .DS_Store
+.idea/
 *.tmp
 *.bak
 *.pyc
