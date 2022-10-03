@@ -22,8 +22,8 @@ You may prefer to setup an environment for this course on your local machine.
 
 In order to run the sample code, you will need:
 
-* [Python 3](https://www.python.org/downloads/)
-* Ability to run the `pip` command for Python 3
+* [Python 3](https://www.python.org/downloads/).
+* Ability to run the `pip` command for Python 3.
 * Access to a local or remote installation of [Redis](https://redis.io/download) version 5 or newer (local preferred).  We've provided a Docker Compose file to make this easy. 
 
 If you're using Windows, check out the following resources for help with running Redis:
