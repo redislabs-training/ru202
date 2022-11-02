@@ -1,0 +1,476 @@
+0
+00:00:00,000 --> 00:00:00,500
+
+
+1
+00:00:00,500 --> 00:00:04,050
+In this unit, we'll review a few important Redis Streams usage
+
+2
+00:00:04,050 --> 00:00:05,360
+patterns.
+
+3
+00:00:05,360 --> 00:00:08,480
+First, we'll talk about how to deal with large payloads.
+
+4
+00:00:08,480 --> 00:00:10,490
+Next, we'll consider the trade-offs
+
+5
+00:00:10,490 --> 00:00:14,490
+between having one large stream and many smaller streams.
+
+6
+00:00:14,490 --> 00:00:16,079
+And finally, we'll talk about when
+
+7
+00:00:16,079 --> 00:00:20,420
+to use a single consumer versus consumer groups.
+
+8
+00:00:20,420 --> 00:00:21,920
+There are a couple of techniques you
+
+9
+00:00:21,920 --> 00:00:25,100
+can use to handle streams whose messages are large.
+
+10
+00:00:25,100 --> 00:00:27,860
+Large is, of course, relative, but keep in mind
+
+11
+00:00:27,860 --> 00:00:30,830
+that no single stream can use more memory
+
+12
+00:00:30,830 --> 00:00:34,400
+than is available on any single Redis server.
+
+13
+00:00:34,400 --> 00:00:37,040
+For example, suppose I have a stream whose messages
+
+14
+00:00:37,040 --> 00:00:39,640
+are 50 kilobytes in size.
+
+15
+00:00:39,640 --> 00:00:42,100
+Once the stream is a million messages in length,
+
+16
+00:00:42,100 --> 00:00:44,410
+that's 50 gigabytes.
+
+17
+00:00:44,410 --> 00:00:48,330
+And that might be larger than any of our Redis servers.
+
+18
+00:00:48,330 --> 00:00:50,870
+So what are the solutions to this?
+
+19
+00:00:50,870 --> 00:00:53,030
+Well, first, there's stream trimming,
+
+20
+00:00:53,030 --> 00:00:55,030
+which we discussed earlier.
+
+21
+00:00:55,030 --> 00:00:57,010
+But second, you can consider storing
+
+22
+00:00:57,010 --> 00:01:00,580
+the large payload outside of the stream itself
+
+23
+00:01:00,580 --> 00:01:03,310
+and referencing it from the stream.
+
+24
+00:01:03,310 --> 00:01:05,860
+If the payload needs to be hot in memory
+
+25
+00:01:05,860 --> 00:01:08,890
+but doesn't always have to be accessed within the stream,
+
+26
+00:01:08,890 --> 00:01:10,840
+then store it in a secondary Redis data
+
+27
+00:01:10,840 --> 00:01:13,300
+structure, such as a hash.
+
+28
+00:01:13,300 --> 00:01:15,700
+If you're running a clustered Redis deployment,
+
+29
+00:01:15,700 --> 00:01:19,710
+these payloads will naturally distribute across the cluster.
+
+30
+00:01:19,710 --> 00:01:21,660
+But for especially large payloads
+
+31
+00:01:21,660 --> 00:01:23,790
+that don't need to be in memory, consider
+
+32
+00:01:23,790 --> 00:01:30,190
+storing these on disk or in an external large object store.
+
+33
+00:01:30,190 --> 00:01:32,050
+Let's now talk about the single stream
+
+34
+00:01:32,050 --> 00:01:34,450
+versus multiple streams question.
+
+35
+00:01:34,450 --> 00:01:36,430
+When using Redis streams, we often
+
+36
+00:01:36,430 --> 00:01:40,120
+need to decide between using one large stream
+
+37
+00:01:40,120 --> 00:01:43,640
+or multiple smaller streams to represent a domain.
+
+38
+00:01:43,640 --> 00:01:45,860
+The answer to this dilemma often depends
+
+39
+00:01:45,860 --> 00:01:48,140
+on the stream's access patterns, or how you're
+
+40
+00:01:48,140 --> 00:01:50,880
+going to access the stream.
+
+41
+00:01:50,880 --> 00:01:53,910
+Let's take the example of user notifications.
+
+42
+00:01:53,910 --> 00:01:56,840
+Typically, a user has a mailbox of notifications,
+
+43
+00:01:56,840 --> 00:02:00,030
+and we need to be able to view all of the latest notifications
+
+44
+00:02:00,030 --> 00:02:01,860
+for a single user.
+
+45
+00:02:01,860 --> 00:02:05,760
+For this case, one stream per user notification mailbox
+
+46
+00:02:05,760 --> 00:02:08,190
+makes the most sense.
+
+47
+00:02:08,190 --> 00:02:11,070
+We can then view the latest notifications for that user
+
+48
+00:02:11,070 --> 00:02:14,680
+with a call to XREVRANGE.
+
+49
+00:02:14,680 --> 00:02:16,930
+An example of a single global stream
+
+50
+00:02:16,930 --> 00:02:19,240
+might be an API access log.
+
+51
+00:02:19,240 --> 00:02:20,800
+Suppose we have tens of thousands
+
+52
+00:02:20,800 --> 00:02:23,710
+of users all hitting our public API.
+
+53
+00:02:23,710 --> 00:02:26,920
+Each API access is an event in the stream.
+
+54
+00:02:26,920 --> 00:02:29,560
+If our goal is to be able to analyze the overall usage
+
+55
+00:02:29,560 --> 00:02:33,040
+patterns, then a single stream for all API access events
+
+56
+00:02:33,040 --> 00:02:36,270
+makes the most sense.
+
+57
+00:02:36,270 --> 00:02:37,980
+Another point to consider here--
+
+58
+00:02:37,980 --> 00:02:40,080
+with many smaller streams, these can
+
+59
+00:02:40,080 --> 00:02:42,210
+be partitioned across nodes in a Redis cluster.
+
+60
+00:02:42,210 --> 00:02:44,760
+
+
+61
+00:02:44,760 --> 00:02:46,680
+With one large stream, you'll need
+
+62
+00:02:46,680 --> 00:02:49,140
+to be more careful to cap the stream so
+
+63
+00:02:49,140 --> 00:02:52,380
+that it doesn't take up all the memory on a single server.
+
+64
+00:02:52,380 --> 00:02:54,610
+This is true even if you're running a clustered Redis
+
+65
+00:02:54,610 --> 00:02:55,732
+deployment.
+
+66
+00:02:55,732 --> 00:02:58,630
+
+
+67
+00:02:58,630 --> 00:03:01,670
+OK, lastly, let's tackle the question
+
+68
+00:03:01,670 --> 00:03:06,230
+of when to use a single consumer versus consumer groups.
+
+69
+00:03:06,230 --> 00:03:08,570
+To review, the single consumer involves
+
+70
+00:03:08,570 --> 00:03:11,960
+using XREAD to process the stream in order.
+
+71
+00:03:11,960 --> 00:03:14,600
+While doing so, you need to keep track of your last processed
+
+72
+00:03:14,600 --> 00:03:18,260
+ID, possibly storing that ID in Redis.
+
+73
+00:03:18,260 --> 00:03:19,790
+The consumer group pattern involves
+
+74
+00:03:19,790 --> 00:03:22,400
+a few different commands, and we described this in detail
+
+75
+00:03:22,400 --> 00:03:24,690
+last week.
+
+76
+00:03:24,690 --> 00:03:26,270
+Let's start with consumer groups.
+
+77
+00:03:26,270 --> 00:03:28,730
+There are two scenarios where consumer groups make the most
+
+78
+00:03:28,730 --> 00:03:29,720
+sense.
+
+79
+00:03:29,720 --> 00:03:32,600
+The first is when you need out-of-order processing.
+
+80
+00:03:32,600 --> 00:03:35,810
+For example, suppose each event in a stream
+
+81
+00:03:35,810 --> 00:03:38,630
+represents a photo that requires processing.
+
+82
+00:03:38,630 --> 00:03:41,240
+Suppose further that we have a set of microservices that can
+
+83
+00:03:41,240 --> 00:03:43,640
+process 10 photos at a time.
+
+84
+00:03:43,640 --> 00:03:47,030
+With XREADGROUP, we can send 10 messages at a time
+
+85
+00:03:47,030 --> 00:03:51,020
+to the microservice, and then XACK each message as soon
+
+86
+00:03:51,020 --> 00:03:54,770
+as the photo it points to has completed processing.
+
+87
+00:03:54,770 --> 00:03:57,260
+So we don't have to do this out-of-order accounting
+
+88
+00:03:57,260 --> 00:03:58,930
+on our own.
+
+89
+00:03:58,930 --> 00:04:00,610
+The second case for consumer groups
+
+90
+00:04:00,610 --> 00:04:04,880
+is when processing each message requires significant CPU.
+
+91
+00:04:04,880 --> 00:04:07,320
+Suppose we're doing text classification.
+
+92
+00:04:07,320 --> 00:04:11,700
+We need to fan this out to multiple processes/threads/CPUs
+
+93
+00:04:11,700 --> 00:04:14,410
+to keep up with the growth of the stream.
+
+94
+00:04:14,410 --> 00:04:17,019
+To solve this, we create a consumer group,
+
+95
+00:04:17,019 --> 00:04:19,930
+with one consumer per thread per process,
+
+96
+00:04:19,930 --> 00:04:22,680
+across, perhaps, a cluster of machines.
+
+97
+00:04:22,680 --> 00:04:25,290
+Now, if you don't need out-of-order processing,
+
+98
+00:04:25,290 --> 00:04:28,320
+or if your processing isn't too computationally expensive
+
+99
+00:04:28,320 --> 00:04:30,540
+for a single consumer, then it's best
+
+100
+00:04:30,540 --> 00:04:33,690
+to opt for XREAD with a single consumer.
+
+101
+00:04:33,690 --> 00:04:36,000
+And here's a really important point to remember.
+
+102
+00:04:36,000 --> 00:04:38,460
+Even if you need stream segmentation,
+
+103
+00:04:38,460 --> 00:04:40,800
+you can still accomplish this using a single consumer
+
+104
+00:04:40,800 --> 00:04:42,030
+with XREAD.
+
+105
+00:04:42,030 --> 00:04:45,360
+To do this, each consumer simply needs to keep track of its own
+
+106
+00:04:45,360 --> 00:04:48,180
+offset in the stream.
+
+107
+00:04:48,180 --> 00:04:49,890
+Here's a diagram with three consumers
+
+108
+00:04:49,890 --> 00:04:52,170
+on the same stream using XREAD.
+
+109
+00:04:52,170 --> 00:04:55,440
+Here, each consumer is writing its last processed ID
+
+110
+00:04:55,440 --> 00:04:57,420
+into a separate Redis key.
+
+111
+00:04:57,420 --> 00:05:00,000
+If one of these consumers ever goes offline,
+
+112
+00:05:00,000 --> 00:05:02,790
+it must read this last processed ID
+
+113
+00:05:02,790 --> 00:05:06,710
+and start from there when it comes back online.
+
+114
+00:05:06,710 --> 00:05:08,850
+So in this unit, we saw some important Redis
+
+115
+00:05:08,850 --> 00:05:10,680
+Streams usage patterns.
+
+116
+00:05:10,680 --> 00:05:12,090
+Understanding these patterns will
+
+117
+00:05:12,090 --> 00:05:14,040
+help you make good design decisions
+
+118
+00:05:14,040 --> 00:05:17,090
+when building a system on Redis Streams.
+

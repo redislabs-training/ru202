@@ -1,0 +1,248 @@
+0
+00:00:00,000 --> 00:00:00,500
+
+
+1
+00:00:00,500 --> 00:00:02,610
+In this unit, we've looked at how Redis Streams
+
+2
+00:00:02,610 --> 00:00:06,210
+can be used to implement a logical consumer, one
+
+3
+00:00:06,210 --> 00:00:09,390
+that is made up of multiple instances sharing
+
+4
+00:00:09,390 --> 00:00:11,100
+the influx of data.
+
+5
+00:00:11,100 --> 00:00:13,680
+Consumer groups are the server side mechanism
+
+6
+00:00:13,680 --> 00:00:16,590
+that Redis provides for tracking messages
+
+7
+00:00:16,590 --> 00:00:22,370
+that were delivered, but not yet acknowledged.
+
+8
+00:00:22,370 --> 00:00:26,360
+These allow their members to consume the stream's contents
+
+9
+00:00:26,360 --> 00:00:29,660
+in parallel without the need for an additional synchronization
+
+10
+00:00:29,660 --> 00:00:33,220
+mechanism between them.
+
+11
+00:00:33,220 --> 00:00:36,070
+Redis' management of the Pending Entries Lists
+
+12
+00:00:36,070 --> 00:00:39,550
+allow each consumer to be delivered with its messages
+
+13
+00:00:39,550 --> 00:00:40,750
+at least once.
+
+14
+00:00:40,750 --> 00:00:44,140
+That once being the delivery of a new message,
+
+15
+00:00:44,140 --> 00:00:48,480
+but possibly more than once in cases of failures.
+
+16
+00:00:48,480 --> 00:00:50,580
+To stop receiving a message, the consumer
+
+17
+00:00:50,580 --> 00:00:53,420
+must explicitly acknowledge its processing.
+
+18
+00:00:53,420 --> 00:00:55,770
+The acknowledgment removes that message
+
+19
+00:00:55,770 --> 00:00:58,570
+from the consumer's PEL.
+
+20
+00:00:58,570 --> 00:01:00,630
+Although at least once is what we'd
+
+21
+00:01:00,630 --> 00:01:03,580
+usually prefer using as it allows us fetching
+
+22
+00:01:03,580 --> 00:01:05,560
+pending messages or recovery.
+
+23
+00:01:05,560 --> 00:01:09,850
+Consumer groups can also be used for at-most-once messaging.
+
+24
+00:01:09,850 --> 00:01:13,420
+In such cases, the messages and the replies sent by Redis
+
+25
+00:01:13,420 --> 00:01:15,820
+are considered to be automatically acknowledged,
+
+26
+00:01:15,820 --> 00:01:20,100
+so no PELs are maintained.
+
+27
+00:01:20,100 --> 00:01:22,860
+That means of course that if a message did not
+
+28
+00:01:22,860 --> 00:01:25,260
+get to the consumer for any reason,
+
+29
+00:01:25,260 --> 00:01:28,290
+or if the consumer had failed to process it,
+
+30
+00:01:28,290 --> 00:01:30,180
+that message will be skipped.
+
+31
+00:01:30,180 --> 00:01:34,380
+It is after all sent at-most-once.
+
+32
+00:01:34,380 --> 00:01:36,660
+This ability can be used to distribute
+
+33
+00:01:36,660 --> 00:01:39,270
+the processing of the workload that is allowed
+
+34
+00:01:39,270 --> 00:01:42,030
+to fail in part or in whole.
+
+35
+00:01:42,030 --> 00:01:45,870
+The way this is done in Redis is by using the optional NOACK
+
+36
+00:01:45,870 --> 00:01:48,300
+command with XREADGROUP.
+
+37
+00:01:48,300 --> 00:01:53,080
+And as usual, we can test it out in the CLI.
+
+38
+00:01:53,080 --> 00:01:56,800
+In the terminal window, you can inspect group one's x input
+
+39
+00:01:56,800 --> 00:02:00,930
+output before the XREADGROUP operation.
+
+40
+00:02:00,930 --> 00:02:05,170
+It has zero consumers and zero pending messages.
+
+41
+00:02:05,170 --> 00:02:07,900
+Recall that group one was created with the special dollar
+
+42
+00:02:07,900 --> 00:02:11,500
+message ID after the first message was added.
+
+43
+00:02:11,500 --> 00:02:14,620
+Therefore its last delivered ID is that
+
+44
+00:02:14,620 --> 00:02:18,290
+of the stream's first message.
+
+45
+00:02:18,290 --> 00:02:23,610
+Next you can see consumer 99 from group 1 making an XREADGROUP
+
+46
+00:02:23,610 --> 00:02:26,430
+request to get the next message like we've
+
+47
+00:02:26,430 --> 00:02:30,330
+seen numerous times before, but with one important difference.
+
+48
+00:02:30,330 --> 00:02:33,720
+It uses the no NOACK sub command to signal a server
+
+49
+00:02:33,720 --> 00:02:37,820
+that no acknowledgment will be sent.
+
+50
+00:02:37,820 --> 00:02:41,830
+The reply is what we'd expect in calling either XINFO again
+
+51
+00:02:41,830 --> 00:02:44,810
+or XREADGROUP with the minimal message
+
+52
+00:02:44,810 --> 00:02:47,815
+ID shows that there are no pending entries.
+
+53
+00:02:47,815 --> 00:02:50,430
+
+
+54
+00:02:50,430 --> 00:02:53,400
+By default, consumer groups will track their consumers
+
+55
+00:02:53,400 --> 00:02:56,880
+pending messages until they are explicitly acknowledged
+
+56
+00:02:56,880 --> 00:03:00,300
+and therefore allow for messages to be sent repeatedly.
+
+57
+00:03:00,300 --> 00:03:03,900
+In cases where the probability for failure is relatively low
+
+58
+00:03:03,900 --> 00:03:06,630
+and the occasional message loss is acceptable,
+
+59
+00:03:06,630 --> 00:03:09,380
+consumers can turn off their tracking
+
+60
+00:03:09,380 --> 00:03:11,630
+with the NOACK sub command.
+
+61
+00:03:11,630 --> 00:03:12,300
+
+

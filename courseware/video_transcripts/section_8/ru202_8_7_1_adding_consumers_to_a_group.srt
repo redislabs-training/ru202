@@ -1,0 +1,624 @@
+0
+00:00:00,000 --> 00:00:00,500
+
+
+1
+00:00:00,500 --> 00:00:03,330
+A consumer group is made up of multiple consumers,
+
+2
+00:00:03,330 --> 00:00:06,300
+each of which processes a portion of the stream.
+
+3
+00:00:06,300 --> 00:00:09,810
+Each group is identified by name and is associated
+
+4
+00:00:09,810 --> 00:00:12,100
+with a single stream and the last message
+
+5
+00:00:12,100 --> 00:00:16,040
+ID that was delivered to the group's members.
+
+6
+00:00:16,040 --> 00:00:17,870
+After a consumer group is created,
+
+7
+00:00:17,870 --> 00:00:22,830
+members can join the group to access the stream's contents.
+
+8
+00:00:22,830 --> 00:00:26,340
+Joining a group is a decision made by the consumer instance.
+
+9
+00:00:26,340 --> 00:00:29,000
+To join and start processing messages,
+
+10
+00:00:29,000 --> 00:00:30,630
+all that the consumer needs to know
+
+11
+00:00:30,630 --> 00:00:32,400
+are the names of the stream and the group
+
+12
+00:00:32,400 --> 00:00:34,350
+that it wants to belong to.
+
+13
+00:00:34,350 --> 00:00:37,620
+This means there is no need to tell Redis beforehand
+
+14
+00:00:37,620 --> 00:00:40,320
+about the comings and goings of consumers.
+
+15
+00:00:40,320 --> 00:00:44,600
+Groups are open to any consumer that wishes to join them.
+
+16
+00:00:44,600 --> 00:00:47,660
+Besides the knowledge of the key and the groups' names,
+
+17
+00:00:47,660 --> 00:00:49,880
+in order to become a member, the instance
+
+18
+00:00:49,880 --> 00:00:51,560
+must provide its own name.
+
+19
+00:00:51,560 --> 00:00:54,770
+A consumer's name uniquely identifies that instance
+
+20
+00:00:54,770 --> 00:00:59,330
+among all other consumer instances in the group.
+
+21
+00:00:59,330 --> 00:01:01,100
+Redis will use that name to track
+
+22
+00:01:01,100 --> 00:01:03,350
+the consumer's progress in the group,
+
+23
+00:01:03,350 --> 00:01:05,430
+and we will discuss that shortly.
+
+24
+00:01:05,430 --> 00:01:09,020
+The consumer's name is only meaningful in the context
+
+25
+00:01:09,020 --> 00:01:13,660
+of a given stream and a consumer group.
+
+26
+00:01:13,660 --> 00:01:16,660
+As a side note refresher, Redis' CLIENT SETNAME
+
+27
+00:01:16,660 --> 00:01:19,480
+can be used to assign a name for the connection.
+
+28
+00:01:19,480 --> 00:01:22,420
+This can be quite useful when you're trying to track
+
+29
+00:01:22,420 --> 00:01:25,390
+and debug complex behaviors in general,
+
+30
+00:01:25,390 --> 00:01:28,480
+so it is considered good practice to use it.
+
+31
+00:01:28,480 --> 00:01:31,030
+Because consumer group members require a name,
+
+32
+00:01:31,030 --> 00:01:34,270
+you should consider giving them the same name as the client.
+
+33
+00:01:34,270 --> 00:01:36,370
+At a later time, if and when needed,
+
+34
+00:01:36,370 --> 00:01:42,350
+the output from CLIENT LIST will be infinitely more helpful.
+
+35
+00:01:42,350 --> 00:01:44,610
+That's almost all there is to it.
+
+36
+00:01:44,610 --> 00:01:47,000
+We've seen how a single instance consumer can
+
+37
+00:01:47,000 --> 00:01:49,400
+use XREAD to process a stream.
+
+38
+00:01:49,400 --> 00:01:52,030
+And there's a similar command called
+
+39
+00:01:52,030 --> 00:01:57,010
+XREADGROUP to do the same, only as part of a group.
+
+40
+00:01:57,010 --> 00:01:59,350
+There's also another special message ID
+
+41
+00:01:59,350 --> 00:02:02,320
+that you need to know about, but this is the last one.
+
+42
+00:02:02,320 --> 00:02:03,700
+Promise.
+
+43
+00:02:03,700 --> 00:02:06,270
+Let's turn to the CLI to check it out.
+
+44
+00:02:06,270 --> 00:02:09,699
+That's somewhat of a long command, but most of its pieces
+
+45
+00:02:09,699 --> 00:02:12,630
+we are already familiar with.
+
+46
+00:02:12,630 --> 00:02:16,740
+XREADGROUP shares with XREAD the same COUNT, BLOCK,
+
+47
+00:02:16,740 --> 00:02:21,420
+and STREAMS sub-commands and argument that these expect.
+
+48
+00:02:21,420 --> 00:02:23,400
+The first difference between the two commands,
+
+49
+00:02:23,400 --> 00:02:28,740
+beside their names, however, is that XREADGROUP requires
+
+50
+00:02:28,740 --> 00:02:32,130
+the GROUP sub-command followed by the consumer group's
+
+51
+00:02:32,130 --> 00:02:37,800
+name, "group0" in the example, and the consumer's name, "consumerA".
+
+52
+00:02:37,800 --> 00:02:40,410
+By issuing this XREADGROUP request,
+
+53
+00:02:40,410 --> 00:02:45,050
+"consumerA" has officially joined the group.
+
+54
+00:02:45,050 --> 00:02:47,440
+The second difference to notice is, as promised,
+
+55
+00:02:47,440 --> 00:02:49,810
+the use of a special message ID --
+
+56
+00:02:49,810 --> 00:02:51,430
+the greater-than sign (">").
+
+57
+00:02:51,430 --> 00:02:56,020
+The ">" is used exclusively by XREADGROUP.
+
+58
+00:02:56,020 --> 00:02:58,990
+This means the message ID that is
+
+59
+00:02:58,990 --> 00:03:02,170
+greater than any of the previously delivered IDs
+
+60
+00:03:02,170 --> 00:03:04,760
+to the group's member.
+
+61
+00:03:04,760 --> 00:03:07,490
+Put differently, the special ">" means,
+
+62
+00:03:07,490 --> 00:03:09,740
+"Give me the next undelivered message",
+
+63
+00:03:09,740 --> 00:03:13,100
+where "me" is a named consumer within the group.
+
+64
+00:03:13,100 --> 00:03:15,560
+As expected, the command returns immediately
+
+65
+00:03:15,560 --> 00:03:18,740
+with a reply that consists of the stream's name
+
+66
+00:03:18,740 --> 00:03:22,020
+and the first message in it.
+
+67
+00:03:22,020 --> 00:03:26,130
+Calling XREADGROUP with the ">" special message ID
+
+68
+00:03:26,130 --> 00:03:28,140
+is what we'd usually want to do.
+
+69
+00:03:28,140 --> 00:03:31,890
+After all, a single consumer's purpose is usually to process
+
+70
+00:03:31,890 --> 00:03:34,650
+new, yet to be delivered messages from the stream.
+
+71
+00:03:34,650 --> 00:03:36,780
+And that's exactly what the command does.
+
+72
+00:03:40,170 --> 00:03:42,390
+But messages also need to be acknowledged
+
+73
+00:03:42,390 --> 00:03:44,010
+by their consumers.
+
+74
+00:03:44,010 --> 00:03:46,620
+A message that has been delivered to one of the group's
+
+75
+00:03:46,620 --> 00:03:49,860
+members is said to be "pending" in the sense that it
+
+76
+00:03:49,860 --> 00:03:52,290
+was delivered, but its processing
+
+77
+00:03:52,290 --> 00:03:54,880
+is yet to be acknowledged by the consumer.
+
+78
+00:03:54,880 --> 00:03:57,150
+Redis keeps track of which messages
+
+79
+00:03:57,150 --> 00:03:59,940
+have been delivered to which consumer group members.
+
+80
+00:03:59,940 --> 00:04:02,820
+For that purpose, it uses an internal data
+
+81
+00:04:02,820 --> 00:04:09,580
+structure called the Pending Entries List, or PEL for short.
+
+82
+00:04:09,580 --> 00:04:11,920
+We'll discuss later how a message's state can
+
+83
+00:04:11,920 --> 00:04:13,990
+be changed from "pending" to something else,
+
+84
+00:04:13,990 --> 00:04:18,010
+or, put differently, how it can be removed from the PEL.
+
+85
+00:04:18,010 --> 00:04:20,800
+Under normal conditions, the removal from the PEL
+
+86
+00:04:20,800 --> 00:04:22,720
+is done once the consumer acknowledges
+
+87
+00:04:22,720 --> 00:04:26,400
+successfully processing it.
+
+88
+00:04:26,400 --> 00:04:30,400
+The Pending Entries List is what makes a consumer group tick.
+
+89
+00:04:30,400 --> 00:04:33,160
+In it, as its name suggests, are the IDs
+
+90
+00:04:33,160 --> 00:04:35,190
+of messages in the stream that are
+
+91
+00:04:35,190 --> 00:04:39,220
+pending for each consumer, along with additional metadata.
+
+92
+00:04:39,220 --> 00:04:41,290
+This core structure is what gives the group
+
+93
+00:04:41,290 --> 00:04:44,560
+its power, allowing Redis to keep tabs on the current state.
+
+94
+00:04:47,450 --> 00:04:50,840
+XREADGROUP can also handle partial or full message IDs.
+
+95
+00:04:50,840 --> 00:04:54,110
+And just like with XREAD, these are interpreted
+
+96
+00:04:54,110 --> 00:04:57,380
+as the non-exclusive lower bound, or the message
+
+97
+00:04:57,380 --> 00:04:59,510
+preceding the next one.
+
+98
+00:04:59,510 --> 00:05:04,140
+Unlike XREAD however, when used with the message ID,
+
+99
+00:05:04,140 --> 00:05:07,580
+XREADGROUP will only return messages that were already
+
+100
+00:05:07,580 --> 00:05:10,880
+delivered to the named consumer, effectively masking
+
+101
+00:05:10,880 --> 00:05:13,580
+the activity of other consumers from it
+
+102
+00:05:13,580 --> 00:05:16,880
+and providing it with its own unique point of view.
+
+103
+00:05:16,880 --> 00:05:21,470
+This masking, of course, is possible because of the PEL.
+
+104
+00:05:21,470 --> 00:05:23,810
+Here's how that looks like in practice.
+
+105
+00:05:23,810 --> 00:05:26,720
+When called by "consumerA" from "group0" again,
+
+106
+00:05:26,720 --> 00:05:29,390
+this time with the partial message ID 0,
+
+107
+00:05:29,390 --> 00:05:32,240
+we get the same first message delivered again.
+
+108
+00:05:32,240 --> 00:05:34,280
+The consumer in a group can only view
+
+109
+00:05:34,280 --> 00:05:37,790
+that part of the stream that was already delivered to it and is
+
+110
+00:05:37,790 --> 00:05:39,260
+yet to be processed.
+
+111
+00:05:39,260 --> 00:05:44,680
+The reply is effectively the entire PEL for "consumerA".
+
+112
+00:05:44,680 --> 00:05:47,470
+From the point of view of another consumer group
+
+113
+00:05:47,470 --> 00:05:52,400
+member, "consumerB", the stream currently appears to be empty.
+
+114
+00:05:52,400 --> 00:05:53,770
+That's the expected behavior.
+
+115
+00:05:53,770 --> 00:05:57,160
+"consumerB" had yet to ask for any new messages
+
+116
+00:05:57,160 --> 00:06:01,180
+to be delivered to it, so its PEL is empty.
+
+117
+00:06:01,180 --> 00:06:04,900
+Of course, "consumerB" can XREADGROUP the next message
+
+118
+00:06:04,900 --> 00:06:07,780
+with the ">" special message ID
+
+119
+00:06:07,780 --> 00:06:09,790
+and receive the stream's second message,
+
+120
+00:06:09,790 --> 00:06:12,070
+which contains the number 1.
+
+121
+00:06:12,070 --> 00:06:16,030
+It is now possible to re-run XREADGROUP for both consumers
+
+122
+00:06:16,030 --> 00:06:19,417
+to obtain each one's unique perspective.
+
+123
+00:06:25,880 --> 00:06:29,570
+We saw how XINFO GROUPS provides an overview of the stream's
+
+124
+00:06:29,570 --> 00:06:30,380
+groups.
+
+125
+00:06:30,380 --> 00:06:31,820
+Let's call it again.
+
+126
+00:06:31,820 --> 00:06:35,870
+This time, "group0"'s consumers value shows 2.
+
+127
+00:06:35,870 --> 00:06:38,330
+That value is the count of consumers
+
+128
+00:06:38,330 --> 00:06:40,400
+that belong to the group and accounts
+
+129
+00:06:40,400 --> 00:06:43,670
+for "consumerA" and "consumerB".
+
+130
+00:06:43,670 --> 00:06:46,700
+The group's pending value is 3.
+
+131
+00:06:46,700 --> 00:06:49,430
+That value is the total count of pending messages
+
+132
+00:06:49,430 --> 00:06:55,010
+for all consumers, or the sum of the length of their PELs.
+
+133
+00:06:55,010 --> 00:06:57,500
+Also note how the last delivered ID is now
+
+134
+00:06:57,500 --> 00:07:00,440
+set to that of "consumerB"'s message,
+
+135
+00:07:00,440 --> 00:07:03,620
+allowing Redis to serve the next group request from there.
+
+136
+00:07:06,450 --> 00:07:09,920
+Another way to inspect the state of the group's consumers
+
+137
+00:07:09,920 --> 00:07:16,200
+is to call XINFO with the CONSUMERS sub-command.
+
+138
+00:07:16,200 --> 00:07:20,880
+This form of XINFO accepts the stream's key and group names
+
+139
+00:07:20,880 --> 00:07:23,250
+as input, and in return, provides
+
+140
+00:07:23,250 --> 00:07:25,020
+a paired member breakdown.
+
+141
+00:07:25,020 --> 00:07:26,850
+For each consumer in the group, it
+
+142
+00:07:26,850 --> 00:07:29,820
+returns the PEL's length and idle time,
+
+143
+00:07:29,820 --> 00:07:31,770
+which is the count in milliseconds
+
+144
+00:07:31,770 --> 00:07:36,980
+since that consumer had last read a new message.
+
+145
+00:07:36,980 --> 00:07:40,310
+Members of groups have unique names that identify them.
+
+146
+00:07:40,310 --> 00:07:42,800
+They read undelivered messages from the stream
+
+147
+00:07:42,800 --> 00:07:45,710
+with the XREADGROUP command and can only
+
+148
+00:07:45,710 --> 00:07:48,830
+access messages that were delivered to them and not
+
+149
+00:07:48,830 --> 00:07:50,080
+yet processed.
+
+150
+00:07:50,080 --> 00:07:53,270
+Redis maintains an internal list of pending entries,
+
+151
+00:07:53,270 --> 00:07:56,930
+acronymed as PEL, for each consumer in the group
+
+152
+00:07:56,930 --> 00:07:58,660
+to track its progress.
+
+153
+00:07:58,660 --> 00:08:02,630
+The XINFO command allows us to inspect the stream's group
+
+154
+00:08:02,630 --> 00:08:06,470
+and consumers with the GROUPS and CONSUMERS sub-commands,
+
+155
+00:08:06,470 --> 00:08:08,620
+respectively.
+

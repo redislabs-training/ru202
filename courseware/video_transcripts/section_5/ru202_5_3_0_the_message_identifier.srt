@@ -1,0 +1,436 @@
+0
+00:00:00,000 --> 00:00:00,500
+
+
+1
+00:00:00,500 --> 00:00:03,760
+Let's give the message identifier a closer look.
+
+2
+00:00:03,760 --> 00:00:07,700
+In our CLI example, the producer's invocations of XADD
+
+3
+00:00:07,700 --> 00:00:10,140
+were replied with a message identifier.
+
+4
+00:00:10,140 --> 00:00:13,650
+Every successful call to the Redis Streams producer API,
+
+5
+00:00:13,650 --> 00:00:18,270
+a.k.a, XADD, returns the newly added message's identifier,
+
+6
+00:00:18,270 --> 00:00:20,740
+or ID for short.
+
+7
+00:00:20,740 --> 00:00:23,070
+The ID is unique, and every message
+
+8
+00:00:23,070 --> 00:00:26,400
+has exactly one and only one ID.
+
+9
+00:00:26,400 --> 00:00:29,160
+Once created, a message's ID is immutable
+
+10
+00:00:29,160 --> 00:00:32,970
+and bound to the message's position inside the stream.
+
+11
+00:00:32,970 --> 00:00:35,760
+Messages with lower IDs will be closer
+
+12
+00:00:35,760 --> 00:00:38,880
+to the beginning of the stream, whereas the higher IDs
+
+13
+00:00:38,880 --> 00:00:42,710
+will occur later in the stream.
+
+14
+00:00:42,710 --> 00:00:45,830
+As we've seen before, Redis can generate message IDs
+
+15
+00:00:45,830 --> 00:00:49,730
+automatically when instructed to do so with the asterisk ID
+
+16
+00:00:49,730 --> 00:00:50,780
+argument.
+
+17
+00:00:50,780 --> 00:00:54,350
+Let's use a little-known CLI feature to take a closer look
+
+18
+00:00:54,350 --> 00:00:56,780
+at these auto-generated IDs.
+
+19
+00:00:56,780 --> 00:00:59,900
+We'll generate several, seven, to be precise,
+
+20
+00:00:59,900 --> 00:01:03,530
+dummy messages in quick succession, and XADD them
+
+21
+00:01:03,530 --> 00:01:07,990
+to a stream just to see how their IDs look.
+
+22
+00:01:07,990 --> 00:01:11,620
+Here we've called XADD seven times with the same message.
+
+23
+00:01:11,620 --> 00:01:14,500
+Each time we've called it, the message was added to the stream
+
+24
+00:01:14,500 --> 00:01:18,280
+and assigned with a new, auto-magically generated ID.
+
+25
+00:01:18,280 --> 00:01:21,390
+An inspection of the IDs reveals that each ID
+
+26
+00:01:21,390 --> 00:01:23,670
+is made of exactly two numbers,
+
+27
+00:01:23,670 --> 00:01:25,360
+separated by a dash.
+
+28
+00:01:25,360 --> 00:01:27,310
+The first number in the message ID
+
+29
+00:01:27,310 --> 00:01:29,890
+is a millisecond-resolution timestamp.
+
+30
+00:01:29,890 --> 00:01:31,870
+When auto-generated, these values are
+
+31
+00:01:31,870 --> 00:01:35,110
+obtained from the Redis server's clock.
+
+32
+00:01:35,110 --> 00:01:39,460
+Redis ensures that the timestamp part of the ID never decreases.
+
+33
+00:01:39,460 --> 00:01:43,440
+Consider, for example, a case in which the server is restarted,
+
+34
+00:01:43,440 --> 00:01:45,700
+and its clock is rewound.
+
+35
+00:01:45,700 --> 00:01:48,490
+Under these circumstances, Redis will revert
+
+36
+00:01:48,490 --> 00:01:51,940
+to using the maximal timestamp of the stream instead
+
+37
+00:01:51,940 --> 00:01:54,160
+of the current clock reading to prevent
+
+38
+00:01:54,160 --> 00:01:57,720
+any time-travel-like phenomenon.
+
+39
+00:01:57,720 --> 00:02:00,870
+Internally, the timestamp part of an ID
+
+40
+00:02:00,870 --> 00:02:05,080
+is stored by Redis as an unsigned 64-bit integer.
+
+41
+00:02:05,080 --> 00:02:06,930
+This means that we can comfortably
+
+42
+00:02:06,930 --> 00:02:09,479
+accommodate all the milliseconds until
+
+43
+00:02:09,479 --> 00:02:14,840
+about, oh, 300 million years into the future.
+
+44
+00:02:14,840 --> 00:02:16,690
+The second part of the message ID
+
+45
+00:02:16,690 --> 00:02:19,270
+is an internal sequence kept by Redis
+
+46
+00:02:19,270 --> 00:02:22,690
+that provides sub-millisecond resolution, because it
+
+47
+00:02:22,690 --> 00:02:24,580
+is possible for multiple messages
+
+48
+00:02:24,580 --> 00:02:27,130
+to be added inside the span of a single millisecond,
+
+49
+00:02:27,130 --> 00:02:31,480
+the Redis server appends that sequence to message IDs
+
+50
+00:02:31,480 --> 00:02:35,110
+to ensure their uniqueness and guarantee their order.
+
+51
+00:02:35,110 --> 00:02:38,800
+The sequence is reset to zero with every new millisecond,
+
+52
+00:02:38,800 --> 00:02:41,830
+as can be viewed in the example.
+
+53
+00:02:41,830 --> 00:02:44,560
+The sequence is guaranteed to always increase.
+
+54
+00:02:44,560 --> 00:02:47,200
+And like the timestamp, it is implemented
+
+55
+00:02:47,200 --> 00:02:49,315
+as an unsigned 64-bit integer.
+
+56
+00:02:49,315 --> 00:02:51,960
+
+
+57
+00:02:51,960 --> 00:02:54,390
+For your information, that's enough capacity
+
+58
+00:02:54,390 --> 00:02:58,530
+for over 9 quintillion messages per millisecond,
+
+59
+00:02:58,530 --> 00:03:02,900
+just in case you were wondering.
+
+60
+00:03:02,900 --> 00:03:05,900
+So, Redis's auto-generated IDs are
+
+61
+00:03:05,900 --> 00:03:08,630
+more than capable to accommodate any number
+
+62
+00:03:08,630 --> 00:03:10,500
+of incoming messages.
+
+63
+00:03:10,500 --> 00:03:12,230
+However, in some cases, producers
+
+64
+00:03:12,230 --> 00:03:15,710
+may require absolute control over the messages' order.
+
+65
+00:03:15,710 --> 00:03:17,660
+And will therefore require the ability
+
+66
+00:03:17,660 --> 00:03:21,320
+to explicitly specify IDs.
+
+67
+00:03:21,320 --> 00:03:24,620
+Generally, this is required when an external mechanism
+
+68
+00:03:24,620 --> 00:03:28,490
+is used to collect and enforce the order of incoming messages
+
+69
+00:03:28,490 --> 00:03:32,110
+before they are appended to the stream.
+
+70
+00:03:32,110 --> 00:03:34,060
+In such cases, it is up to the producers
+
+71
+00:03:34,060 --> 00:03:35,680
+to supply the message ID, instead
+
+72
+00:03:35,680 --> 00:03:39,160
+of having Redis generate them and ensure that the IDs are
+
+73
+00:03:39,160 --> 00:03:40,550
+always increasing.
+
+74
+00:03:40,550 --> 00:03:42,820
+Let's take a look at a synthetic example
+
+75
+00:03:42,820 --> 00:03:44,980
+with dummy data in the CLI.
+
+76
+00:03:44,980 --> 00:03:47,740
+The producer can assign any valid message ID
+
+77
+00:03:47,740 --> 00:03:51,760
+to a message added with XADD as long as the lowest
+
+78
+00:03:51,760 --> 00:03:56,860
+possible message ID is 0-1, and any subsequent message IDs
+
+79
+00:03:56,860 --> 00:04:01,940
+are greater than the stream's current maximum message ID.
+
+80
+00:04:01,940 --> 00:04:04,550
+This CLI snippet demonstrates how a producer
+
+81
+00:04:04,550 --> 00:04:06,870
+can specify the message ID.
+
+82
+00:04:06,870 --> 00:04:08,600
+In the case of the new stream, we
+
+83
+00:04:08,600 --> 00:04:12,050
+can begin adding messages using any legitimate ID,
+
+84
+00:04:12,050 --> 00:04:16,010
+starting from 0-1, or as in the example,
+
+85
+00:04:16,010 --> 00:04:20,660
+an arbitrary value such as 127.
+
+86
+00:04:20,660 --> 00:04:22,820
+Any message ID can be used as long
+
+87
+00:04:22,820 --> 00:04:26,360
+as it is greater than the stream's current maximal ID.
+
+88
+00:04:26,360 --> 00:04:28,610
+Partial IDs -- that is to say, IDs
+
+89
+00:04:28,610 --> 00:04:32,480
+without the sequence component -- are also valid as arguments.
+
+90
+00:04:32,480 --> 00:04:35,840
+Partial IDs are interpreted as if the sequence
+
+91
+00:04:35,840 --> 00:04:38,570
+part is implicitly set to 0.
+
+92
+00:04:38,570 --> 00:04:43,910
+1337 is, therefore, a valid partial ID, with its sequence
+
+93
+00:04:43,910 --> 00:04:46,250
+counter defaulting to 0, because it
+
+94
+00:04:46,250 --> 00:04:49,640
+is greater than any of the IDs previously defined.
+
+95
+00:04:49,640 --> 00:04:52,690
+
+
+96
+00:04:52,690 --> 00:04:55,750
+Note, however, how the server rejects the message
+
+97
+00:04:55,750 --> 00:05:02,080
+with an ID of 123-6379, and responds with an error message.
+
+98
+00:05:02,080 --> 00:05:04,990
+That is because we tried adding a message with an ID
+
+99
+00:05:04,990 --> 00:05:09,990
+that's lower than the stream's current maximal ID.
+
+100
+00:05:09,990 --> 00:05:14,220
+To recap, every message in the stream has a unique identifier.
+
+101
+00:05:14,220 --> 00:05:17,490
+The ID can be either supplied by the producer
+
+102
+00:05:17,490 --> 00:05:20,040
+or automatically generated by Redis.
+
+103
+00:05:20,040 --> 00:05:23,280
+IDs are unique and are made up of two parts,
+
+104
+00:05:23,280 --> 00:05:25,560
+a millisecond-resolution timestamp
+
+105
+00:05:25,560 --> 00:05:27,360
+and an internal sequence.
+
+106
+00:05:27,360 --> 00:05:30,990
+The IDs of messages in the stream are always increasing,
+
+107
+00:05:30,990 --> 00:05:35,862
+and new messages always have IDs higher than older ones.
+
+108
+00:05:35,862 --> 00:05:36,362
+
+

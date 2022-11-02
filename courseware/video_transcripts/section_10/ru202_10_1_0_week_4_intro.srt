@@ -1,0 +1,104 @@
+0
+00:00:00,000 --> 00:00:00,690
+
+
+1
+00:00:00,690 --> 00:00:03,590
+Welcome to Week 4 of RU202--
+
+2
+00:00:03,590 --> 00:00:05,310
+Redis Streams.
+
+3
+00:00:05,310 --> 00:00:07,500
+Last week we focused on strategies
+
+4
+00:00:07,500 --> 00:00:11,670
+for consuming messages from a stream using consumer groups.
+
+5
+00:00:11,670 --> 00:00:13,500
+The goal of this week is to discuss
+
+6
+00:00:13,500 --> 00:00:15,330
+the real-world considerations you
+
+7
+00:00:15,330 --> 00:00:19,690
+need to think about when running Redis Streams in production.
+
+8
+00:00:19,690 --> 00:00:21,550
+We'll begin this week by studying
+
+9
+00:00:21,550 --> 00:00:24,520
+how to deal with the failure of a consumer.
+
+10
+00:00:24,520 --> 00:00:27,940
+Next we'll go over stream performance and stream memory
+
+11
+00:00:27,940 --> 00:00:29,260
+management.
+
+12
+00:00:29,260 --> 00:00:31,120
+We'll also spend some time summarizing
+
+13
+00:00:31,120 --> 00:00:34,420
+the most common Redis Streams usage patterns.
+
+14
+00:00:34,420 --> 00:00:36,880
+You'll want to pay close attention to these patterns,
+
+15
+00:00:36,880 --> 00:00:39,310
+because they bring together everything you should
+
+16
+00:00:39,310 --> 00:00:42,030
+have learned in this course.
+
+17
+00:00:42,030 --> 00:00:43,700
+Finally, we'll apply the concepts
+
+18
+00:00:43,700 --> 00:00:46,370
+we've learned to build out parts of an application using
+
+19
+00:00:46,370 --> 00:00:47,840
+Redis Streams.
+
+20
+00:00:47,840 --> 00:00:51,800
+Using Python, we'll implement a set of producers and consumers
+
+21
+00:00:51,800 --> 00:00:54,080
+that work together to manage and process
+
+22
+00:00:54,080 --> 00:00:56,360
+an incoming stream of data.
+
+23
+00:00:56,360 --> 00:00:59,130
+By the end of the week, you'll have worked on your first Redis
+
+24
+00:00:59,130 --> 00:01:00,860
+Streams application, and you'll be
+
+25
+00:01:00,860 --> 00:01:05,050
+ready to start integrating Redis Streams into your own systems.
+

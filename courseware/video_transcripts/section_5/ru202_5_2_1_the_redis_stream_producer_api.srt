@@ -1,0 +1,308 @@
+0
+00:00:00,000 --> 00:00:00,500
+
+
+1
+00:00:00,500 --> 00:00:02,190
+The producer API allows a producer
+
+2
+00:00:02,190 --> 00:00:05,580
+to append an arbitrary message to a Redis stream.
+
+3
+00:00:05,580 --> 00:00:09,090
+In this unit, we'll introduce that interface, and the manner
+
+4
+00:00:09,090 --> 00:00:10,920
+in which it should be used.
+
+5
+00:00:10,920 --> 00:00:12,650
+The Redis stream producer interface
+
+6
+00:00:12,650 --> 00:00:15,870
+is made up of a single command, XADD,
+
+7
+00:00:15,870 --> 00:00:19,800
+that the producer calls with the explicit name of the stream.
+
+8
+00:00:19,800 --> 00:00:25,530
+That is, the key's name, and the message's payload or data.
+
+9
+00:00:25,530 --> 00:00:27,480
+Let's look at an example to understand
+
+10
+00:00:27,480 --> 00:00:29,700
+how a producer operates.
+
+11
+00:00:29,700 --> 00:00:32,640
+To make the producer extremely simple to reason about,
+
+12
+00:00:32,640 --> 00:00:36,090
+our stream's data will be the sequence of natural numbers
+
+13
+00:00:36,090 --> 00:00:39,240
+as defined by ISO 80000-2.
+
+14
+00:00:39,240 --> 00:00:42,510
+These are all the numbers beginning with 0
+
+15
+00:00:42,510 --> 00:00:44,550
+that correspond to the non-negative
+
+16
+00:00:44,550 --> 00:00:47,650
+integers 0, 1, 2, and so forth.
+
+17
+00:00:47,650 --> 00:00:50,710
+
+
+18
+00:00:50,710 --> 00:00:52,300
+To start the stream, the producer
+
+19
+00:00:52,300 --> 00:00:54,670
+will add a message with a single field.
+
+20
+00:00:54,670 --> 00:00:57,430
+Let's call it "n", that contains the first number
+
+21
+00:00:57,430 --> 00:00:59,680
+in the sequence, that is 0.
+
+22
+00:00:59,680 --> 00:01:03,890
+This is how you do that in the CLI.
+
+23
+00:01:03,890 --> 00:01:06,470
+We've called XADD with several arguments, where
+
+24
+00:01:06,470 --> 00:01:09,020
+the first one, numbers, is the name of the key
+
+25
+00:01:09,020 --> 00:01:11,240
+at which the stream is stored.
+
+26
+00:01:11,240 --> 00:01:13,460
+The name of the stream's key is the contract
+
+27
+00:01:13,460 --> 00:01:16,520
+between your stream's producers and consumers.
+
+28
+00:01:16,520 --> 00:01:19,580
+And it is implicitly created if it doesn't exist,
+
+29
+00:01:19,580 --> 00:01:22,340
+like all other Redis data structures.
+
+30
+00:01:22,340 --> 00:01:27,050
+Note that XADD is a single key command, so a message is always
+
+31
+00:01:27,050 --> 00:01:29,950
+added to a single stream.
+
+32
+00:01:29,950 --> 00:01:33,840
+The second argument to XADD is the new message's ID.
+
+33
+00:01:33,840 --> 00:01:36,690
+In most cases, we want Redis to manage the generation
+
+34
+00:01:36,690 --> 00:01:38,320
+of message IDs.
+
+35
+00:01:38,320 --> 00:01:41,220
+In fact, one of the compelling reasons to use a stream
+
+36
+00:01:41,220 --> 00:01:44,850
+is for its inherent ordering of messages, which is achieved
+
+37
+00:01:44,850 --> 00:01:47,040
+by having Redis manage it.
+
+38
+00:01:47,040 --> 00:01:51,810
+By setting the ID argument to an asterisk, as in our example,
+
+39
+00:01:51,810 --> 00:01:55,050
+we let Redis generate the ID for the new message.
+
+40
+00:01:55,050 --> 00:01:57,990
+The ID is returned as XADD's reply,
+
+41
+00:01:57,990 --> 00:02:00,570
+and we'll get to that in the next unit.
+
+42
+00:02:00,570 --> 00:02:03,480
+The remainder of the arguments are the actual data.
+
+43
+00:02:03,480 --> 00:02:06,600
+They are provided as pairs of field names and their values,
+
+44
+00:02:06,600 --> 00:02:11,460
+exactly like how HSET is used with Redis' hashes.
+
+45
+00:02:11,460 --> 00:02:15,630
+And just like Redis' hashes, every value and field
+
+46
+00:02:15,630 --> 00:02:18,300
+name in the message is a Redis string.
+
+47
+00:02:18,300 --> 00:02:21,300
+A Redis string can store up to half a gigabyte
+
+48
+00:02:21,300 --> 00:02:24,870
+of binary-safe data if needed, although messages usually
+
+49
+00:02:24,870 --> 00:02:28,420
+tend to be much shorter.
+
+50
+00:02:28,420 --> 00:02:30,470
+Adding in the next message, that is the number
+
+51
+00:02:30,470 --> 00:02:33,110
+1, to the stream of natural numbers,
+
+52
+00:02:33,110 --> 00:02:35,480
+is just another call to XADD.
+
+53
+00:02:35,480 --> 00:02:39,500
+The automatic generation of IDs guarantees their uniqueness.
+
+54
+00:02:39,500 --> 00:02:41,870
+And the order of arrival of messages
+
+55
+00:02:41,870 --> 00:02:46,150
+determines their position in the stream.
+
+56
+00:02:46,150 --> 00:02:49,270
+Before moving on to other aspects of the XADD command,
+
+57
+00:02:49,270 --> 00:02:52,660
+I'd like to spend a few seconds reviewing its performance.
+
+58
+00:02:52,660 --> 00:02:55,600
+Redis is all about providing low latency, predictable
+
+59
+00:02:55,600 --> 00:02:58,390
+performance when manipulating its data structures.
+
+60
+00:02:58,390 --> 00:03:02,650
+And the stream is no different in that respect.
+
+61
+00:03:02,650 --> 00:03:05,860
+With XADD being the most common write operation,
+
+62
+00:03:05,860 --> 00:03:09,340
+the data structure is designed and implemented in such a way
+
+63
+00:03:09,340 --> 00:03:12,640
+that it provides constant sub millisecond latency,
+
+64
+00:03:12,640 --> 00:03:18,340
+whether the stream has 137 messages in it or 42 billion.
+
+65
+00:03:18,340 --> 00:03:20,950
+That's also known as O(1)
+
+66
+00:03:20,950 --> 00:03:23,920
+in terms of asymptotic computational complexity.
+
+67
+00:03:23,920 --> 00:03:25,000
+
+
+68
+00:03:25,000 --> 00:03:25,900
+Let's recap.
+
+69
+00:03:25,900 --> 00:03:28,500
+While Redis stream producers vary greatly
+
+70
+00:03:28,500 --> 00:03:31,900
+in terms of the domain-specific logic that they implement,
+
+71
+00:03:31,900 --> 00:03:34,800
+all use the XADD command to append new messages
+
+72
+00:03:34,800 --> 00:03:36,300
+to the stream data structure.
+
+73
+00:03:36,300 --> 00:03:42,500
+XADD expects the stream key name and ID and the message's data,
+
+74
+00:03:42,500 --> 00:03:46,750
+it executes in constant time, regardless of the stream size,
+
+75
+00:03:46,750 --> 00:03:49,000
+and replies with the message ID.
+
+76
+00:03:49,000 --> 00:03:50,000
+
+

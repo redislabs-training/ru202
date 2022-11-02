@@ -1,0 +1,400 @@
+0
+00:00:00,000 --> 00:00:00,500
+
+
+1
+00:00:00,500 --> 00:00:03,750
+A stream's consumer may lag when the rate of messages
+
+2
+00:00:03,750 --> 00:00:06,180
+exceeds its capacity to process them.
+
+3
+00:00:06,180 --> 00:00:08,220
+And some processing needs are either
+
+4
+00:00:08,220 --> 00:00:11,480
+hard or impossible to parallelize.
+
+5
+00:00:11,480 --> 00:00:14,460
+A logical consumer, that is a consumer that
+
+6
+00:00:14,460 --> 00:00:18,540
+is made up of a group of instances where each processes
+
+7
+00:00:18,540 --> 00:00:20,580
+a different message from the stream,
+
+8
+00:00:20,580 --> 00:00:23,340
+can be employed to distribute the workload according
+
+9
+00:00:23,340 --> 00:00:27,300
+to the availability of its instances.
+
+10
+00:00:27,300 --> 00:00:29,970
+Such a consumer is logical in the sense
+
+11
+00:00:29,970 --> 00:00:33,570
+that it does not really exist as an independent entity,
+
+12
+00:00:33,570 --> 00:00:36,360
+but is rather made up of the operation
+
+13
+00:00:36,360 --> 00:00:39,740
+of its constituent instances.
+
+14
+00:00:39,740 --> 00:00:42,950
+The logical consumer's input is the stream itself.
+
+15
+00:00:42,950 --> 00:00:44,660
+Each message in the stream can be
+
+16
+00:00:44,660 --> 00:00:47,630
+thought of as being added to a queue dedicated
+
+17
+00:00:47,630 --> 00:00:50,430
+to that logical consumer's instances.
+
+18
+00:00:50,430 --> 00:00:52,220
+Instances of the logical consumer
+
+19
+00:00:52,220 --> 00:00:55,400
+can then dequeue messages for processing.
+
+20
+00:00:55,400 --> 00:00:57,560
+Each consumer instance is therefore
+
+21
+00:00:57,560 --> 00:01:01,490
+served with an exclusive subset of the stream's contents,
+
+22
+00:01:01,490 --> 00:01:07,630
+allowing for a distribution of the workload among instances.
+
+23
+00:01:07,630 --> 00:01:09,970
+Redis Streams supports this pattern natively
+
+24
+00:01:09,970 --> 00:01:12,270
+with a feature called consumer groups.
+
+25
+00:01:12,270 --> 00:01:14,590
+A consumer group is an implementation
+
+26
+00:01:14,590 --> 00:01:17,620
+of the logical consumer for a single stream.
+
+27
+00:01:17,620 --> 00:01:21,490
+It can be made up of any number of physical consumers.
+
+28
+00:01:21,490 --> 00:01:24,770
+Consumers in a group may join or leave as needed,
+
+29
+00:01:24,770 --> 00:01:27,520
+which is a good fit for the needs of the dynamic setups
+
+30
+00:01:27,520 --> 00:01:28,660
+we've mentioned.
+
+31
+00:01:28,660 --> 00:01:30,790
+The Redis server keeps track of which
+
+32
+00:01:30,790 --> 00:01:34,180
+consumers belong to which group and the messages each
+
+33
+00:01:34,180 --> 00:01:36,930
+has processed.
+
+34
+00:01:36,930 --> 00:01:38,610
+We'll begin our group orientation
+
+35
+00:01:38,610 --> 00:01:41,100
+by looking at one of Redis' XGROUP command
+
+36
+00:01:41,100 --> 00:01:43,020
+forms of the invocation.
+
+37
+00:01:43,020 --> 00:01:45,930
+To create a consumer group on an existing stream,
+
+38
+00:01:45,930 --> 00:01:48,540
+one only needs to invoke the XGROUP command
+
+39
+00:01:48,540 --> 00:01:51,990
+with the CREATE sub-command, the name of the stream's key,
+
+40
+00:01:51,990 --> 00:01:54,750
+and the initial message ID that the group's members should
+
+41
+00:01:54,750 --> 00:01:57,200
+start processing from.
+
+42
+00:01:57,200 --> 00:02:01,630
+In this example, the first attempt to create "group0"
+
+43
+00:02:01,630 --> 00:02:05,890
+fails because the group's stream does not exist yet.
+
+44
+00:02:05,890 --> 00:02:09,610
+By adding the optional MKSTREAM sub-command let
+
+45
+00:02:09,610 --> 00:02:12,550
+Redis know that it is OK to create the stream even
+
+46
+00:02:12,550 --> 00:02:15,460
+though it has no messages in it yet.
+
+47
+00:02:15,460 --> 00:02:18,460
+In case, the stream already exists, Redis just
+
+48
+00:02:18,460 --> 00:02:22,170
+ignores that optional directive.
+
+49
+00:02:22,170 --> 00:02:25,110
+It is worth noting that consumer groups, unlike perhaps
+
+50
+00:02:25,110 --> 00:02:28,740
+any other Redis construct, must be explicitly created
+
+51
+00:02:28,740 --> 00:02:31,410
+with the "XGROUP CREATE" invocation.
+
+52
+00:02:31,410 --> 00:02:35,370
+"group0" was created using the partial message ID 0,
+
+53
+00:02:35,370 --> 00:02:41,340
+and just like with XREAD that ID is interpreted as 0-0.
+
+54
+00:02:41,340 --> 00:02:43,410
+This means that the group is poised
+
+55
+00:02:43,410 --> 00:02:47,250
+at the stream's very beginning before any messages in it.
+
+56
+00:02:47,250 --> 00:02:49,530
+So the consumers belonging to it will
+
+57
+00:02:49,530 --> 00:02:52,720
+start with the first message.
+
+58
+00:02:52,720 --> 00:02:56,340
+Let's add that first message to our natural numbers stream.
+
+59
+00:02:56,340 --> 00:03:00,090
+XGROUP CREATE can also be called with the special "$"
+
+60
+00:03:00,090 --> 00:03:04,200
+message ID, signifying that the group should begin
+
+61
+00:03:04,200 --> 00:03:07,530
+consumption at the next new message in the stream
+
+62
+00:03:07,530 --> 00:03:10,010
+exactly like how XREAD operates.
+
+63
+00:03:14,670 --> 00:03:18,270
+As shown in the terminal, the newly created consumer group "group1"
+
+64
+00:03:18,270 --> 00:03:22,170
+will start its processing at the stream's second message
+
+65
+00:03:22,170 --> 00:03:28,030
+being the natural number 1 that was added after its creation.
+
+66
+00:03:28,030 --> 00:03:29,970
+We've created two consumer groups --
+
+67
+00:03:29,970 --> 00:03:32,040
+"group0" and "group1" --
+
+68
+00:03:32,040 --> 00:03:33,600
+on the numbers stream.
+
+69
+00:03:33,600 --> 00:03:36,870
+"group0" was created before the streams even
+
+70
+00:03:36,870 --> 00:03:40,500
+existed and had triggered its creation with the MKSTREAM
+
+71
+00:03:40,500 --> 00:03:41,520
+command.
+
+72
+00:03:41,520 --> 00:03:44,460
+The group was set to begin at the partial message
+
+73
+00:03:44,460 --> 00:03:48,750
+ID 0 or the stream's very first message.
+
+74
+00:03:48,750 --> 00:03:51,360
+After adding that first message to the stream,
+
+75
+00:03:51,360 --> 00:03:55,170
+we created "group1" with the special dollar message ID.
+
+76
+00:03:55,170 --> 00:03:58,200
+This had positioned that group at the tip of the stream
+
+77
+00:03:58,200 --> 00:04:00,810
+after any messages already in it and just
+
+78
+00:04:00,810 --> 00:04:01,920
+before the next message.
+
+79
+00:04:04,960 --> 00:04:08,050
+There is another useful Redis command called XINFO
+
+80
+00:04:08,050 --> 00:04:10,180
+that, when used with the group's sub-command,
+
+81
+00:04:10,180 --> 00:04:13,120
+provides exactly that information and then some.
+
+82
+00:04:13,120 --> 00:04:17,079
+In the example's output, you can see both groups 0 and 1 as well
+
+83
+00:04:17,079 --> 00:04:21,050
+as their last-delivered message IDs.
+
+84
+00:04:21,050 --> 00:04:22,660
+The last-delivered-id of the group
+
+85
+00:04:22,660 --> 00:04:24,580
+is an implementation of the same approach
+
+86
+00:04:24,580 --> 00:04:26,980
+that we used by storing the ID in a Redis hash
+
+87
+00:04:26,980 --> 00:04:30,070
+with our single running sum consumer example.
+
+88
+00:04:30,070 --> 00:04:32,680
+We'll look into the consumers and the pending
+
+89
+00:04:32,680 --> 00:04:34,570
+fields in a minute or so.
+
+90
+00:04:34,570 --> 00:04:36,505
+So let's ignore them for now.
+
+91
+00:04:36,505 --> 00:04:39,610
+A Redis stream consumer group is explicitly
+
+92
+00:04:39,610 --> 00:04:42,910
+created and initialized with an initial message ID.
+
+93
+00:04:42,910 --> 00:04:46,700
+Each group consumes the stream independently from the other
+
+94
+00:04:46,700 --> 00:04:48,820
+with the pace of consumption being dictated
+
+95
+00:04:48,820 --> 00:04:50,410
+by the group's members.
+
+96
+00:04:50,410 --> 00:04:52,870
+In the next chapter, we'll see how consumers
+
+97
+00:04:52,870 --> 00:04:56,510
+join the groups for performing the equivalent of an XREAD
+
+98
+00:04:56,510 --> 00:04:57,867
+operation.
+
+99
+00:04:57,867 --> 00:04:58,367
+
+

@@ -1,0 +1,520 @@
+0
+00:00:00,000 --> 00:00:00,520
+
+
+1
+00:00:00,520 --> 00:00:02,440
+Up until now, we've seen how streams
+
+2
+00:00:02,440 --> 00:00:05,800
+are produced with the Redis stream producer API.
+
+3
+00:00:05,800 --> 00:00:09,370
+The Redis stream API also includes other commands
+
+4
+00:00:09,370 --> 00:00:12,490
+and provides introspection of the data structure.
+
+5
+00:00:12,490 --> 00:00:16,120
+One such introspective command reports back to us
+
+6
+00:00:16,120 --> 00:00:19,210
+the length of a stream stored at a given key.
+
+7
+00:00:19,210 --> 00:00:22,550
+It is called XLEN.
+
+8
+00:00:22,550 --> 00:00:25,790
+Recall that earlier, we created the natural numbers stream
+
+9
+00:00:25,790 --> 00:00:27,290
+with two messages.
+
+10
+00:00:27,290 --> 00:00:30,260
+We can verify that there are, indeed,
+
+11
+00:00:30,260 --> 00:00:32,720
+only two messages with XLEN.
+
+12
+00:00:32,720 --> 00:00:35,160
+Like many other Redis data structures,
+
+13
+00:00:35,160 --> 00:00:38,000
+all stream commands share a common prefix.
+
+14
+00:00:38,000 --> 00:00:40,340
+Why we chose the letter X, in this case,
+
+15
+00:00:40,340 --> 00:00:42,780
+is left as an exercise for you.
+
+16
+00:00:42,780 --> 00:00:46,430
+XLEN expects a single argument, the stream's key name,
+
+17
+00:00:46,430 --> 00:00:48,620
+and returns the total number of messages
+
+18
+00:00:48,620 --> 00:00:50,720
+in it (or its current length).
+
+19
+00:00:50,720 --> 00:00:53,660
+A non-existent key, like other data structures,
+
+20
+00:00:53,660 --> 00:00:55,670
+will have a length of 0.
+
+21
+00:00:55,670 --> 00:00:58,430
+But unlike any other data structure in Redis,
+
+22
+00:00:58,430 --> 00:01:01,910
+a stream can have a length of zero, and its key will still exist.
+
+23
+00:01:01,910 --> 00:01:04,739
+
+
+24
+00:01:04,739 --> 00:01:07,840
+There are several ways that a Redis stream can be empty --
+
+25
+00:01:07,840 --> 00:01:10,650
+that is, for its key to exist without a data structure
+
+26
+00:01:10,650 --> 00:01:12,360
+containing any messages.
+
+27
+00:01:12,360 --> 00:01:14,880
+We can demonstrate that with another useful stream
+
+28
+00:01:14,880 --> 00:01:16,830
+command, XDEL.
+
+29
+00:01:16,830 --> 00:01:21,030
+As its name suggests, XDEL deletes messages from streams.
+
+30
+00:01:21,030 --> 00:01:23,880
+Specifically, it operates on a single stream
+
+31
+00:01:23,880 --> 00:01:27,570
+given by its first argument, and one or more message IDs to
+
+32
+00:01:27,570 --> 00:01:30,090
+delete. In the example, we provided
+
+33
+00:01:30,090 --> 00:01:33,450
+XDEL with the two message IDs.
+
+34
+00:01:33,450 --> 00:01:35,040
+After execution, the Redis server
+
+35
+00:01:35,040 --> 00:01:38,280
+replies with the total number of messages that were actually
+
+36
+00:01:38,280 --> 00:01:40,050
+deleted from the stream.
+
+37
+00:01:40,050 --> 00:01:42,600
+Note that while checking the stream's length
+
+38
+00:01:42,600 --> 00:01:46,770
+yields the expected 0, calling EXISTS on it, proves
+
+39
+00:01:46,770 --> 00:01:47,460
+that it does.
+
+40
+00:01:47,460 --> 00:01:50,600
+
+
+41
+00:01:50,600 --> 00:01:53,480
+Of course, with stream values being just keys,
+
+42
+00:01:53,480 --> 00:01:56,220
+we can use them with non-data-structure-specific
+
+43
+00:01:56,220 --> 00:01:57,570
+commands, too.
+
+44
+00:01:57,570 --> 00:02:00,470
+For example, we can see that the overall memory
+
+45
+00:02:00,470 --> 00:02:05,870
+footprint of the empty number stream is 293 bytes in total.
+
+46
+00:02:05,870 --> 00:02:09,009
+
+
+47
+00:02:09,009 --> 00:02:12,310
+To remove the entire, empty or not, stream,
+
+48
+00:02:12,310 --> 00:02:15,370
+we can just call DEL or UNLINK on it,
+
+49
+00:02:15,370 --> 00:02:17,230
+like any other Redis key.
+
+50
+00:02:17,230 --> 00:02:20,690
+However, this unusual ability of the stream data structure--
+
+51
+00:02:20,690 --> 00:02:23,950
+and by unusual, I mean that in comparison to other data
+
+52
+00:02:23,950 --> 00:02:25,270
+structures in Redis--
+
+53
+00:02:25,270 --> 00:02:29,280
+to exist without data is used by other parts of the API
+
+54
+00:02:29,280 --> 00:02:33,080
+that we'll discuss shortly.
+
+55
+00:02:33,080 --> 00:02:35,810
+XDEL can be useful for surgically removing the odd
+
+56
+00:02:35,810 --> 00:02:39,240
+message from a stream for any conceivable purpose.
+
+57
+00:02:39,240 --> 00:02:41,600
+It should be also noted that the memory that
+
+58
+00:02:41,600 --> 00:02:44,600
+was used for storing the messages deleted by it
+
+59
+00:02:44,600 --> 00:02:46,920
+is not always reclaimed in Redis version
+
+60
+00:02:46,920 --> 00:02:49,760
+5, although that may change in the future.
+
+61
+00:02:49,760 --> 00:02:51,770
+It is, however, quite impractical
+
+62
+00:02:51,770 --> 00:02:55,310
+to use XDEL as a way to control the stream's length,
+
+63
+00:02:55,310 --> 00:02:58,400
+as it requires you to know the IDs of every message you
+
+64
+00:02:58,400 --> 00:03:00,880
+want to remove,
+
+65
+00:03:00,880 --> 00:03:03,670
+Depending on the volume of messages produced and stored
+
+66
+00:03:03,670 --> 00:03:05,830
+in it, a stream may grow indefinitely
+
+67
+00:03:05,830 --> 00:03:09,640
+in length, while performance is independent of the stream's
+
+68
+00:03:09,640 --> 00:03:12,250
+length, the longer the stream grows, the more
+
+69
+00:03:12,250 --> 00:03:14,500
+memory that it will require.
+
+70
+00:03:14,500 --> 00:03:18,580
+And while in some cases, this may be the required behavior,
+
+71
+00:03:18,580 --> 00:03:22,660
+in others, it is possible to limit the stream's length.
+
+72
+00:03:22,660 --> 00:03:26,020
+To keep streams from running indefinitely and infinitely,
+
+73
+00:03:26,020 --> 00:03:28,390
+or leaking, Redis allows trimming them,
+
+74
+00:03:28,390 --> 00:03:31,150
+an operation also known as truncation.
+
+75
+00:03:31,150 --> 00:03:34,930
+That allows capping their length at a specified number.
+
+76
+00:03:34,930 --> 00:03:37,360
+The underlying assumption when trimming messages
+
+77
+00:03:37,360 --> 00:03:40,960
+is, of course, that they can be safely removed from the stream.
+
+78
+00:03:40,960 --> 00:03:43,690
+That is, these messages have been processed
+
+79
+00:03:43,690 --> 00:03:47,880
+and/or can be discarded.
+
+80
+00:03:47,880 --> 00:03:50,390
+There's more than one way to trim a stream,
+
+81
+00:03:50,390 --> 00:03:53,160
+and XTRIM is the most obvious way.
+
+82
+00:03:53,160 --> 00:03:56,220
+Given the name of the stream and the maximum length,
+
+83
+00:03:56,220 --> 00:03:58,210
+or MAXLEN for short.
+
+84
+00:03:58,210 --> 00:04:03,550
+It will trim all but the latest MAXLEN messages.
+
+85
+00:04:03,550 --> 00:04:05,850
+When trimming the stream to a certain size,
+
+86
+00:04:05,850 --> 00:04:08,530
+Redis will reclaim the memory previously held
+
+87
+00:04:08,530 --> 00:04:10,330
+by the purged entries.
+
+88
+00:04:10,330 --> 00:04:13,660
+However, because of how the data structure is implemented
+
+89
+00:04:13,660 --> 00:04:17,019
+internally, trimming a stream to an exact size
+
+90
+00:04:17,019 --> 00:04:19,540
+may be expensive performance-wise.
+
+91
+00:04:19,540 --> 00:04:21,940
+So Redis allows two types of trimming,
+
+92
+00:04:21,940 --> 00:04:24,940
+a close shave that leaves the stream at exactly
+
+93
+00:04:24,940 --> 00:04:27,880
+the requested length, or a rough cut that
+
+94
+00:04:27,880 --> 00:04:31,920
+only approximates the attempt.
+
+95
+00:04:31,920 --> 00:04:35,880
+In this example, we show how to use XTRIM for a close shave.
+
+96
+00:04:35,880 --> 00:04:39,330
+The reason for using a multi-exec block in the example
+
+97
+00:04:39,330 --> 00:04:42,000
+is to capture the streaming in a moment of time
+
+98
+00:04:42,000 --> 00:04:45,510
+as the producer keeps producing indefinitely.
+
+99
+00:04:45,510 --> 00:04:47,020
+The reply it returns --
+
+100
+00:04:47,020 --> 00:04:49,560
+the second element in our transaction's reply --
+
+101
+00:04:49,560 --> 00:04:51,880
+is the number of messages that were removed.
+
+102
+00:04:51,880 --> 00:04:55,970
+
+
+103
+00:04:55,970 --> 00:04:59,330
+Performing a rough cut or an approximate trimming,
+
+104
+00:04:59,330 --> 00:05:01,100
+which is a more efficient operation,
+
+105
+00:05:01,100 --> 00:05:03,170
+performance-wise, is just a matter
+
+106
+00:05:03,170 --> 00:05:06,620
+of putting a tilde character before MAXLEN's value
+
+107
+00:05:06,620 --> 00:05:08,510
+when calling XTRIM.
+
+108
+00:05:08,510 --> 00:05:11,990
+Doing so instructs Redis to optimize for efficient memory
+
+109
+00:05:11,990 --> 00:05:15,740
+management over the exactness of the truncation,
+
+110
+00:05:15,740 --> 00:05:17,870
+so the resulting length of the string
+
+111
+00:05:17,870 --> 00:05:21,440
+will be either equal or larger than the MAXLEN,
+
+112
+00:05:21,440 --> 00:05:25,170
+but not significantly so.
+
+113
+00:05:25,170 --> 00:05:28,170
+You can call XTRIM periodically, but it is also
+
+114
+00:05:28,170 --> 00:05:30,990
+possible to have its functionality invoked directly
+
+115
+00:05:30,990 --> 00:05:32,580
+from XADD.
+
+116
+00:05:32,580 --> 00:05:35,730
+When used with the optional MAXLEN sub-command,
+
+117
+00:05:35,730 --> 00:05:38,520
+as shown in the example, Redis will automatically
+
+118
+00:05:38,520 --> 00:05:41,980
+trim the stream after appending the new message to it.
+
+119
+00:05:41,980 --> 00:05:45,590
+
+
+120
+00:05:45,590 --> 00:05:48,380
+The choice between periodical and per-message trimming
+
+121
+00:05:48,380 --> 00:05:49,610
+is yours to make.
+
+122
+00:05:49,610 --> 00:05:53,150
+Per-message trimming will keep the stream constantly capped,
+
+123
+00:05:53,150 --> 00:05:55,730
+whereas periodical trimming will make its size
+
+124
+00:05:55,730 --> 00:05:57,690
+variable over time.
+
+125
+00:05:57,690 --> 00:05:59,690
+Another thing to note is that trimming
+
+126
+00:05:59,690 --> 00:06:03,110
+is a synchronous operation with linear time-complexity.
+
+127
+00:06:03,110 --> 00:06:05,420
+So the more messages trimmed, the longer
+
+128
+00:06:05,420 --> 00:06:07,567
+it will take to complete.
+
+129
+00:06:07,567 --> 00:06:08,067
+
+

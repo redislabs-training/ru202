@@ -1,0 +1,344 @@
+0
+00:00:00,000 --> 00:00:00,830
+
+
+1
+00:00:00,830 --> 00:00:04,430
+The stream data structure allows order, storage, and processing
+
+2
+00:00:04,430 --> 00:00:05,600
+of messages.
+
+3
+00:00:05,600 --> 00:00:08,840
+Messages are created and stored in it by producers,
+
+4
+00:00:08,840 --> 00:00:10,700
+and consumers can read the messages
+
+5
+00:00:10,700 --> 00:00:15,530
+by iterating ranges, or one by one as they become available.
+
+6
+00:00:15,530 --> 00:00:19,460
+With streams, producers write to the front of data structures,
+
+7
+00:00:19,460 --> 00:00:23,330
+and consumers read messages from the oldest to the newest.
+
+8
+00:00:23,330 --> 00:00:26,270
+Multiple consumers can consume the same stream
+
+9
+00:00:26,270 --> 00:00:31,080
+in order to parallelize message processing.
+
+10
+00:00:31,080 --> 00:00:34,540
+In this video, we'll review the cases in which parallel message
+
+11
+00:00:34,540 --> 00:00:39,330
+processing does not provide a good solution for scaling.
+
+12
+00:00:39,330 --> 00:00:42,210
+Although the stream decouples the operation of consumers
+
+13
+00:00:42,210 --> 00:00:45,750
+and producers, the former depends on the latter, but not
+
+14
+00:00:45,750 --> 00:00:46,950
+visa versa.
+
+15
+00:00:46,950 --> 00:00:50,040
+Once producers start growing the stream,
+
+16
+00:00:50,040 --> 00:00:54,180
+it is possible that consumers will begin lagging behind.
+
+17
+00:00:54,180 --> 00:00:57,000
+This is what is called the slow consumer.
+
+18
+00:00:57,000 --> 00:00:59,100
+But for all intents and purposes,
+
+19
+00:00:59,100 --> 00:01:02,550
+it can be thought also as the fast producer.
+
+20
+00:01:02,550 --> 00:01:05,510
+It's all relative.
+
+21
+00:01:05,510 --> 00:01:07,850
+Anyway, the reason for the lag is
+
+22
+00:01:07,850 --> 00:01:09,860
+that the rate at which messages arrive
+
+23
+00:01:09,860 --> 00:01:14,580
+may be greater than the rate at which they can be processed.
+
+24
+00:01:14,580 --> 00:01:16,100
+Either there are too many messages
+
+25
+00:01:16,100 --> 00:01:20,330
+coming in, or that the time that it takes to process a message
+
+26
+00:01:20,330 --> 00:01:22,640
+is too long, or both.
+
+27
+00:01:22,640 --> 00:01:24,680
+One way to deal with this as we've
+
+28
+00:01:24,680 --> 00:01:27,650
+seen in the divides by two and three example,
+
+29
+00:01:27,650 --> 00:01:30,590
+is to employ multiple concurrent consumers that
+
+30
+00:01:30,590 --> 00:01:33,950
+execute sub-tasks to complete a greater shared task.
+
+31
+00:01:33,950 --> 00:01:36,510
+
+
+32
+00:01:36,510 --> 00:01:40,280
+However, not all tasks can be easily refactored
+
+33
+00:01:40,280 --> 00:01:43,550
+to concurrent independent sub-tasks.
+
+34
+00:01:43,550 --> 00:01:46,790
+And even when it is possible, some of the sub-tasks
+
+35
+00:01:46,790 --> 00:01:51,350
+may be harder to perform, processing wise, than others.
+
+36
+00:01:51,350 --> 00:01:53,630
+Let's assume for a second that I possess
+
+37
+00:01:53,630 --> 00:01:55,820
+an extremely fast natural numbers
+
+38
+00:01:55,820 --> 00:02:00,830
+producer, one that can produce 100,000 numbers every second.
+
+39
+00:02:00,830 --> 00:02:04,190
+Let's also assume that an instance of the running sum
+
+40
+00:02:04,190 --> 00:02:09,520
+consumer is only capable of ingesting half that number.
+
+41
+00:02:09,520 --> 00:02:12,130
+Adding another consumer to assist with the running sum
+
+42
+00:02:12,130 --> 00:02:15,160
+will not work, because both consumer instances
+
+43
+00:02:15,160 --> 00:02:17,140
+will receive the same messages.
+
+44
+00:02:17,140 --> 00:02:19,660
+And by processing the same numbers twice,
+
+45
+00:02:19,660 --> 00:02:23,800
+they'll effectively double the running sum.
+
+46
+00:02:23,800 --> 00:02:27,070
+One way to work around this is to partition the stream.
+
+47
+00:02:27,070 --> 00:02:30,370
+Partitioning is basically the use of multiple keys,
+
+48
+00:02:30,370 --> 00:02:33,790
+each storing a subset of a logical stream.
+
+49
+00:02:33,790 --> 00:02:36,310
+In our example, we could have one partition
+
+50
+00:02:36,310 --> 00:02:40,030
+for even numbers and another for the odd numbers.
+
+51
+00:02:40,030 --> 00:02:45,380
+We then assign one consumer per partition.
+
+52
+00:02:45,380 --> 00:02:47,130
+The main problem with this approach,
+
+53
+00:02:47,130 --> 00:02:50,270
+however, is that we'd be creating a tight dependency
+
+54
+00:02:50,270 --> 00:02:52,500
+between the number of stream partitions
+
+55
+00:02:52,500 --> 00:02:54,260
+and the number of consumers.
+
+56
+00:02:54,260 --> 00:02:57,230
+If, for any reason, we require more consumers
+
+57
+00:02:57,230 --> 00:03:00,170
+to do our summing, or perhaps less of them,
+
+58
+00:03:00,170 --> 00:03:03,290
+we'd need to repartition the stream accordingly.
+
+59
+00:03:03,290 --> 00:03:06,610
+We'd like to avoid that, if possible.
+
+60
+00:03:06,610 --> 00:03:08,500
+Partitioning is a powerful pattern
+
+61
+00:03:08,500 --> 00:03:11,470
+for scaling the throughput of the stream's base setup,
+
+62
+00:03:11,470 --> 00:03:14,020
+and we'll discuss it later in more depth.
+
+63
+00:03:14,020 --> 00:03:17,950
+But in this case, it presents a less than desirable solution,
+
+64
+00:03:17,950 --> 00:03:20,050
+as it isn't dynamic enough.
+
+65
+00:03:20,050 --> 00:03:21,790
+The need for dynamically dividing
+
+66
+00:03:21,790 --> 00:03:25,660
+messages between consumers becomes even more pronounced
+
+67
+00:03:25,660 --> 00:03:28,840
+in use cases, where the consumers performance is
+
+68
+00:03:28,840 --> 00:03:31,750
+variable and non-deterministic.
+
+69
+00:03:31,750 --> 00:03:34,780
+Performance, which translates to execution time,
+
+70
+00:03:34,780 --> 00:03:37,540
+may be affected by any number of factors.
+
+71
+00:03:37,540 --> 00:03:40,780
+A slow network would increase the latency between the system's
+
+72
+00:03:40,780 --> 00:03:42,040
+components.
+
+73
+00:03:42,040 --> 00:03:46,420
+Or an I/O congestion would slow down the consumer, or perhaps
+
+74
+00:03:46,420 --> 00:03:49,150
+a busy processing core, or the availability
+
+75
+00:03:49,150 --> 00:03:50,770
+of some remote service.
+
+76
+00:03:50,770 --> 00:03:53,140
+And sometimes it is the data itself
+
+77
+00:03:53,140 --> 00:03:56,590
+that affects the execution time.
+
+78
+00:03:56,590 --> 00:04:01,240
+The fast producer, slow consumer problem is indeed challenging.
+
+79
+00:04:01,240 --> 00:04:04,780
+The processing of tasks that cannot be broken down
+
+80
+00:04:04,780 --> 00:04:08,500
+and parallellized, and ones that execute in non-deterministic
+
+81
+00:04:08,500 --> 00:04:11,200
+time, requires a pool of consumers,
+
+82
+00:04:11,200 --> 00:04:15,460
+each ingesting a subset of the stream at its own pace.
+
+83
+00:04:15,460 --> 00:04:18,040
+Such challenges are often managed with a queue
+
+84
+00:04:18,040 --> 00:04:22,500
+but Redis's streams provide built in tooling just for that.
+
+85
+00:04:22,500 --> 00:04:23,000
+
+

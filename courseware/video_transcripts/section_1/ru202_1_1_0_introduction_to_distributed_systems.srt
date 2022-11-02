@@ -1,0 +1,320 @@
+0
+00:00:00,000 --> 00:00:00,500
+
+
+1
+00:00:00,500 --> 00:00:02,500
+In this unit, we'll discuss the context
+
+2
+00:00:02,500 --> 00:00:04,000
+in which Redis Streams exist.
+
+3
+00:00:04,000 --> 00:00:05,995
+I'll touch briefly on many topics,
+
+4
+00:00:05,995 --> 00:00:09,200
+and it's OK if you're not familiar with all of them.
+
+5
+00:00:09,200 --> 00:00:11,800
+The broad context of our discussion
+
+6
+00:00:11,800 --> 00:00:14,900
+is distributed systems and data processing.
+
+7
+00:00:14,900 --> 00:00:18,250
+In computing, we use the term distributed system
+
+8
+00:00:18,250 --> 00:00:22,180
+to describe a setup made up of different network components
+
+9
+00:00:22,180 --> 00:00:24,100
+that message each other.
+
+10
+00:00:24,100 --> 00:00:27,370
+In today's networked world, practically every application
+
+11
+00:00:27,370 --> 00:00:30,040
+is implemented as a distributed system.
+
+12
+00:00:30,040 --> 00:00:33,460
+Redis, for example, is designed to be a component
+
+13
+00:00:33,460 --> 00:00:35,030
+in a distributed system.
+
+14
+00:00:35,030 --> 00:00:37,460
+Its very name, Redis, is an acronym
+
+15
+00:00:37,460 --> 00:00:39,590
+for REmote DIctionary Server.
+
+16
+00:00:39,590 --> 00:00:42,680
+And remote, in this case, means that it is accessible
+
+17
+00:00:42,680 --> 00:00:46,760
+over the network, as opposed to a local server.
+
+18
+00:00:46,760 --> 00:00:49,430
+The word server also suggests its role
+
+19
+00:00:49,430 --> 00:00:53,680
+in the client server paradigm, a type of distributed system.
+
+20
+00:00:53,680 --> 00:00:55,940
+Redis the server is meant to be used
+
+21
+00:00:55,940 --> 00:01:00,440
+as part of a larger setup in which components communicate
+
+22
+00:01:00,440 --> 00:01:03,200
+with it and possibly among themselves.
+
+23
+00:01:03,200 --> 00:01:06,830
+Leslie B. Lamport, one of the most influencing researchers
+
+24
+00:01:06,830 --> 00:01:10,290
+in the domain, is attributed with the following quote.
+
+25
+00:01:10,290 --> 00:01:12,860
+"A distributed system is one in which
+
+26
+00:01:12,860 --> 00:01:15,650
+the failure of a computer you didn't even know existed
+
+27
+00:01:15,650 --> 00:01:19,010
+can render your computer unusable."
+
+28
+00:01:19,010 --> 00:01:21,680
+That quote distills some of the essential challenges
+
+29
+00:01:21,680 --> 00:01:24,200
+that are inherent to distributed systems.
+
+30
+00:01:24,200 --> 00:01:27,620
+Failures always occur, and the complex nature
+
+31
+00:01:27,620 --> 00:01:31,010
+of distributed systems makes reasoning about them, let alone
+
+32
+00:01:31,010 --> 00:01:34,520
+recovering from failures, harder.
+
+33
+00:01:34,520 --> 00:01:38,100
+The laws of statistics say that the more components a system is
+
+34
+00:01:38,100 --> 00:01:41,160
+made up of, the more likely it is for one of them
+
+35
+00:01:41,160 --> 00:01:42,520
+to fail at any time.
+
+36
+00:01:42,520 --> 00:01:45,130
+We've gotten pretty good at ensuring
+
+37
+00:01:45,130 --> 00:01:47,170
+the availability of stateful components,
+
+38
+00:01:47,170 --> 00:01:49,630
+such as storage systems and databases,
+
+39
+00:01:49,630 --> 00:01:52,570
+whereas virtualizations and containers make
+
+40
+00:01:52,570 --> 00:01:56,620
+it relatively easy to replace faulty application components.
+
+41
+00:01:56,620 --> 00:01:59,680
+But even though we can recover stateless components
+
+42
+00:01:59,680 --> 00:02:02,740
+pretty easily, recovering from their failure
+
+43
+00:02:02,740 --> 00:02:04,610
+is not the same thing.
+
+44
+00:02:04,610 --> 00:02:07,450
+The distributed system is more than just the sum
+
+45
+00:02:07,450 --> 00:02:11,080
+of its components, and the communication of messages in it
+
+46
+00:02:11,080 --> 00:02:13,360
+is an integral part of it.
+
+47
+00:02:13,360 --> 00:02:16,120
+When any component in a distributed system fails,
+
+48
+00:02:16,120 --> 00:02:20,080
+it becomes unreachable, and does not get new messages.
+
+49
+00:02:20,080 --> 00:02:22,600
+Furthermore, any in-flight messages
+
+50
+00:02:22,600 --> 00:02:25,960
+that the component may have been processing before failing
+
+51
+00:02:25,960 --> 00:02:27,640
+are currently lost.
+
+52
+00:02:27,640 --> 00:02:30,310
+The loss of a component in the distributed system
+
+53
+00:02:30,310 --> 00:02:32,860
+is inevitable, and therefore, the system
+
+54
+00:02:32,860 --> 00:02:35,080
+is designed to tolerate it.
+
+55
+00:02:35,080 --> 00:02:36,880
+That is, however, rarely the case
+
+56
+00:02:36,880 --> 00:02:38,740
+with the messages themselves.
+
+57
+00:02:38,740 --> 00:02:42,320
+Most distributed systems are built, as such,
+
+58
+00:02:42,320 --> 00:02:44,290
+to survive different types of failures
+
+59
+00:02:44,290 --> 00:02:46,570
+and overcome technical limitations,
+
+60
+00:02:46,570 --> 00:02:49,180
+all for ensuring correct processing.
+
+61
+00:02:49,180 --> 00:02:51,530
+Messaging is therefore a critical capability
+
+62
+00:02:51,530 --> 00:02:53,470
+of a distributed system.
+
+63
+00:02:53,470 --> 00:02:55,990
+It drives its constituent parts and changes
+
+64
+00:02:55,990 --> 00:02:58,070
+the system's global state.
+
+65
+00:02:58,070 --> 00:03:00,220
+There are many existing solutions and approaches
+
+66
+00:03:00,220 --> 00:03:03,730
+to distributed messaging -- that is, the management of messages
+
+67
+00:03:03,730 --> 00:03:07,630
+in a distributed system in a way that's reliable.
+
+68
+00:03:07,630 --> 00:03:11,860
+You may already be familiar with message brokers, queue managers,
+
+69
+00:03:11,860 --> 00:03:16,180
+and other forms of messaging and message management.
+
+70
+00:03:16,180 --> 00:03:20,480
+In fact, Redis is often used to power many such solutions.
+
+71
+00:03:20,480 --> 00:03:22,480
+Redis is a data structure server that's
+
+72
+00:03:22,480 --> 00:03:25,960
+ubiquitous in modern applications.
+
+73
+00:03:25,960 --> 00:03:29,050
+The stream data structure added to Redis in v5.0
+
+74
+00:03:29,050 --> 00:03:31,380
+enables distributed messaging.
+
+75
+00:03:31,380 --> 00:03:34,240
+Redis is an opinionated project that puts performance
+
+76
+00:03:34,240 --> 00:03:35,920
+and simplicity above all.
+
+77
+00:03:35,920 --> 00:03:39,490
+Its take on streams, while inspired by Apache Kafka's,
+
+78
+00:03:39,490 --> 00:03:41,830
+keeps with the project spirit and is extremely
+
+79
+00:03:41,830 --> 00:03:44,490
+fun and effective to use.
+

@@ -1,0 +1,348 @@
+0
+00:00:00,000 --> 00:00:00,900
+
+
+1
+00:00:00,900 --> 00:00:03,930
+The consumer group is a Redis-operated mechanism
+
+2
+00:00:03,930 --> 00:00:06,700
+for distributing messages between members.
+
+3
+00:00:06,700 --> 00:00:08,550
+Consumers can join a group simply
+
+4
+00:00:08,550 --> 00:00:12,270
+by asking for new messages and then providing their name.
+
+5
+00:00:12,270 --> 00:00:15,040
+Once a consumer in a group reads messages,
+
+6
+00:00:15,040 --> 00:00:17,820
+these are added to its Pending Entries List.
+
+7
+00:00:17,820 --> 00:00:20,570
+It is up to the consumer now to actually process them.
+
+8
+00:00:20,570 --> 00:00:23,520
+
+
+9
+00:00:23,520 --> 00:00:24,960
+Every consumer is different.
+
+10
+00:00:24,960 --> 00:00:28,560
+But ultimately, the processing of the given message
+
+11
+00:00:28,560 --> 00:00:31,920
+can end in either success or failure.
+
+12
+00:00:31,920 --> 00:00:33,900
+Like in real life, dealing with success
+
+13
+00:00:33,900 --> 00:00:36,430
+is much easier than coping with failure.
+
+14
+00:00:36,430 --> 00:00:38,850
+So let's begin with that.
+
+15
+00:00:38,850 --> 00:00:41,880
+To deal with success, we first need to define it.
+
+16
+00:00:41,880 --> 00:00:42,780
+Here's the thing.
+
+17
+00:00:42,780 --> 00:00:44,690
+For a consumer instance to succeed,
+
+18
+00:00:44,690 --> 00:00:48,030
+it needs to read the message, perhaps do some meaningful work
+
+19
+00:00:48,030 --> 00:00:50,730
+with the data in it, and then get to the point
+
+20
+00:00:50,730 --> 00:00:54,910
+where it is ready to process the next message.
+
+21
+00:00:54,910 --> 00:00:57,200
+Put slightly differently, in order to succeed,
+
+22
+00:00:57,200 --> 00:00:59,920
+the consumer needs only not to fail.
+
+23
+00:00:59,920 --> 00:01:03,490
+The actual work performed by the consumer and any results
+
+24
+00:01:03,490 --> 00:01:06,580
+obtained from it, while important in the grander scheme
+
+25
+00:01:06,580 --> 00:01:09,340
+of things, are outside of the scope.
+
+26
+00:01:09,340 --> 00:01:12,430
+Getting the message and surviving the processing
+
+27
+00:01:12,430 --> 00:01:14,750
+is the only measure of success in the context
+
+28
+00:01:14,750 --> 00:01:17,910
+of stream consumer groups.
+
+29
+00:01:17,910 --> 00:01:20,690
+Consumer groups provide at-least-once message delivery
+
+30
+00:01:20,690 --> 00:01:24,140
+semantics by default. We've seen how the consumer instance can
+
+31
+00:01:24,140 --> 00:01:28,220
+read its PEL, and that ability is what allows it to recover.
+
+32
+00:01:28,220 --> 00:01:30,890
+But when the consumer does not fail, that is,
+
+33
+00:01:30,890 --> 00:01:33,170
+when it succeeds processing a message,
+
+34
+00:01:33,170 --> 00:01:35,780
+it needs to let the server know about that.
+
+35
+00:01:35,780 --> 00:01:37,850
+This act, which is called acknowledgment,
+
+36
+00:01:37,850 --> 00:01:41,530
+is just another task among other housekeeping tasks
+
+37
+00:01:41,530 --> 00:01:46,200
+that the recipient does when it finishes its work.
+
+38
+00:01:46,200 --> 00:01:48,570
+Recall that consumerA from "group0"
+
+39
+00:01:48,570 --> 00:01:51,510
+requested a single message, the first message
+
+40
+00:01:51,510 --> 00:01:53,670
+in the natural numbers stream.
+
+41
+00:01:53,670 --> 00:01:55,890
+From the group's perspective, this message
+
+42
+00:01:55,890 --> 00:01:57,840
+is currently pending processing.
+
+43
+00:01:57,840 --> 00:02:00,540
+To signal that processing was completed successfully
+
+44
+00:02:00,540 --> 00:02:06,150
+for that message, we acknowledge it with the XACK command.
+
+45
+00:02:06,150 --> 00:02:08,380
+XACK is a straightforward command
+
+46
+00:02:08,380 --> 00:02:10,850
+that has only one form of invocation.
+
+47
+00:02:10,850 --> 00:02:13,270
+It accepts the name of the stream's key,
+
+48
+00:02:13,270 --> 00:02:16,990
+the name of the consumer group, and one or more messages IDs
+
+49
+00:02:16,990 --> 00:02:18,490
+that are acknowledged.
+
+50
+00:02:18,490 --> 00:02:21,490
+The reply returned by XACK is the number
+
+51
+00:02:21,490 --> 00:02:24,460
+of messages that were actually acknowledged that is
+
+52
+00:02:24,460 --> 00:02:28,750
+removed from the group's PEL.
+
+53
+00:02:28,750 --> 00:02:31,990
+The first message ID was in "consumerA"'s PEL.
+
+54
+00:02:31,990 --> 00:02:36,730
+Whereas the 63-79 is an ID that I made up,
+
+55
+00:02:36,730 --> 00:02:40,880
+so only one message was effectively removed.
+
+56
+00:02:40,880 --> 00:02:43,370
+It is interesting to note that XACK does not
+
+57
+00:02:43,370 --> 00:02:46,760
+require the consumers names, only that of the group.
+
+58
+00:02:46,760 --> 00:02:49,070
+While in most cases, it will be the consumer
+
+59
+00:02:49,070 --> 00:02:53,540
+itself doing the XACK'ing as part of its successful housekeeping,
+
+60
+00:02:53,540 --> 00:02:55,220
+that is not mandatory.
+
+61
+00:02:55,220 --> 00:02:58,220
+This liberty makes it possible for other processes
+
+62
+00:02:58,220 --> 00:03:01,220
+to acknowledge messages, which is definitely useful
+
+63
+00:03:01,220 --> 00:03:05,500
+even if only for administrative purposes.
+
+64
+00:03:05,500 --> 00:03:07,000
+Once we've acknowledged the message,
+
+65
+00:03:07,000 --> 00:03:11,110
+we can verify that "consumerA"'s PEL is now empty.
+
+66
+00:03:11,110 --> 00:03:14,800
+At this point, since it has no pending messages to process,
+
+67
+00:03:14,800 --> 00:03:18,100
+"consumerA" can issue a call to XREADGROUP
+
+68
+00:03:18,100 --> 00:03:21,040
+and use the greater than sign to get new messages.
+
+69
+00:03:21,040 --> 00:03:23,850
+
+
+70
+00:03:23,850 --> 00:03:26,460
+To recap this pattern, a consumer group member
+
+71
+00:03:26,460 --> 00:03:29,760
+requests new messages but can fail at any time
+
+72
+00:03:29,760 --> 00:03:31,320
+before acknowledging them.
+
+73
+00:03:31,320 --> 00:03:33,330
+To avoid the loss of pending messages,
+
+74
+00:03:33,330 --> 00:03:37,140
+the consumer first reads its history of pending messages
+
+75
+00:03:37,140 --> 00:03:38,910
+before requesting new ones.
+
+76
+00:03:38,910 --> 00:03:41,880
+This provides us with at-least-once message delivery
+
+77
+00:03:41,880 --> 00:03:43,790
+semantics.
+
+78
+00:03:43,790 --> 00:03:46,760
+In this chapter, we've reviewed how the consumer group's
+
+79
+00:03:46,760 --> 00:03:50,540
+member operates to implement at-least-once message delivery
+
+80
+00:03:50,540 --> 00:03:51,770
+semantics.
+
+81
+00:03:51,770 --> 00:03:55,120
+Before starting, a consumer first processes messages
+
+82
+00:03:55,120 --> 00:03:58,100
+in its Pending Entries List and then switches
+
+83
+00:03:58,100 --> 00:03:59,930
+to reading new ones.
+
+84
+00:03:59,930 --> 00:04:02,300
+After processing a message successfully,
+
+85
+00:04:02,300 --> 00:04:05,360
+the server side context is updated by the consumer
+
+86
+00:04:05,360 --> 00:04:09,790
+explicitly by sending an acknowledgment.
+

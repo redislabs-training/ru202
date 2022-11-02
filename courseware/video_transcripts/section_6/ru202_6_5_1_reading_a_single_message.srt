@@ -1,0 +1,352 @@
+0
+00:00:00,000 --> 00:00:00,500
+
+
+1
+00:00:00,500 --> 00:00:03,300
+Up until now, we've seen how the entire stream, as well
+
+2
+00:00:03,300 --> 00:00:06,360
+as discrete volumes from it, can be fetched using
+
+3
+00:00:06,360 --> 00:00:09,150
+both XRANGE and XREVRANGE.
+
+4
+00:00:09,150 --> 00:00:12,840
+Both range commands can also be used to fetch a single message.
+
+5
+00:00:12,840 --> 00:00:15,510
+
+
+6
+00:00:15,510 --> 00:00:19,080
+I can use XRANGE to obtain the first message in the stream
+
+7
+00:00:19,080 --> 00:00:22,620
+and with XREVRANGE the last by constructing ranges
+
+8
+00:00:22,620 --> 00:00:25,710
+made up exclusively of the special characters "+"
+
+9
+00:00:25,710 --> 00:00:28,170
+and "-" and a COUNT of 1.
+
+10
+00:00:28,170 --> 00:00:30,940
+
+
+11
+00:00:30,940 --> 00:00:34,720
+I can also call both range commands with any valid range.
+
+12
+00:00:34,720 --> 00:00:39,260
+A range made up of one message ID is perfectly OK to use.
+
+13
+00:00:39,260 --> 00:00:43,240
+But this requires knowing the message ID in advance somehow.
+
+14
+00:00:43,240 --> 00:00:46,030
+Because the message ID includes a timestamp,
+
+15
+00:00:46,030 --> 00:00:48,640
+you can manipulate the timestamp on your own
+
+16
+00:00:48,640 --> 00:00:51,250
+to specify ranges of messages corresponding
+
+17
+00:00:51,250 --> 00:00:54,190
+to any period of time.
+
+18
+00:00:54,190 --> 00:00:56,290
+Recall that the timestamp part of the message ID
+
+19
+00:00:56,290 --> 00:00:58,540
+is stored in milliseconds.
+
+20
+00:00:58,540 --> 00:01:00,820
+With proper multiplication, it should
+
+21
+00:01:00,820 --> 00:01:03,760
+be possible to compose ranges of any kind,
+
+22
+00:01:03,760 --> 00:01:07,390
+from seconds through weeks to eons and beyond.
+
+23
+00:01:07,390 --> 00:01:10,240
+While the range may yield any number of messages
+
+24
+00:01:10,240 --> 00:01:13,090
+from the stream, the same iteration patterns
+
+25
+00:01:13,090 --> 00:01:16,030
+apply here as well.
+
+26
+00:01:16,030 --> 00:01:19,570
+Stream range queries allow processing batches of messages
+
+27
+00:01:19,570 --> 00:01:21,010
+in a controlled manner.
+
+28
+00:01:21,010 --> 00:01:24,580
+They do need to be called with explicit ranges.
+
+29
+00:01:24,580 --> 00:01:27,400
+Let's recall the natural number sum example.
+
+30
+00:01:27,400 --> 00:01:30,520
+Both the downstream and the upstream variants
+
+31
+00:01:30,520 --> 00:01:34,720
+iterated the entire stream, or 101 messages in our case,
+
+32
+00:01:34,720 --> 00:01:37,000
+to obtain the result.
+
+33
+00:01:37,000 --> 00:01:39,720
+Now consider the case where the stream isn't static
+
+34
+00:01:39,720 --> 00:01:42,520
+and messages keep being produced and appended.
+
+35
+00:01:42,520 --> 00:01:44,470
+It is possible to use the same logic.
+
+36
+00:01:44,470 --> 00:01:46,960
+But as the stream grows, so will the time
+
+37
+00:01:46,960 --> 00:01:49,690
+it will take us to complete the computation.
+
+38
+00:01:49,690 --> 00:01:52,780
+Our implementation from a computational complexity
+
+39
+00:01:52,780 --> 00:01:56,320
+perspective is asymptotically O(n),
+
+40
+00:01:56,320 --> 00:01:59,350
+meaning the time it requires is linearly related
+
+41
+00:01:59,350 --> 00:02:01,270
+to the number of messages in the stream.
+
+42
+00:02:01,270 --> 00:02:04,410
+
+
+43
+00:02:04,410 --> 00:02:07,540
+The very nature of streams implies growth.
+
+44
+00:02:07,540 --> 00:02:09,419
+So in our case, we'll need to find a way
+
+45
+00:02:09,419 --> 00:02:12,000
+to optimize the running sum algorithm.
+
+46
+00:02:12,000 --> 00:02:14,160
+We can improve the implementation
+
+47
+00:02:14,160 --> 00:02:17,070
+by storing the last processed message ID as well
+
+48
+00:02:17,070 --> 00:02:20,050
+as any other data, in our case the sum,
+
+49
+00:02:20,050 --> 00:02:22,260
+so the process can pick up from that point
+
+50
+00:02:22,260 --> 00:02:25,150
+with each consecutive run.
+
+51
+00:02:25,150 --> 00:02:26,890
+Local storage is always an option
+
+52
+00:02:26,890 --> 00:02:29,920
+for storing the intermediate state or any other data stored,
+
+53
+00:02:29,920 --> 00:02:31,090
+for that matter.
+
+54
+00:02:31,090 --> 00:02:33,210
+But we already have a connection to Redis,
+
+55
+00:02:33,210 --> 00:02:35,150
+so we can just use another key.
+
+56
+00:02:35,150 --> 00:02:40,300
+Let's call it "numbers:range_sum" to simply store the results
+
+57
+00:02:40,300 --> 00:02:41,020
+as a hash.
+
+58
+00:02:41,020 --> 00:02:44,790
+
+
+59
+00:02:44,790 --> 00:02:48,180
+The first run of this modified code produces the same result
+
+60
+00:02:48,180 --> 00:02:52,380
+as before but stores the sum and the last known ID under
+
+61
+00:02:52,380 --> 00:02:55,770
+the "numbers:range_sum" hash.
+
+62
+00:02:55,770 --> 00:02:59,340
+We can, of course, retrieve the hash's contents for inspection
+
+63
+00:02:59,340 --> 00:03:01,020
+and rerun the code.
+
+64
+00:03:01,020 --> 00:03:03,180
+Running the same code again, however,
+
+65
+00:03:03,180 --> 00:03:06,090
+will result in no additional processing done as there are
+
+66
+00:03:06,090 --> 00:03:07,770
+no new messages in the stream.
+
+67
+00:03:07,770 --> 00:03:10,280
+
+
+68
+00:03:10,280 --> 00:03:12,560
+After adding one or more messages to the stream,
+
+69
+00:03:12,560 --> 00:03:14,720
+the code will pick up where it left off
+
+70
+00:03:14,720 --> 00:03:17,910
+and add the new numbers in the message's data.
+
+71
+00:03:17,910 --> 00:03:21,830
+Note that I need to escape the asterisk with a backslash
+
+72
+00:03:21,830 --> 00:03:24,320
+to prevent the shell from interpreting it.
+
+73
+00:03:24,320 --> 00:03:27,740
+Also note that by implementing the running sum in this manner,
+
+74
+00:03:27,740 --> 00:03:30,590
+we can safely truncate the stream with MAXLEN
+
+75
+00:03:30,590 --> 00:03:32,540
+and still keep an accurate result
+
+76
+00:03:32,540 --> 00:03:36,161
+as long as the intermediate hash's contents are available.
+
+77
+00:03:36,161 --> 00:03:38,810
+
+
+78
+00:03:38,810 --> 00:03:40,550
+We've seen how range queries can be
+
+79
+00:03:40,550 --> 00:03:44,210
+used to process a stream in an offline-like mode.
+
+80
+00:03:44,210 --> 00:03:47,390
+These commands allow for polling-like behavior
+
+81
+00:03:47,390 --> 00:03:50,570
+where a process actively retrieves and processes
+
+82
+00:03:50,570 --> 00:03:52,400
+the stream's messages.
+
+83
+00:03:52,400 --> 00:03:55,640
+Also, if we store the last processed ID and result,
+
+84
+00:03:55,640 --> 00:03:59,510
+range queries can be made both resilient to process failures
+
+85
+00:03:59,510 --> 00:04:02,510
+as well as more efficient, as only new messages will
+
+86
+00:04:02,510 --> 00:04:04,500
+be processed.
+
+87
+00:04:04,500 --> 00:04:05,000
+
+

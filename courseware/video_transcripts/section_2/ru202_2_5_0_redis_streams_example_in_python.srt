@@ -1,0 +1,344 @@
+0
+00:00:00,000 --> 00:00:00,600
+
+
+1
+00:00:00,600 --> 00:00:03,510
+In the last two videos, you got a high level introduction
+
+2
+00:00:03,510 --> 00:00:05,010
+to Redis Streams.
+
+3
+00:00:05,010 --> 00:00:07,530
+To complete this introduction and finish giving you
+
+4
+00:00:07,530 --> 00:00:09,330
+the big picture, I'm going to show you
+
+5
+00:00:09,330 --> 00:00:12,120
+a working example of Redis Streams using the Python
+
+6
+00:00:12,120 --> 00:00:13,830
+programming language.
+
+7
+00:00:13,830 --> 00:00:16,840
+In particular, we're going to write three programs.
+
+8
+00:00:16,840 --> 00:00:18,840
+The first is a producer that simulates
+
+9
+00:00:18,840 --> 00:00:22,720
+a stream of weather events being recorded in a Redis stream.
+
+10
+00:00:22,720 --> 00:00:25,330
+The next program is the logic for a consumer
+
+11
+00:00:25,330 --> 00:00:28,750
+group that writes the stream to a data warehouse.
+
+12
+00:00:28,750 --> 00:00:30,670
+And last is a consumer group that
+
+13
+00:00:30,670 --> 00:00:34,890
+calculates a moving temperature average for a live display.
+
+14
+00:00:34,890 --> 00:00:37,012
+I'll run these three programs in parallel,
+
+15
+00:00:37,012 --> 00:00:38,970
+and you'll get a sense of how Redis Streams can
+
+16
+00:00:38,970 --> 00:00:41,740
+work in action.
+
+17
+00:00:41,740 --> 00:00:44,020
+Let's get started with the producer.
+
+18
+00:00:44,020 --> 00:00:46,330
+First, we connect to the Redis server.
+
+19
+00:00:46,330 --> 00:00:48,950
+This step should be familiar.
+
+20
+00:00:48,950 --> 00:00:51,350
+Next, we set the name of the key for the stream
+
+21
+00:00:51,350 --> 00:00:52,880
+we'll be writing to.
+
+22
+00:00:52,880 --> 00:00:56,600
+In this case, it's stream colon weather.
+
+23
+00:00:56,600 --> 00:00:59,300
+We also initialize a Measurement object,
+
+24
+00:00:59,300 --> 00:01:03,650
+which will generate successive temperature measurements.
+
+25
+00:01:03,650 --> 00:01:06,030
+Next, we enter a loop.
+
+26
+00:01:06,030 --> 00:01:08,130
+On the first line, we get the next entry
+
+27
+00:01:08,130 --> 00:01:09,930
+to write to the stream.
+
+28
+00:01:09,930 --> 00:01:13,290
+This entry contains a postal code and a temperature
+
+29
+00:01:13,290 --> 00:01:15,520
+in Fahrenheit.
+
+30
+00:01:15,520 --> 00:01:18,850
+Next, we write the entry to the stream, and what gets returned
+
+31
+00:01:18,850 --> 00:01:21,320
+is the entry's ID.
+
+32
+00:01:21,320 --> 00:01:24,430
+We print this info to the screen,
+
+33
+00:01:24,430 --> 00:01:28,030
+and then we sleep for one second.
+
+34
+00:01:28,030 --> 00:01:32,120
+You can run the script like so, and you
+
+35
+00:01:32,120 --> 00:01:36,590
+should get output that looks something like this.
+
+36
+00:01:36,590 --> 00:01:39,240
+Now let's take a look at the first consumer group.
+
+37
+00:01:39,240 --> 00:01:42,420
+This consumer simulates the writing of the stream's data
+
+38
+00:01:42,420 --> 00:01:44,740
+to a data warehouse.
+
+39
+00:01:44,740 --> 00:01:47,560
+The hardest part about setting up a consumer group
+
+40
+00:01:47,560 --> 00:01:50,170
+is getting all of the settings just right.
+
+41
+00:01:50,170 --> 00:01:54,140
+Here we're assigning each setting to a variable.
+
+42
+00:01:54,140 --> 00:01:58,090
+First, we set the name of the stream.
+
+43
+00:01:58,090 --> 00:02:01,030
+Next we choose a consumer group name.
+
+44
+00:02:01,030 --> 00:02:03,440
+It's always best to choose a descriptive name.
+
+45
+00:02:03,440 --> 00:02:08,289
+And in this case, we're calling our group "data_warehouse_writer".
+
+46
+00:02:06,160 --> 00:02:08,289
+
+
+47
+00:02:08,289 --> 00:02:10,660
+Now recall that a consumer group can
+
+48
+00:02:10,660 --> 00:02:13,480
+consist of more than one individual consumer.
+
+49
+00:02:13,480 --> 00:02:17,170
+For example, you might create one consumer per thread.
+
+50
+00:02:17,170 --> 00:02:19,070
+But in the interest of simplicity,
+
+51
+00:02:19,070 --> 00:02:23,750
+we're going to have just a single consumer named like so.
+
+52
+00:02:23,750 --> 00:02:27,690
+Next, we set the number of milliseconds to block for,
+
+53
+00:02:27,690 --> 00:02:30,090
+and we create an object that represents the stream
+
+54
+00:02:30,090 --> 00:02:34,720
+we want to read from and where we want to start in the stream.
+
+55
+00:02:34,720 --> 00:02:38,160
+We then ensure that the group has been created,
+
+56
+00:02:38,160 --> 00:02:40,950
+and we enter the loop where we read the results
+
+57
+00:02:40,950 --> 00:02:43,065
+and write them out to the data warehouse.
+
+58
+00:02:43,065 --> 00:02:45,680
+
+
+59
+00:02:45,680 --> 00:02:48,950
+Notice now that the producer is still running.
+
+60
+00:02:48,950 --> 00:02:52,960
+Now I'm going to start the consumer we just created.
+
+61
+00:02:52,960 --> 00:02:55,890
+And as you can see, it's consuming the stream
+
+62
+00:02:55,890 --> 00:02:59,355
+and simulating the writes to the data warehouse.
+
+63
+00:02:59,355 --> 00:03:01,920
+OK, so real quickly, let's write the code that
+
+64
+00:03:01,920 --> 00:03:05,060
+runs the second consumer group.
+
+65
+00:03:05,060 --> 00:03:08,223
+As you can see, we first connect to Redis.
+
+66
+00:03:08,223 --> 00:03:09,890
+Then we set up all the variables that we
+
+67
+00:03:09,890 --> 00:03:12,500
+created in the last consumer.
+
+68
+00:03:12,500 --> 00:03:15,320
+The only difference here is that we use a different consumer
+
+69
+00:03:15,320 --> 00:03:16,160
+group name.
+
+70
+00:03:16,160 --> 00:03:20,580
+This group will be called "rolling_average_printer".
+
+71
+00:03:20,580 --> 00:03:22,620
+Everything else should be familiar.
+
+72
+00:03:22,620 --> 00:03:25,630
+We ensure that the group has been created.
+
+73
+00:03:25,630 --> 00:03:28,260
+Then we enter the loop and print the rolling average
+
+74
+00:03:28,260 --> 00:03:31,550
+after each read.
+
+75
+00:03:31,550 --> 00:03:34,370
+Now I'm going to run this consumer.
+
+76
+00:03:34,370 --> 00:03:37,790
+Notice first that I still have the producer running,
+
+77
+00:03:37,790 --> 00:03:40,440
+and I have the first consumer running.
+
+78
+00:03:40,440 --> 00:03:43,690
+So here's the second consumer.
+
+79
+00:03:43,690 --> 00:03:46,900
+And you can see that it's now printing the rolling average as
+
+80
+00:03:46,900 --> 00:03:49,660
+expected.
+
+81
+00:03:49,660 --> 00:03:51,322
+So that's it for our example.
+
+82
+00:03:51,322 --> 00:03:53,280
+If you want to play with this code on your own,
+
+83
+00:03:53,280 --> 00:03:55,740
+it's available in the virtual lab environment.
+
+84
+00:03:55,740 --> 00:03:57,870
+There are also instructions for downloading it
+
+85
+00:03:57,870 --> 00:04:00,200
+on the course setup page.
+
