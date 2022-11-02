@@ -119,6 +119,6 @@ You don't need to install or use RedisInsight to be successful with this course,
 
 If you have questions about this repository, you can chat with our teaching assistants on the [Redis University Discord Server](https://discord.gg/3wseBzw).
 
-### Subscribe to our YouTube Channel / Follow us on Twitch
+## Subscribe to our YouTube Channel / Follow us on Twitch
 
 We'd love for you to [check out our YouTube channel](https://youtube.com/redisinc), and subscribe if you want to see more Redis videos!  We also stream regularly on our [Twitch.tv channel](https://www.twitch.tv/redisinc) - follow us to be notified when we're live and [check out our events schedule on the Redis Developer site](https://developer.redis.com/redis-live/).
