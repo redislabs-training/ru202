@@ -1,0 +1,45 @@
+<p>The two consumer processes are both contained in the same file <span style="font-family: 'courier new', courier;">stream_consumers.py</span>.</p>
+<p>Start them both using a single command in one of your lab environment's terminal sessions:</p>
+<pre>
+cd src/week4
+python stream_consumers.py temps:20250101
+</pre>
+<p>We pass in the parameter <span style="font-family: 'courier new', courier;">temps:20250101</span> to tell the aggregating consumer where to start from, as it needs to be seeded with an initial stream partition name.</p>
+<p>You should see the output similar to the following:</p>
+<pre>
+agg: Starting aggregating consumer in stream temps:20250101 at message 0.
+avg: Average temperature for 2025/01/01 at 0 was 23F (3600 observations).
+avg: Average temperature for 2025/01/01 at 1 was 51F (3600 observations).
+avg: Average temperature for 2025/01/01 at 2 was 84F (3600 observations).
+avg: Average temperature for 2025/01/01 at 3 was 73F (3600 observations).
+...
+avg: Average temperature for 2025/01/01 at 21 was 61F (3600 observations).
+avg: Average temperature for 2025/01/01 at 22 was 54F (3600 observations).
+avg: Waiting for new messages in stream temps:averages
+agg: Changing partition to consume stream: temps:20250102
+avg: Average temperature for 2025/01/01 at 23 was 63F (3600 observations).
+avg: Average temperature for 2025/01/02 at 0 was 80F (3600 observations).
+...
+</pre>
+<p>Output from the aggregating consumer appears on lines beginning with <span style="font-family: 'courier new', courier;">agg</span>.  Output from the averages consumer appears on lines beginning <span style="font-family: 'courier new', courier;">avg</span> and is colored yellow in your terminal.</p>
+<p>Allow the consumers to run for long enough to process all of the data, which may take some time.  Once they have done so, they will wait in a blocking loop, which looks like this:</p>
+<pre>
+avg: Waiting for new messages in stream temps:averages
+agg: Waiting for new messages in stream temps:20250110, or new stream partition.
+</pre>
+<p>You can then stop the consumers with Ctrl + C.</p>
+<p>Let's look at what both of these processes are doing in more detail.</p>
+<h2>The Aggregating Consumer</h2>
+<p>This consumer reads from the stream partitions that the producer created.  Its job is to calculate the average temperature for each hour then place a message containing that information into a second stream called <span style="font-family: 'courier new', courier;">temps:averages</span>.  It initially needs to know which stream partition containing raw temperature data to begin from, and that is provided via command line arguments when starting the script.</p>  
+<p>Once it has processed all the messages in its initial stream partition, the consumer blocks and waits for one of two things to happen:</p>
+<br/>
+<p>More messages to appear in the stream (meaning there are more readings for the day that it is currently processing).</p>
+<p><br/>OR<br/>
+<p>A new stream partition for the next day becomes available, in which case it knows that it has finished processing the current day's stream and should attach to the one for the next day and process that.  The consumer's implementation understands the stream naming convention that the producer uses for partitioning the data, so it knows for example that once all the data in <span style="font-family: 'courier new', courier;">temps:20250101</span> has been processed, it should start processing data in <span style="font-family: 'courier new', courier;">temps:20250102</span> when that becomes available.</p>
+<br/>
+<br/>
+<p>The average temperature for an hour is calculated by looking at the timestamp IDs of the messages in the stream, and totaling up the temperature values in the message payloads until a timestamp representing the next hour is seen.  Once the average for an hour has been calculated, it is placed on the <span style="font-family: 'courier new', courier;">temps:averages</span> stream.  The length of the <span style="font-family: 'courier new', courier;">temp:averages</span> stream is also capped at this point using the <span style="font-family: 'courier new', courier;">MAXLEN</span> modifier to <span style="font-family: 'courier new', courier;">XADD</span>.</p>
+<p>The aggregating consumer uses also uses Redis to store its state, in case it crashes or is stopped and needs to resume.</p>
+<h2>The Averages Consumer</h2>
+<p>The second consumer is similar to those we have seen in previous hands-on exercises.  It simply uses blocking <span style="font-family: 'courier new', courier;">XREAD</span> calls to read anything that is placed on the <span style="font-family: 'courier new', courier;">temps:averages</span> stream, outputting the contents of the messages to the console.  So that it can be more easily distinguished from the aggregating consumer's output, the averages consumer logs appear in yellow.</p>
+<p>This consumer also uses Redis to store its state in case of a crash.</p>

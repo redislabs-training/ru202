@@ -1,0 +1,11 @@
+<h1>Hands-on Exercise</h1>
+<h2>Introduction</h2>
+<p>To get you up and running with Redis Streams, let's revisit the Python temperature monitoring example that we presented in section 2.5.</p>
+<p>The code consists of:</p>
+<ul>
+  <li>A producer, which writes temperature data to a Redis stream</li>
+  <li>A consumer whose job it is to simulate writing data from the stream to a data warehouse</li>
+  <li>A second consumer that consumes the stream to calculate a rolling average temperature for use by a real-time display</li>
+</ul>
+<p>All three components interact with a stream named <span style="font-family: 'courier new', courier;">stream:weather</span> in Redis.</p>
+<p>In this exercise, we'll use your environment and run each component to get a feel for how they interact with each other.</p>
