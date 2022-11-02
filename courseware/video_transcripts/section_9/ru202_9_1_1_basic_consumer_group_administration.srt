@@ -1,0 +1,528 @@
+0
+00:00:00,000 --> 00:00:00,800
+
+
+1
+00:00:00,800 --> 00:00:02,900
+So by now, you should have a good idea
+
+2
+00:00:02,900 --> 00:00:05,660
+about how to scale the consumption of streams
+
+3
+00:00:05,660 --> 00:00:07,880
+using consumer groups.
+
+4
+00:00:07,880 --> 00:00:12,150
+But how do you manage consumer groups in the longer term?
+
+5
+00:00:12,150 --> 00:00:14,030
+Let's start to answer that question
+
+6
+00:00:14,030 --> 00:00:17,000
+by looking at some important consumer group administration
+
+7
+00:00:17,000 --> 00:00:19,140
+tasks.
+
+8
+00:00:19,140 --> 00:00:21,840
+First, we'll learn how to change a consumer group's
+
+9
+00:00:21,840 --> 00:00:24,400
+position in the stream.
+
+10
+00:00:24,400 --> 00:00:28,860
+Second, we'll learn how to delete a consumer group.
+
+11
+00:00:28,860 --> 00:00:32,759
+And finally, we'll learn how to remove an individual consumer
+
+12
+00:00:32,759 --> 00:00:36,600
+from a consumer group, and some of the important considerations
+
+13
+00:00:36,600 --> 00:00:39,410
+surrounding this.
+
+14
+00:00:39,410 --> 00:00:41,460
+To illustrate these operations, let's
+
+15
+00:00:41,460 --> 00:00:46,370
+go back to our natural numbers stream and create a few groups.
+
+16
+00:00:46,370 --> 00:00:48,110
+First, we'll create a group called
+
+17
+00:00:48,110 --> 00:00:52,430
+"primes" that starts at the end of the stream.
+
+18
+00:00:52,430 --> 00:00:54,290
+Next, we'll create a group called
+
+19
+00:00:54,290 --> 00:01:00,050
+"sums" that starts at ID 0, or the beginning of the stream.
+
+20
+00:01:00,050 --> 00:01:01,880
+Finally, let's create another group
+
+21
+00:01:01,880 --> 00:01:07,570
+called "averages" that also starts at the beginning of the stream.
+
+22
+00:01:07,570 --> 00:01:09,370
+We'll also create a few consumers
+
+23
+00:01:09,370 --> 00:01:11,890
+for the averages group.
+
+24
+00:01:11,890 --> 00:01:15,130
+Consumer "A" has consumed two messages
+
+25
+00:01:15,130 --> 00:01:17,590
+without acknowledging them.
+
+26
+00:01:17,590 --> 00:01:22,540
+Consumers "B" and "C" have both consumed a single message,
+
+27
+00:01:22,540 --> 00:01:24,160
+and have acknowledged that message.
+
+28
+00:01:24,160 --> 00:01:32,670
+
+
+29
+00:01:32,670 --> 00:01:35,210
+Now, we need to talk about changing a consumer group's
+
+30
+00:01:35,210 --> 00:01:37,100
+position.
+
+31
+00:01:37,100 --> 00:01:40,280
+Here's a diagram representing the numbers stream,
+
+32
+00:01:40,280 --> 00:01:43,900
+and the three consumer groups we've just created.
+
+33
+00:01:43,900 --> 00:01:46,210
+The primes consumer group is currently
+
+34
+00:01:46,210 --> 00:01:49,870
+at the end of the stream, while the sums and averages consumer
+
+35
+00:01:49,870 --> 00:01:53,040
+groups are at the beginning.
+
+36
+00:01:53,040 --> 00:01:57,840
+We can confirm this by running a couple of XINFO commands.
+
+37
+00:01:57,840 --> 00:02:02,670
+When we run XINFO GROUPS, we can see the last delivered ID
+
+38
+00:02:02,670 --> 00:02:04,670
+for each consumer group.
+
+39
+00:02:04,670 --> 00:02:08,240
+For primes, it's a very specific ID.
+
+40
+00:02:08,240 --> 00:02:12,230
+In fact, when we run XINFO STREAM numbers,
+
+41
+00:02:12,230 --> 00:02:16,730
+we see that the last entry ID is the same as the primes consumer
+
+42
+00:02:16,730 --> 00:02:20,980
+group's last delivered ID.
+
+43
+00:02:20,980 --> 00:02:23,590
+So the upshot is that consumer groups always
+
+44
+00:02:23,590 --> 00:02:26,770
+have a specific position in the stream that's dictated
+
+45
+00:02:26,770 --> 00:02:29,110
+by their last entry ID.
+
+46
+00:02:29,110 --> 00:02:32,020
+When consuming a stream, the consumers in a group
+
+47
+00:02:32,020 --> 00:02:37,210
+will receive messages whose IDs start after the last entry ID.
+
+48
+00:02:37,210 --> 00:02:39,070
+So if we want to change a consumer's
+
+49
+00:02:39,070 --> 00:02:44,120
+position in the stream, we need to alter this last entry ID.
+
+50
+00:02:44,120 --> 00:02:49,680
+For that, we can use XGROUP's SETID sub-command.
+
+51
+00:02:49,680 --> 00:02:51,750
+For example, suppose we eventually
+
+52
+00:02:51,750 --> 00:02:54,990
+decide that we want the primes consumer group to start
+
+53
+00:02:54,990 --> 00:02:57,180
+reading from the beginning of the stream
+
+54
+00:02:57,180 --> 00:02:59,230
+instead of from the end.
+
+55
+00:02:59,230 --> 00:03:01,510
+We simply run this command.
+
+56
+00:03:01,510 --> 00:03:04,570
+If we want to position the group at an arbitrary ID,
+
+57
+00:03:04,570 --> 00:03:07,630
+we can do that too.
+
+58
+00:03:07,630 --> 00:03:10,030
+Or we can place the consumption back
+
+59
+00:03:10,030 --> 00:03:15,440
+at the end of the stream using the special dollar sign ID.
+
+60
+00:03:15,440 --> 00:03:18,170
+The use cases here should be obvious.
+
+61
+00:03:18,170 --> 00:03:22,000
+Either we want to replay a stream from the beginning,
+
+62
+00:03:22,000 --> 00:03:25,240
+or we want to start consumption from somewhere in the middle --
+
+63
+00:03:25,240 --> 00:03:28,630
+perhaps at a specific timestamp.
+
+64
+00:03:28,630 --> 00:03:31,870
+Or we want to start consuming the stream from this moment
+
+65
+00:03:31,870 --> 00:03:38,030
+onward, only processing new messages from here on out.
+
+66
+00:03:38,030 --> 00:03:41,220
+Now, let's learn how to delete a consumer group.
+
+67
+00:03:41,220 --> 00:03:44,190
+It's first important to remember that Redis does not clean up
+
+68
+00:03:44,190 --> 00:03:47,370
+unused consumer groups, so we need a way to clean them up
+
+69
+00:03:47,370 --> 00:03:49,300
+on our own.
+
+70
+00:03:49,300 --> 00:03:51,760
+Maybe we're done with a particular consumer group,
+
+71
+00:03:51,760 --> 00:03:54,990
+or perhaps we accidentally created it.
+
+72
+00:03:54,990 --> 00:03:57,960
+Either way, the XGROUP DESTROY command
+
+73
+00:03:57,960 --> 00:04:01,350
+will permanently remove the specified consumer group
+
+74
+00:04:01,350 --> 00:04:04,350
+and any associated consumers, so you
+
+75
+00:04:04,350 --> 00:04:07,560
+need to use this command with some care.
+
+76
+00:04:07,560 --> 00:04:09,330
+Here's how to use it.
+
+77
+00:04:09,330 --> 00:04:12,590
+Suppose we decide we're done with the sums consumer group.
+
+78
+00:04:12,590 --> 00:04:16,550
+We simply run XGROUP DESTROY, specifying the stream
+
+79
+00:04:16,550 --> 00:04:19,880
+name and the group name.
+
+80
+00:04:19,880 --> 00:04:24,880
+So here we run XGROUP DESTROY numbers sums,
+
+81
+00:04:24,880 --> 00:04:28,710
+and that's all there is to it.
+
+82
+00:04:28,710 --> 00:04:31,830
+Now, in addition to removing entire consumer groups,
+
+83
+00:04:31,830 --> 00:04:35,930
+we can also remove individual consumers from a group.
+
+84
+00:04:35,930 --> 00:04:39,530
+There are a number of reasons why we might want to do this.
+
+85
+00:04:39,530 --> 00:04:43,910
+One is that the system running the consumer no longer exists.
+
+86
+00:04:43,910 --> 00:04:46,910
+Perhaps we're having a downtime, or some kind of outage,
+
+87
+00:04:46,910 --> 00:04:48,920
+or we've lost a VM.
+
+88
+00:04:48,920 --> 00:04:52,220
+Or perhaps we're simply scaling down our consumption
+
+89
+00:04:52,220 --> 00:04:55,860
+and don't need as many consumers as we used to.
+
+90
+00:04:55,860 --> 00:04:59,670
+Whatever the reason, consumers themselves are easy to delete.
+
+91
+00:04:59,670 --> 00:05:03,210
+We simply use the XGROUP DELCONSUMER command,
+
+92
+00:05:03,210 --> 00:05:06,720
+passing in the name of the stream, the name of the group,
+
+93
+00:05:06,720 --> 00:05:10,030
+and the name of the consumer.
+
+94
+00:05:10,030 --> 00:05:12,720
+For example, here's how to delete consumer "C"
+
+95
+00:05:12,720 --> 00:05:15,240
+from the averages consumer group.
+
+96
+00:05:15,240 --> 00:05:18,330
+This command returns the number of pending entries
+
+97
+00:05:18,330 --> 00:05:21,360
+owned by the deleted consumer.
+
+98
+00:05:21,360 --> 00:05:23,470
+Consumer "C" had zero pending entries.
+
+99
+00:05:23,470 --> 00:05:25,770
+That's straightforward, and it's perfectly safe
+
+100
+00:05:25,770 --> 00:05:29,430
+to do when the consumer's pending entries list is empty,
+
+101
+00:05:29,430 --> 00:05:30,420
+as in this case.
+
+102
+00:05:30,420 --> 00:05:35,680
+
+
+103
+00:05:35,680 --> 00:05:37,510
+But to delve a bit deeper here, let's
+
+104
+00:05:37,510 --> 00:05:40,450
+take a look at the remaining consumers for the averages
+
+105
+00:05:40,450 --> 00:05:42,550
+group.
+
+106
+00:05:42,550 --> 00:05:46,360
+You'll notice that consumer A has two pending entries.
+
+107
+00:05:46,360 --> 00:05:48,370
+As pending entries, these entries
+
+108
+00:05:48,370 --> 00:05:51,190
+have not been acknowledged by the consumer.
+
+109
+00:05:51,190 --> 00:05:53,260
+If we delete this consumer, we won't
+
+110
+00:05:53,260 --> 00:05:56,370
+know if they've been processed correctly.
+
+111
+00:05:56,370 --> 00:05:58,800
+This is a potentially common scenario.
+
+112
+00:05:58,800 --> 00:06:00,870
+You may find yourself in a situation
+
+113
+00:06:00,870 --> 00:06:04,080
+where a VM hosting a consumer goes offline,
+
+114
+00:06:04,080 --> 00:06:07,625
+all while its consumers still have pending entries.
+
+115
+00:06:07,625 --> 00:06:09,000
+If you want those pending entries
+
+116
+00:06:09,000 --> 00:06:11,460
+to be consumed and acknowledged, then you'll
+
+117
+00:06:11,460 --> 00:06:15,830
+need to assign them elsewhere before deleting the consumer.
+
+118
+00:06:15,830 --> 00:06:17,170
+How do you do that?
+
+119
+00:06:17,170 --> 00:06:20,980
+The short answer is that you use a combination of the XCLAIM
+
+120
+00:06:20,980 --> 00:06:25,100
+and XPENDING commands, which we'll discuss next week.
+
+121
+00:06:25,100 --> 00:06:28,510
+For now, be careful when deleting individual consumers,
+
+122
+00:06:28,510 --> 00:06:31,150
+and understand the consequences of deleting consumers
+
+123
+00:06:31,150 --> 00:06:33,640
+with pending entries.
+
+124
+00:06:33,640 --> 00:06:36,240
+So in this unit, you learned how to change a consumer group's
+
+125
+00:06:36,240 --> 00:06:40,290
+position in the stream, delete a consumer group as a whole,
+
+126
+00:06:40,290 --> 00:06:42,840
+and delete individual consumers.
+
+127
+00:06:42,840 --> 00:06:44,760
+You also learned that you need to be careful
+
+128
+00:06:44,760 --> 00:06:47,700
+when deleting consumers that have pending entries.
+
+129
+00:06:47,700 --> 00:06:50,370
+And hopefully this got you curious about the consumer
+
+130
+00:06:50,370 --> 00:06:55,010
+group recovery strategies that we'll be discussing next week.
+
+131
+00:06:55,010 --> 00:06:55,834
+
+

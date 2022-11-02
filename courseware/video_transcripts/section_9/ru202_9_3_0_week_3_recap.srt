@@ -1,0 +1,76 @@
+0
+00:00:00,000 --> 00:00:00,590
+
+
+1
+00:00:00,590 --> 00:00:04,200
+Congratulations on making it to the end of week 3.
+
+2
+00:00:04,200 --> 00:00:07,020
+By now, you should know enough about consumer groups
+
+3
+00:00:07,020 --> 00:00:09,090
+to start thinking about how you might use them
+
+4
+00:00:09,090 --> 00:00:11,170
+in your applications.
+
+5
+00:00:11,170 --> 00:00:14,950
+We started off with an overview of the consumer scaling problem
+
+6
+00:00:14,950 --> 00:00:18,650
+and presented consumer groups as a possible solution.
+
+7
+00:00:18,650 --> 00:00:23,120
+We then described how to create groups and add consumers.
+
+8
+00:00:23,120 --> 00:00:27,150
+Hopefully you had a chance to try the hands-on exercise.
+
+9
+00:00:27,150 --> 00:00:29,310
+We then finished the week by describing
+
+10
+00:00:29,310 --> 00:00:31,620
+at-most-once delivery with consumer groups,
+
+11
+00:00:31,620 --> 00:00:34,870
+along with some basic administrative commands.
+
+12
+00:00:34,870 --> 00:00:38,140
+Next week, we'll touch on quite a few topics.
+
+13
+00:00:38,140 --> 00:00:41,710
+These will include ways to handle consumer failures,
+
+14
+00:00:41,710 --> 00:00:45,490
+the scaling of streams, performance considerations,
+
+15
+00:00:45,490 --> 00:00:47,560
+and capacity planning.
+
+16
+00:00:47,560 --> 00:00:51,310
+We'll also work on a complete real-world example.
+
+17
+00:00:51,310 --> 00:00:53,134
+See you next time.
+
+18
+00:00:53,134 --> 00:00:53,634
+
+

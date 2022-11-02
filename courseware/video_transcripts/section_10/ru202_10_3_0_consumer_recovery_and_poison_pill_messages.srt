@@ -1,0 +1,268 @@
+0
+00:00:00,000 --> 00:00:00,500
+
+
+1
+00:00:00,500 --> 00:00:03,900
+Now that you understand XPENDING and XCLAIM,
+
+2
+00:00:03,900 --> 00:00:07,320
+let's think about some consumer recovery scenarios.
+
+3
+00:00:07,320 --> 00:00:09,780
+When exactly do you need to recover a Redis Streams
+
+4
+00:00:09,780 --> 00:00:11,130
+consumer?
+
+5
+00:00:11,130 --> 00:00:14,050
+And what exactly does recovery mean?
+
+6
+00:00:14,050 --> 00:00:17,320
+Basically, if you want at-least-once delivery
+
+7
+00:00:17,320 --> 00:00:21,710
+semantics, and you lose a consumer from a group,
+
+8
+00:00:21,710 --> 00:00:24,850
+then you need to ensure that the messages from that consumer's
+
+9
+00:00:24,850 --> 00:00:28,720
+PEL or pending entries list are reassigned.
+
+10
+00:00:28,720 --> 00:00:31,360
+After all, we can't guarantee that a consumer
+
+11
+00:00:31,360 --> 00:00:36,350
+has processed a message until it has acknowledged the message.
+
+12
+00:00:36,350 --> 00:00:39,380
+Now how does a consumer become unavailable?
+
+13
+00:00:39,380 --> 00:00:40,910
+There are many possibilities.
+
+14
+00:00:40,910 --> 00:00:45,180
+But it's usually due to the loss of a VM or a container.
+
+15
+00:00:45,180 --> 00:00:47,730
+There are, of course, cases where we've intentionally
+
+16
+00:00:47,730 --> 00:00:50,930
+removed the consumer.
+
+17
+00:00:50,930 --> 00:00:53,060
+Either way, it's important to remember
+
+18
+00:00:53,060 --> 00:00:55,370
+that Redis does not automatically recover
+
+19
+00:00:55,370 --> 00:00:57,420
+unacknowledged messages.
+
+20
+00:00:57,420 --> 00:01:00,140
+That's the job of the Redis user.
+
+21
+00:01:00,140 --> 00:01:02,070
+Now if you've been following along,
+
+22
+00:01:02,070 --> 00:01:05,540
+you should have some idea about how this might be implemented.
+
+23
+00:01:05,540 --> 00:01:07,820
+Providing a full implementation of this
+
+24
+00:01:07,820 --> 00:01:09,830
+is beyond the scope of this course.
+
+25
+00:01:09,830 --> 00:01:12,170
+But what it amounts to is this.
+
+26
+00:01:12,170 --> 00:01:16,040
+One, continuously monitoring pending messages.
+
+27
+00:01:16,040 --> 00:01:19,780
+This means frequent calls to the XPENDING command.
+
+28
+00:01:19,780 --> 00:01:23,110
+Two, deciding upon a heuristic for when
+
+29
+00:01:23,110 --> 00:01:27,190
+a message should be assigned to a different consumer.
+
+30
+00:01:27,190 --> 00:01:30,300
+Some combination of message delivery count,
+
+31
+00:01:30,300 --> 00:01:34,030
+time since delivery, and how long a consumer is idle
+
+32
+00:01:34,030 --> 00:01:37,910
+will figure into this calculation.
+
+33
+00:01:37,910 --> 00:01:42,220
+Three, deciding how to reassign messages.
+
+34
+00:01:42,220 --> 00:01:44,930
+Are they reassigned to other consumers randomly
+
+35
+00:01:44,930 --> 00:01:49,130
+or in a round-robin fashion or to the consumer with the lowest
+
+36
+00:01:49,130 --> 00:01:49,790
+idle time?
+
+37
+00:01:49,790 --> 00:01:52,340
+
+
+38
+00:01:52,340 --> 00:01:55,070
+Now we'd be remiss if we didn't discuss one other failure
+
+39
+00:01:55,070 --> 00:01:57,200
+scenario to be prepared for.
+
+40
+00:01:57,200 --> 00:01:59,930
+And that is the poison-pill message.
+
+41
+00:01:59,930 --> 00:02:02,720
+A poison-pill is a message that's effectively
+
+42
+00:02:02,720 --> 00:02:05,150
+unprocessable, preventing consumers
+
+43
+00:02:05,150 --> 00:02:07,010
+from ever acknowledging it.
+
+44
+00:02:07,010 --> 00:02:09,110
+In the worst cases, such messages
+
+45
+00:02:09,110 --> 00:02:11,660
+cause a consumer process to die.
+
+46
+00:02:11,660 --> 00:02:13,430
+But in other cases, they may trigger
+
+47
+00:02:13,430 --> 00:02:16,100
+bugs that cause a consumer's load to spike,
+
+48
+00:02:16,100 --> 00:02:19,830
+thus rendering the consumer unavailable.
+
+49
+00:02:19,830 --> 00:02:22,250
+You can imagine that if you had an automated recovery
+
+50
+00:02:22,250 --> 00:02:24,380
+strategy as I just described, you'd
+
+51
+00:02:24,380 --> 00:02:26,120
+also want to think about the possibility
+
+52
+00:02:26,120 --> 00:02:28,340
+of a poison-pill message.
+
+53
+00:02:28,340 --> 00:02:31,790
+After all, such a message can wreak havoc on a system
+
+54
+00:02:31,790 --> 00:02:35,430
+as it's assigned from one consumer to the next.
+
+55
+00:02:35,430 --> 00:02:38,280
+So it may be important to detect the case where a message is
+
+56
+00:02:38,280 --> 00:02:40,590
+continuously being reassigned.
+
+57
+00:02:40,590 --> 00:02:43,920
+In other words, you may want to keep track of how many times
+
+58
+00:02:43,920 --> 00:02:47,410
+the same message has been XCLAIMED.
+
+59
+00:02:47,410 --> 00:02:52,580
+This may indicate the presence of the dreaded poison-pill.
+
+60
+00:02:52,580 --> 00:02:55,070
+In summary, Redis gives you the primitive commands
+
+61
+00:02:55,070 --> 00:02:58,730
+that you need to implement some basic recovery strategies.
+
+62
+00:02:58,730 --> 00:03:00,680
+If you need consumer groups and want
+
+63
+00:03:00,680 --> 00:03:03,542
+to build a resilient at-least-once delivery system,
+
+64
+00:03:03,542 --> 00:03:05,000
+then you'll want to spend some time
+
+65
+00:03:05,000 --> 00:03:07,070
+experimenting with these commands
+
+66
+00:03:07,070 --> 00:03:10,930
+and simulating failure and recovery scenarios.
+

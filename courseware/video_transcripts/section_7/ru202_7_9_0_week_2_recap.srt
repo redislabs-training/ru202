@@ -1,0 +1,84 @@
+0
+00:00:00,000 --> 00:00:00,500
+
+
+1
+00:00:00,500 --> 00:00:02,960
+You've now arrived at the end of week two of our course
+
+2
+00:00:02,960 --> 00:00:05,870
+on Redis streams.
+
+3
+00:00:05,870 --> 00:00:08,029
+This week we saw how to create and populate
+
+4
+00:00:08,029 --> 00:00:10,760
+streams using a producer, as well as
+
+5
+00:00:10,760 --> 00:00:14,450
+how to read from them using consumers and range queries.
+
+6
+00:00:14,450 --> 00:00:17,870
+As streams and Pub/Sub provide some overlapping functionality
+
+7
+00:00:17,870 --> 00:00:20,330
+in Redis, we also spent some time
+
+8
+00:00:20,330 --> 00:00:24,230
+looking at important differences between the two.
+
+9
+00:00:24,230 --> 00:00:26,120
+The course continues next week when
+
+10
+00:00:26,120 --> 00:00:28,940
+we'll take a deep dive into the creation and management
+
+11
+00:00:28,940 --> 00:00:30,500
+of consumer groups.
+
+12
+00:00:30,500 --> 00:00:32,720
+You'll learn the Redis way of organizing and managing
+
+13
+00:00:32,720 --> 00:00:35,510
+multiple consumers so that they can work together
+
+14
+00:00:35,510 --> 00:00:39,000
+to process streaming data.
+
+15
+00:00:39,000 --> 00:00:42,060
+As part of that, we'll also look at how to manage and recover
+
+16
+00:00:42,060 --> 00:00:45,000
+from situations where a consumer may fail,
+
+17
+00:00:45,000 --> 00:00:47,070
+and messages may need to be reassigned
+
+18
+00:00:47,070 --> 00:00:49,440
+to others for processing.
+
+19
+00:00:49,440 --> 00:00:51,190
+Thanks for spending the time with us.
+
+20
+00:00:51,190 --> 00:00:53,510
+We'll see you again next week.
+

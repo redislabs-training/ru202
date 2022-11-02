@@ -1,0 +1,60 @@
+0
+00:00:00,000 --> 00:00:00,680
+
+
+1
+00:00:00,680 --> 00:00:02,720
+It's the end of week four and we're nearly
+
+2
+00:00:02,720 --> 00:00:04,220
+done with the course.
+
+3
+00:00:04,220 --> 00:00:08,510
+This week we looked at consumer recovery, streams internals,
+
+4
+00:00:08,510 --> 00:00:10,560
+and sample usage patterns.
+
+5
+00:00:10,560 --> 00:00:12,920
+We also completed a hands on exercise
+
+6
+00:00:12,920 --> 00:00:15,502
+to practice using these techniques.
+
+7
+00:00:15,502 --> 00:00:17,210
+You should now be able to use what you've
+
+8
+00:00:17,210 --> 00:00:20,000
+learned to identify where Redis streams can benefit
+
+9
+00:00:20,000 --> 00:00:22,640
+your own projects, and how best to implement
+
+10
+00:00:22,640 --> 00:00:25,730
+your specific streaming architecture.
+
+11
+00:00:25,730 --> 00:00:27,860
+To complete this course all that remains
+
+12
+00:00:27,860 --> 00:00:30,290
+is the final exam, which will become available
+
+13
+00:00:30,290 --> 00:00:31,820
+at the start of week 5.
+
+14
+00:00:31,820 --> 00:00:35,350
+Good luck and thanks for participating.
+

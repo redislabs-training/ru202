@@ -1,0 +1,72 @@
+0
+00:00:00,000 --> 00:00:00,600
+
+
+1
+00:00:00,600 --> 00:00:01,350
+Hi there.
+
+2
+00:00:01,350 --> 00:00:03,090
+And welcome back to Redis University
+
+3
+00:00:03,090 --> 00:00:06,100
+for week two of Redis Streams.
+
+4
+00:00:06,100 --> 00:00:08,920
+Last week, we introduced some distributed systems
+
+5
+00:00:08,920 --> 00:00:11,260
+fundamentals, then took a high-level tour
+
+6
+00:00:11,260 --> 00:00:13,740
+of the Redis Streams API.
+
+7
+00:00:13,740 --> 00:00:16,440
+This week, we'll get hands-on with the Redis Streams
+
+8
+00:00:16,440 --> 00:00:17,820
+commands.
+
+9
+00:00:17,820 --> 00:00:20,160
+We'll begin with a focus on putting data into Streams
+
+10
+00:00:20,160 --> 00:00:22,200
+with the Producer Before moving on
+
+11
+00:00:22,200 --> 00:00:24,840
+to explore time range queries, and reading data
+
+12
+00:00:24,840 --> 00:00:27,230
+using Consumers.
+
+13
+00:00:27,230 --> 00:00:30,890
+Redis Streams and Pub/Sub implement similar concepts,
+
+14
+00:00:30,890 --> 00:00:32,630
+but with important differences.
+
+15
+00:00:32,630 --> 00:00:34,190
+We'll finish the week with a look
+
+16
+00:00:34,190 --> 00:00:37,667
+at how these two technologies compare and contrast.
+
+17
+00:00:37,667 --> 00:00:38,167
+
+

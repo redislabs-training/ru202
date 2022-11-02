@@ -1,0 +1,244 @@
+0
+00:00:00,000 --> 00:00:00,780
+
+
+1
+00:00:00,780 --> 00:00:02,790
+The components of a distributed system
+
+2
+00:00:02,790 --> 00:00:04,560
+communicate via messages.
+
+3
+00:00:04,560 --> 00:00:06,960
+Stream processing systems process
+
+4
+00:00:06,960 --> 00:00:09,330
+data that comes in continuously and needs
+
+5
+00:00:09,330 --> 00:00:11,640
+to be analyzed in real time.
+
+6
+00:00:11,640 --> 00:00:15,900
+A stream processing system may consist of one or more streams
+
+7
+00:00:15,900 --> 00:00:17,740
+of different types.
+
+8
+00:00:17,740 --> 00:00:20,850
+The first type of stream is the input stream that's also
+
+9
+00:00:20,850 --> 00:00:23,220
+referred to as a data source.
+
+10
+00:00:23,220 --> 00:00:25,320
+This type of stream is usually generated
+
+11
+00:00:25,320 --> 00:00:27,670
+by the system's peripheral components,
+
+12
+00:00:27,670 --> 00:00:30,420
+its users' activities via various front ends,
+
+13
+00:00:30,420 --> 00:00:32,430
+or external services.
+
+14
+00:00:32,430 --> 00:00:34,680
+In the temperature monitoring example,
+
+15
+00:00:34,680 --> 00:00:36,863
+the sensors had provided the input stream.
+
+16
+00:00:36,863 --> 00:00:39,030
+In another application, the clickstream
+
+17
+00:00:39,030 --> 00:00:42,300
+of users may be the input, whereas in another,
+
+18
+00:00:42,300 --> 00:00:45,800
+it could be a social network's activity stream.
+
+19
+00:00:45,800 --> 00:00:49,530
+A stream processing system may have one or more input streams
+
+20
+00:00:49,530 --> 00:00:51,990
+that consists of the events that trigger the system's
+
+21
+00:00:51,990 --> 00:00:55,450
+activities.
+
+22
+00:00:55,450 --> 00:00:58,090
+Data sources provide the contents of input
+
+23
+00:00:58,090 --> 00:01:00,970
+streams for the system, and these are processed
+
+24
+00:01:00,970 --> 00:01:03,100
+by the system's components.
+
+25
+00:01:03,100 --> 00:01:05,019
+The results obtained from processing
+
+26
+00:01:05,019 --> 00:01:08,410
+the data may be delivered to some final destination
+
+27
+00:01:08,410 --> 00:01:13,580
+or used as input for other stream processing processes.
+
+28
+00:01:13,580 --> 00:01:16,360
+We use this term data sink, or sink for short,
+
+29
+00:01:16,360 --> 00:01:19,200
+to describe an output's final destination.
+
+30
+00:01:19,200 --> 00:01:22,250
+A sink may be storage of some kind or a different stream
+
+31
+00:01:22,250 --> 00:01:23,840
+processing system.
+
+32
+00:01:23,840 --> 00:01:27,140
+When stream data is written to a sink,
+
+33
+00:01:27,140 --> 00:01:31,460
+the system no longer cares about it and what happens to it.
+
+34
+00:01:31,460 --> 00:01:34,730
+It is moved outside of the system's scope.
+
+35
+00:01:34,730 --> 00:01:38,840
+In addition to or instead of sending the output to a sink,
+
+36
+00:01:38,840 --> 00:01:41,510
+the processed data can be treated as a stream
+
+37
+00:01:41,510 --> 00:01:42,860
+by its own right.
+
+38
+00:01:42,860 --> 00:01:45,110
+This stream of processed data can
+
+39
+00:01:45,110 --> 00:01:48,950
+be used as input for other stream processing tasks.
+
+40
+00:01:48,950 --> 00:01:52,430
+That's one of the most powerful concepts of stream processing --
+
+41
+00:01:52,430 --> 00:01:54,680
+the fact that we can use streams to store
+
+42
+00:01:54,680 --> 00:01:57,080
+intermediate processing results.
+
+43
+00:01:57,080 --> 00:02:00,650
+It lets us create pipelines made of processing steps that
+
+44
+00:02:00,650 --> 00:02:03,840
+are interconnected by streams of data.
+
+45
+00:02:03,840 --> 00:02:06,830
+Thinking about data processing as a pipeline of activities
+
+46
+00:02:06,830 --> 00:02:09,889
+is a pattern that both intuitively understandable
+
+47
+00:02:09,889 --> 00:02:11,660
+and very effective to use.
+
+48
+00:02:11,660 --> 00:02:14,600
+It allows implementing a complex workflow
+
+49
+00:02:14,600 --> 00:02:18,350
+as a series of smaller, consecutive processing steps.
+
+50
+00:02:18,350 --> 00:02:21,860
+When applicable, it is simpler to solve the big problem
+
+51
+00:02:21,860 --> 00:02:24,170
+by addressing smaller parts of it.
+
+52
+00:02:24,170 --> 00:02:28,910
+Doing so can also introduce asynchronicity and parallelism
+
+53
+00:02:28,910 --> 00:02:30,320
+in processing the data.
+
+54
+00:02:30,320 --> 00:02:34,790
+Stream processing systems ingest data from sources as it comes.
+
+55
+00:02:34,790 --> 00:02:38,060
+The ingested data is processed, and ultimately, output
+
+56
+00:02:38,060 --> 00:02:40,070
+is forwarded to a sink.
+
+57
+00:02:40,070 --> 00:02:43,040
+Some complex processing tasks can
+
+58
+00:02:43,040 --> 00:02:45,350
+be accomplished by chaining simpler sub
+
+59
+00:02:45,350 --> 00:02:48,440
+tasks, one to another, with intermediate streams
+
+60
+00:02:48,440 --> 00:02:50,170
+as plumbing.
+

@@ -1,0 +1,256 @@
+0
+00:00:00,000 --> 00:00:00,500
+
+
+1
+00:00:00,500 --> 00:00:02,910
+We've focused our discussion, up until now,
+
+2
+00:00:02,910 --> 00:00:06,360
+on how to use Redis Streams to feed a single consumer.
+
+3
+00:00:06,360 --> 00:00:09,330
+But one of the more useful properties of streams
+
+4
+00:00:09,330 --> 00:00:12,210
+is their ability to support multiple concurrent blocking
+
+5
+00:00:12,210 --> 00:00:13,410
+consumers.
+
+6
+00:00:13,410 --> 00:00:15,330
+When multiple consumers are listening
+
+7
+00:00:15,330 --> 00:00:17,550
+for new messages in a given stream,
+
+8
+00:00:17,550 --> 00:00:20,490
+every new message is sent to every connected blocking
+
+9
+00:00:20,490 --> 00:00:23,100
+consumer in a pattern known as "fan-out."
+
+10
+00:00:25,740 --> 00:00:27,420
+Having multiple blocking consumers
+
+11
+00:00:27,420 --> 00:00:30,900
+to fan-out stream messages is a useful, event-driven scaling
+
+12
+00:00:30,900 --> 00:00:31,770
+pattern.
+
+13
+00:00:31,770 --> 00:00:34,830
+We can use it to parallelize processing
+
+14
+00:00:34,830 --> 00:00:38,490
+by breaking the processing into multiple concurrent tasks that
+
+15
+00:00:38,490 --> 00:00:41,280
+execute asynchronously.
+
+16
+00:00:41,280 --> 00:00:44,430
+Each blocking consumer operates independently from the rest,
+
+17
+00:00:44,430 --> 00:00:47,010
+in terms of the logic it needs to run
+
+18
+00:00:47,010 --> 00:00:49,170
+and the resources that it uses.
+
+19
+00:00:49,170 --> 00:00:52,320
+All blocking consumers, however, view the same stream
+
+20
+00:00:52,320 --> 00:00:56,590
+and are waiting for the same messages to arrive.
+
+21
+00:00:56,590 --> 00:00:59,110
+Once each consumer finishes its workload,
+
+22
+00:00:59,110 --> 00:01:01,570
+it can re-enter the blocking read state to
+
+23
+00:01:01,570 --> 00:01:05,370
+process the next message.
+
+24
+00:01:05,370 --> 00:01:08,480
+We can demonstrate this orchestrated multi-consumption
+
+25
+00:01:08,480 --> 00:01:11,280
+with a new type of consumer that chases the tip
+
+26
+00:01:11,280 --> 00:01:13,380
+of the natural numbers stream.
+
+27
+00:01:13,380 --> 00:01:16,140
+The new consumer type will check whether the data
+
+28
+00:01:16,140 --> 00:01:18,510
+is divisible by a given number.
+
+29
+00:01:18,510 --> 00:01:20,250
+One instance of the consumer will
+
+30
+00:01:20,250 --> 00:01:22,410
+check whether the number can be divided
+
+31
+00:01:22,410 --> 00:01:24,440
+by two without a remainder.
+
+32
+00:01:24,440 --> 00:01:27,330
+And another instance would then perform a similar check
+
+33
+00:01:27,330 --> 00:01:29,910
+for divisibility by three.
+
+34
+00:01:29,910 --> 00:01:32,520
+Both consumers will be running in parallel
+
+35
+00:01:32,520 --> 00:01:35,550
+and will be processing the same messages, although perhaps
+
+36
+00:01:35,550 --> 00:01:38,230
+not at the same time.
+
+37
+00:01:38,230 --> 00:01:41,390
+Instead of using multiple terminals, in this example,
+
+38
+00:01:41,390 --> 00:01:44,500
+we'll use subprocesses to simplify launching it.
+
+39
+00:01:44,500 --> 00:01:46,780
+One subprocess is the producer which
+
+40
+00:01:46,780 --> 00:01:50,410
+is set to stop producing after the first eight messages,
+
+41
+00:01:50,410 --> 00:01:52,650
+for demonstration purposes.
+
+42
+00:01:52,650 --> 00:01:55,600
+Two other subprocesses are the consumers,
+
+43
+00:01:55,600 --> 00:01:57,610
+each performing a different calculation
+
+44
+00:01:57,610 --> 00:01:58,810
+on the message's payload.
+
+45
+00:02:05,210 --> 00:02:08,630
+While the order of output lines may vary between runs,
+
+46
+00:02:08,630 --> 00:02:12,350
+you can see the asynchronous and somewhat chaotic nature
+
+47
+00:02:12,350 --> 00:02:13,880
+of this setup.
+
+48
+00:02:13,880 --> 00:02:16,130
+The producer produces at its own pace,
+
+49
+00:02:16,130 --> 00:02:18,440
+sometimes spitting out new messages faster
+
+50
+00:02:18,440 --> 00:02:20,660
+than any consumer can process them.
+
+51
+00:02:20,660 --> 00:02:22,670
+At the same time, consumer instances
+
+52
+00:02:22,670 --> 00:02:25,880
+work in parallel, through the stream, each processing
+
+53
+00:02:25,880 --> 00:02:28,580
+a message at a time, possibly blocking
+
+54
+00:02:28,580 --> 00:02:32,410
+while waiting for new ones.
+
+55
+00:02:32,410 --> 00:02:34,630
+Having multiple concurrent consumers subscribe
+
+56
+00:02:34,630 --> 00:02:37,240
+to all new messages from one or more streams
+
+57
+00:02:37,240 --> 00:02:41,230
+is a pattern for processing the same data in multiple ways.
+
+58
+00:02:41,230 --> 00:02:44,920
+Data is effectively broadcasted to all subscribers,
+
+59
+00:02:44,920 --> 00:02:48,010
+thus triggering their respective activities.
+
+60
+00:02:48,010 --> 00:02:49,990
+We can use this pattern for scaling
+
+61
+00:02:49,990 --> 00:02:53,140
+the processing of complex tasks by breaking these
+
+62
+00:02:53,140 --> 00:02:55,990
+into multiple, asynchronous subtasks that
+
+63
+00:02:55,990 --> 00:03:00,390
+are easier to perform by many cheaper resources.
+

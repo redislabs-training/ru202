@@ -1,0 +1,416 @@
+0
+00:00:00,000 --> 00:00:00,203
+
+
+1
+00:00:00,203 --> 00:00:01,620
+In this section, I'll show you how
+
+2
+00:00:01,620 --> 00:00:05,280
+to retrieve messages from a stream using time ranges.
+
+3
+00:00:05,280 --> 00:00:07,620
+The stream is a data structure, and the data
+
+4
+00:00:07,620 --> 00:00:09,480
+stored in it are messages.
+
+5
+00:00:09,480 --> 00:00:12,720
+The messages are stored by the order of their production,
+
+6
+00:00:12,720 --> 00:00:16,437
+and their IDs are partly made up of an ever-increasing
+
+7
+00:00:16,437 --> 00:00:17,310
+timestamp.
+
+8
+00:00:17,310 --> 00:00:19,050
+Armed with this knowledge, we can
+
+9
+00:00:19,050 --> 00:00:22,530
+see how to read a single message or ranges of them
+
+10
+00:00:22,530 --> 00:00:26,180
+or perform iteration.
+
+11
+00:00:26,180 --> 00:00:29,450
+To begin with, I'll recreate the numbers stream.
+
+12
+00:00:29,450 --> 00:00:32,210
+Instead of leaving it running indefinitely as before,
+
+13
+00:00:32,210 --> 00:00:34,700
+I'll use a modified version of the producer
+
+14
+00:00:34,700 --> 00:00:38,810
+that stops after generating exactly 101 numbers.
+
+15
+00:00:38,810 --> 00:00:41,640
+This is so we can have, for the time being,
+
+16
+00:00:41,640 --> 00:00:44,360
+a stream frozen in time.
+
+17
+00:00:44,360 --> 00:00:48,410
+This modified version, also for educational purposes only,
+
+18
+00:00:48,410 --> 00:00:51,980
+deletes the numbers stream before starting just
+
+19
+00:00:51,980 --> 00:00:53,540
+to be on the safe side.
+
+20
+00:00:53,540 --> 00:00:56,512
+Please, do not use this code in production unless you really
+
+21
+00:00:56,512 --> 00:00:57,470
+know what you're doing.
+
+22
+00:00:57,470 --> 00:01:00,740
+
+
+23
+00:01:00,740 --> 00:01:02,900
+Back to the CLI session, we'll see
+
+24
+00:01:02,900 --> 00:01:06,230
+how to retrieve the stream's contents.
+
+25
+00:01:06,230 --> 00:01:08,390
+We've already learned about XLEN,
+
+26
+00:01:08,390 --> 00:01:11,450
+and we can use it to verify that the stream indeed
+
+27
+00:01:11,450 --> 00:01:14,090
+holds 101 messages.
+
+28
+00:01:14,090 --> 00:01:16,970
+The command for fetching a range of messages from a stream
+
+29
+00:01:16,970 --> 00:01:19,760
+is appropriately named XRANGE.
+
+30
+00:01:19,760 --> 00:01:22,550
+Besides the stream's "key" as the first argument,
+
+31
+00:01:22,550 --> 00:01:26,720
+it requires both a "start" and then "end" argument
+
+32
+00:01:26,720 --> 00:01:28,910
+that specify the ranges of messages
+
+33
+00:01:28,910 --> 00:01:30,500
+to retrieve from the stream.
+
+34
+00:01:30,500 --> 00:01:33,290
+In the example, I've used the special "-"
+
+35
+00:01:33,290 --> 00:01:36,920
+and "+" characters that are interpreted by Redis server
+
+36
+00:01:36,920 --> 00:01:40,670
+as the lowest and highest IDs, respectively.
+
+37
+00:01:40,670 --> 00:01:42,980
+As a result, the server responded
+
+38
+00:01:42,980 --> 00:01:47,060
+with the entire stream in ascending order, ID-wise.
+
+39
+00:01:47,060 --> 00:01:50,060
+Each one of the 101 messages in it
+
+40
+00:01:50,060 --> 00:01:52,820
+is represented in the reply as an array
+
+41
+00:01:52,820 --> 00:01:56,480
+with two elements -- the ID and the data.
+
+42
+00:01:56,480 --> 00:01:58,910
+The data in the reply is presented exactly
+
+43
+00:01:58,910 --> 00:02:02,480
+as it was stored, as an array of alternating field names
+
+44
+00:02:02,480 --> 00:02:03,590
+and values.
+
+45
+00:02:03,590 --> 00:02:09,690
+Or as in our case, "n" and the corresponding natural number.
+
+46
+00:02:09,690 --> 00:02:13,230
+It is very empowering to be able to read an entire stream but,
+
+47
+00:02:13,230 --> 00:02:16,950
+also, very impractical for any reason other than development,
+
+48
+00:02:16,950 --> 00:02:18,060
+maybe.
+
+49
+00:02:18,060 --> 00:02:20,280
+Programmatically speaking, we need a better way
+
+50
+00:02:20,280 --> 00:02:22,900
+to control the number of results returned.
+
+51
+00:02:22,900 --> 00:02:26,910
+We need a way to fetch the messages in chunks or pages
+
+52
+00:02:26,910 --> 00:02:30,090
+and be able to iterate over them one by one.
+
+53
+00:02:30,090 --> 00:02:34,900
+Luckily, XRANGE lets us do just that.
+
+54
+00:02:34,900 --> 00:02:38,670
+It just so happens that XRANGE supports an optional COUNT
+
+55
+00:02:38,670 --> 00:02:39,630
+argument.
+
+56
+00:02:39,630 --> 00:02:41,760
+We can use it to limit the number of messages
+
+57
+00:02:41,760 --> 00:02:44,670
+returned in the reply, as the example shows.
+
+58
+00:02:44,670 --> 00:02:48,150
+Also note that 0 is a perfectly valid replacement for the "-"
+
+59
+00:02:48,150 --> 00:02:49,020
+character.
+
+60
+00:02:49,020 --> 00:02:52,320
+0 is the lowest-possible partial message ID.
+
+61
+00:02:52,320 --> 00:02:55,740
+A partial message ID is one that consists only of the timestamp
+
+62
+00:02:55,740 --> 00:02:59,460
+part, no dash, and no internal sequence.
+
+63
+00:02:59,460 --> 00:03:02,250
+When a partial message ID is provided to XRANGE,
+
+64
+00:03:02,250 --> 00:03:04,500
+it is interpreted as if it was implicitly
+
+65
+00:03:04,500 --> 00:03:07,710
+suffixed with the lowest internal sequence.
+
+66
+00:03:07,710 --> 00:03:09,040
+That is 1.
+
+67
+00:03:09,040 --> 00:03:13,800
+So putting a 0 is shorthand for 0-1.
+
+68
+00:03:13,800 --> 00:03:17,430
+This use of XRANGE allows us, or rather our code,
+
+69
+00:03:17,430 --> 00:03:21,000
+to process a range of messages of a predetermined length
+
+70
+00:03:21,000 --> 00:03:22,200
+each time.
+
+71
+00:03:22,200 --> 00:03:24,960
+Once we're finished with the current first block
+
+72
+00:03:24,960 --> 00:03:28,770
+of messages, we can move on to the next one.
+
+73
+00:03:28,770 --> 00:03:31,410
+To proceed to process the next block of messages,
+
+74
+00:03:31,410 --> 00:03:33,420
+we need to call XRANGE again.
+
+75
+00:03:33,420 --> 00:03:35,250
+However, in this invocation, we'll
+
+76
+00:03:35,250 --> 00:03:39,270
+use the last message ID we've received from the previous call
+
+77
+00:03:39,270 --> 00:03:43,910
+and increment its sequence value by 1.
+
+78
+00:03:43,910 --> 00:03:46,880
+Because of the stream's strict ordering guarantees,
+
+79
+00:03:46,880 --> 00:03:49,280
+incrementing the last ID by 1 effectively
+
+80
+00:03:49,280 --> 00:03:52,910
+means that the range of messages that Redis will return
+
+81
+00:03:52,910 --> 00:03:55,370
+will begin with the message that immediately
+
+82
+00:03:55,370 --> 00:03:58,700
+follows the previous range's last message.
+
+83
+00:03:58,700 --> 00:04:03,500
+Like before, we'll rely on COUNT to cap the reply's length at 5.
+
+84
+00:04:03,500 --> 00:04:05,660
+And like before, we can take all the time
+
+85
+00:04:05,660 --> 00:04:08,750
+we need to process these messages before moving
+
+86
+00:04:08,750 --> 00:04:10,445
+on to the next set of messages.
+
+87
+00:04:10,445 --> 00:04:15,290
+
+
+88
+00:04:15,290 --> 00:04:17,690
+The iteration pattern provided by XRANGE
+
+89
+00:04:17,690 --> 00:04:21,560
+fits the cases where we want to process the stream partially
+
+90
+00:04:21,560 --> 00:04:25,250
+or in its entirety in a batch-like fashion.
+
+91
+00:04:25,250 --> 00:04:27,260
+Depending on the use case, this pattern
+
+92
+00:04:27,260 --> 00:04:30,500
+is often employed to implement ad-hoc processing
+
+93
+00:04:30,500 --> 00:04:34,410
+for administrative and reporting purposes.
+
+94
+00:04:34,410 --> 00:04:36,990
+In our example of the natural numbers,
+
+95
+00:04:36,990 --> 00:04:40,800
+I may want to report the sum of numbers in the stream.
+
+96
+00:04:40,800 --> 00:04:44,160
+Any summing algorithm will process each message,
+
+97
+00:04:44,160 --> 00:04:46,770
+and I can use XRANGE for that.
+
+98
+00:04:46,770 --> 00:04:50,460
+Because the stream is frozen, my code returns with the answer.
+
+99
+00:04:50,460 --> 00:04:53,210
+
+
+100
+00:04:53,210 --> 00:04:57,180
+Let's take a moment to review what we've covered thus far.
+
+101
+00:04:57,180 --> 00:05:01,770
+We can use XRANGE to retrieve messages based on ranges of IDs
+
+102
+00:05:01,770 --> 00:05:04,980
+and move forward in time from the stream's beginning
+
+103
+00:05:04,980 --> 00:05:09,380
+to its end in batches of any size we may need.
+

@@ -1,0 +1,484 @@
+0
+00:00:00,000 --> 00:00:00,500
+
+
+1
+00:00:00,500 --> 00:00:03,180
+In this unit, we'll revisit three strategies
+
+2
+00:00:03,180 --> 00:00:05,590
+for capping a stream's length.
+
+3
+00:00:05,590 --> 00:00:09,370
+First, we'll see how a producer can manage the stream's length
+
+4
+00:00:09,370 --> 00:00:11,230
+using XADD.
+
+5
+00:00:11,230 --> 00:00:15,540
+Next, we'll look at using XTRIM to cap the stream.
+
+6
+00:00:15,540 --> 00:00:17,400
+And finally, we'll learn a technique
+
+7
+00:00:17,400 --> 00:00:20,890
+for capping a stream based upon its age.
+
+8
+00:00:20,890 --> 00:00:23,110
+The first approach is to explicitly cap
+
+9
+00:00:23,110 --> 00:00:26,140
+the stream's length when producing to the stream.
+
+10
+00:00:26,140 --> 00:00:28,780
+When adding messages to the stream with XADD,
+
+11
+00:00:28,780 --> 00:00:32,290
+you can specify the MAXLEN subcommand.
+
+12
+00:00:32,290 --> 00:00:35,590
+This command tells Redis to add new messages
+
+13
+00:00:35,590 --> 00:00:38,980
+and also remove the oldest existing messages as needed,
+
+14
+00:00:38,980 --> 00:00:42,360
+keeping the stream at the requested length.
+
+15
+00:00:42,360 --> 00:00:45,520
+An advantage of this strategy is that the stream's growth
+
+16
+00:00:45,520 --> 00:00:47,720
+is tightly controlled.
+
+17
+00:00:47,720 --> 00:00:50,690
+It results in frequent checking of the stream's length
+
+18
+00:00:50,690 --> 00:00:52,820
+against the desired length, as these
+
+19
+00:00:52,820 --> 00:00:56,980
+are compared on every insert into the stream.
+
+20
+00:00:56,980 --> 00:00:59,230
+This approach can also be used without adding
+
+21
+00:00:59,230 --> 00:01:01,540
+additional components of the system,
+
+22
+00:01:01,540 --> 00:01:06,410
+as the capping is performed by existing producers.
+
+23
+00:01:06,410 --> 00:01:09,090
+The strategy does, however, incur the performance
+
+24
+00:01:09,090 --> 00:01:12,020
+hit associated with checking the stream's length
+
+25
+00:01:12,020 --> 00:01:16,140
+and potentially trimming it on every call to XADD.
+
+26
+00:01:16,140 --> 00:01:19,590
+To mitigate this, you can provide the tilde option
+
+27
+00:01:19,590 --> 00:01:22,620
+with MAXLEN, which will cause the stream's length
+
+28
+00:01:22,620 --> 00:01:25,680
+to be trimmed to approximately the number of specified
+
+29
+00:01:25,680 --> 00:01:28,090
+entries.
+
+30
+00:01:28,090 --> 00:01:30,460
+When the tilde modifier is used, Redis
+
+31
+00:01:30,460 --> 00:01:33,640
+will only trim messages when it can remove a whole node
+
+32
+00:01:33,640 --> 00:01:36,180
+from the underlying radix tree.
+
+33
+00:01:36,180 --> 00:01:38,580
+This is more efficient than partial removal
+
+34
+00:01:38,580 --> 00:01:40,530
+of the nodes entries, which is what's
+
+35
+00:01:40,530 --> 00:01:46,100
+required when an exact MAX length is requested.
+
+36
+00:01:46,100 --> 00:01:49,430
+We recommend that you use the tilde approximation approach,
+
+37
+00:01:49,430 --> 00:01:50,630
+in general.
+
+38
+00:01:50,630 --> 00:01:52,820
+This uses fewer server resources,
+
+39
+00:01:52,820 --> 00:01:56,005
+freeing Redis to service other requests faster,
+
+40
+00:01:56,005 --> 00:01:58,130
+while still ensuring that the length of your stream
+
+41
+00:01:58,130 --> 00:01:59,943
+remains approximately within the bounds
+
+42
+00:01:59,943 --> 00:02:01,110
+that you have chosen for it.
+
+43
+00:02:01,110 --> 00:02:04,620
+
+
+44
+00:02:04,620 --> 00:02:07,830
+The second stream management strategy to consider
+
+45
+00:02:07,830 --> 00:02:10,860
+is similar to the first in that it involves periodically
+
+46
+00:02:10,860 --> 00:02:13,020
+trimming the stream's length.
+
+47
+00:02:13,020 --> 00:02:15,930
+The difference is that it can be performed independently
+
+48
+00:02:15,930 --> 00:02:18,690
+of a stream producer or a consumer,
+
+49
+00:02:18,690 --> 00:02:20,610
+for example, by a management component
+
+50
+00:02:20,610 --> 00:02:23,290
+or by an administrator.
+
+51
+00:02:23,290 --> 00:02:27,370
+The XTRIM command is used to cap the stream's length and works
+
+52
+00:02:27,370 --> 00:02:31,480
+in the same way as XADD's MAXLEN command.
+
+53
+00:02:31,480 --> 00:02:35,170
+Like MAXLEN, XTRIM can be used to cap
+
+54
+00:02:35,170 --> 00:02:39,840
+the stream to an exact length or to an approximate length.
+
+55
+00:02:39,840 --> 00:02:41,610
+You should use the strategy if you
+
+56
+00:02:41,610 --> 00:02:44,250
+wish to cap the stream periodically,
+
+57
+00:02:44,250 --> 00:02:48,120
+rather than as a function of the operation of a producer.
+
+58
+00:02:48,120 --> 00:02:51,960
+This strategy can be implemented manually as an administrator
+
+59
+00:02:51,960 --> 00:02:53,940
+or by using some other component that
+
+60
+00:02:53,940 --> 00:02:57,750
+monitors the stream, capping only when its length exceeds
+
+61
+00:02:57,750 --> 00:03:00,800
+your chosen threshold.
+
+62
+00:03:00,800 --> 00:03:04,220
+But sometimes you want to manage the stream's contents by time,
+
+63
+00:03:04,220 --> 00:03:07,160
+rather than by overall length.
+
+64
+00:03:07,160 --> 00:03:10,130
+There's currently no built-in method to trim a stream by time
+
+65
+00:03:10,130 --> 00:03:10,970
+range--
+
+66
+00:03:10,970 --> 00:03:14,420
+for example, to remove entries more than a week old.
+
+67
+00:03:14,420 --> 00:03:16,400
+If your application requires this,
+
+68
+00:03:16,400 --> 00:03:19,730
+you should consider partitioning the stream by date/time
+
+69
+00:03:19,730 --> 00:03:22,557
+and expiring partitions periodically using Redis'
+
+70
+00:03:22,557 --> 00:03:24,860
+EXPIRE command.
+
+71
+00:03:24,860 --> 00:03:27,870
+Let's take a look at how that might work.
+
+72
+00:03:27,870 --> 00:03:30,260
+One way to achieve time-based expiry
+
+73
+00:03:30,260 --> 00:03:33,050
+is by partitioning a stream by date/time.
+
+74
+00:03:33,050 --> 00:03:36,420
+This way, we can either delete old partitions manually.
+
+75
+00:03:36,420 --> 00:03:40,390
+Or we can auto expire them using the EXPIRE command.
+
+76
+00:03:40,390 --> 00:03:44,470
+For example, we might partition by day using a year, month, day
+
+77
+00:03:44,470 --> 00:03:47,930
+pattern to name each partition.
+
+78
+00:03:47,930 --> 00:03:50,180
+The producer would then write to the current partition
+
+79
+00:03:50,180 --> 00:03:54,100
+for the day, and consumers would read from it.
+
+80
+00:03:54,100 --> 00:03:56,620
+Implementing this strategy requires both producers
+
+81
+00:03:56,620 --> 00:04:00,370
+and consumers to implement the application specific logic
+
+82
+00:04:00,370 --> 00:04:02,890
+for the naming of stream partitions
+
+83
+00:04:02,890 --> 00:04:05,890
+and to know when to begin writing to and reading
+
+84
+00:04:05,890 --> 00:04:07,830
+from them.
+
+85
+00:04:07,830 --> 00:04:09,720
+Some consumer read activities may
+
+86
+00:04:09,720 --> 00:04:11,910
+need to be performed over multiple partitions
+
+87
+00:04:11,910 --> 00:04:13,720
+of the stream.
+
+88
+00:04:13,720 --> 00:04:15,620
+Redis streams provides some assistance
+
+89
+00:04:15,620 --> 00:04:18,019
+with implementing such a strategy.
+
+90
+00:04:18,019 --> 00:04:20,420
+The XADD command will create a stream
+
+91
+00:04:20,420 --> 00:04:22,550
+if it doesn't already exist, saving
+
+92
+00:04:22,550 --> 00:04:24,170
+the need for an explicit creation
+
+93
+00:04:24,170 --> 00:04:27,850
+step for each new partition.
+
+94
+00:04:27,850 --> 00:04:30,640
+And because Redis streams are implemented as a regular data
+
+95
+00:04:30,640 --> 00:04:33,460
+type that exists in the main key space,
+
+96
+00:04:33,460 --> 00:04:37,150
+the EXPIRE command can be used to remove stream partitions
+
+97
+00:04:37,150 --> 00:04:40,300
+after a given time period is passed.
+
+98
+00:04:40,300 --> 00:04:43,500
+We'll see an implementation of this strategy in this week's
+
+99
+00:04:43,500 --> 00:04:46,400
+hands-on activity.
+
+100
+00:04:46,400 --> 00:04:49,120
+The stream management strategies outlined in this unit
+
+101
+00:04:49,120 --> 00:04:51,880
+rely on controlling the stream's growth by managing
+
+102
+00:04:51,880 --> 00:04:54,450
+the number of messages in it.
+
+103
+00:04:54,450 --> 00:04:56,730
+In common with other Redis data structures,
+
+104
+00:04:56,730 --> 00:04:59,340
+a stream's overall bite size and memory cannot be directly
+
+105
+00:04:59,340 --> 00:05:00,330
+limited.
+
+106
+00:05:00,330 --> 00:05:03,150
+If you wish to size your stream such that it takes up
+
+107
+00:05:03,150 --> 00:05:05,437
+an approximate amount of memory, then you
+
+108
+00:05:05,437 --> 00:05:07,770
+will need to understand the average size of your message
+
+109
+00:05:07,770 --> 00:05:11,340
+payloads and trim by length accordingly.
+
+110
+00:05:11,340 --> 00:05:14,008
+If you can estimate the number of messages per day,
+
+111
+00:05:14,008 --> 00:05:16,050
+then you can use some of the strategies described
+
+112
+00:05:16,050 --> 00:05:20,530
+in the previous unit to estimate the size of your stream.
+
+113
+00:05:20,530 --> 00:05:22,810
+When using streams, it's important to understand
+
+114
+00:05:22,810 --> 00:05:25,100
+how much memory you might need for your specific data
+
+115
+00:05:25,100 --> 00:05:28,990
+set and the options available for you to manage that.
+
+116
+00:05:28,990 --> 00:05:31,180
+In this unit, we reviewed some strategies
+
+117
+00:05:31,180 --> 00:05:34,930
+for controlling a stream's size over time.
+
+118
+00:05:34,930 --> 00:05:36,860
+When using streams, it's likely that you'll
+
+119
+00:05:36,860 --> 00:05:38,800
+need to use a mix of these strategies,
+
+120
+00:05:38,800 --> 00:05:41,850
+depending on your application's use case.
+

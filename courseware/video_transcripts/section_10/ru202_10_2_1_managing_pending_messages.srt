@@ -1,0 +1,480 @@
+0
+00:00:00,000 --> 00:00:00,510
+
+
+1
+00:00:00,510 --> 00:00:02,623
+Last week, we finished off with a discussion
+
+2
+00:00:02,623 --> 00:00:04,290
+of the difficulties that can be involved
+
+3
+00:00:04,290 --> 00:00:06,690
+in safely deleting the individual consumers
+
+4
+00:00:06,690 --> 00:00:08,039
+of a group.
+
+5
+00:00:08,039 --> 00:00:11,670
+In this chapter, we're going to look at two commands, XPENDING
+
+6
+00:00:11,670 --> 00:00:14,490
+and XCLAIM, and how they can be used when
+
+7
+00:00:14,490 --> 00:00:17,630
+a consumer from a group fails.
+
+8
+00:00:17,630 --> 00:00:19,460
+Now, in a perfect world, consumers
+
+9
+00:00:19,460 --> 00:00:22,530
+would always acknowledge the messages delivered to them.
+
+10
+00:00:22,530 --> 00:00:25,070
+But if you've spent any time working with stream processing
+
+11
+00:00:25,070 --> 00:00:28,730
+systems, you know that this isn't always the case.
+
+12
+00:00:28,730 --> 00:00:32,509
+It's always possible for a consumer to receive a message
+
+13
+00:00:32,509 --> 00:00:36,470
+and then go offline before the message can be acknowledged.
+
+14
+00:00:36,470 --> 00:00:39,440
+When that happens, there will be at least one message
+
+15
+00:00:39,440 --> 00:00:43,260
+in the consumer's Pending Entries List.
+
+16
+00:00:43,260 --> 00:00:45,330
+If that's the case, we need a way
+
+17
+00:00:45,330 --> 00:00:48,090
+of getting that stranded message to a consumer that
+
+18
+00:00:48,090 --> 00:00:51,860
+can effectively process and acknowledge it.
+
+19
+00:00:51,860 --> 00:00:54,140
+To see how we do that, let's return again
+
+20
+00:00:54,140 --> 00:00:56,270
+to the natural numbers stream.
+
+21
+00:00:56,270 --> 00:00:59,180
+In this example, I've cleared out all of the consumer groups
+
+22
+00:00:59,180 --> 00:01:01,130
+we created last week.
+
+23
+00:01:01,130 --> 00:01:02,960
+So let's start by creating a group called
+
+24
+00:01:02,960 --> 00:01:06,840
+evens that starts at the beginning of the stream.
+
+25
+00:01:06,840 --> 00:01:10,947
+Let's next create two consumers, A and B, each consuming
+
+26
+00:01:10,947 --> 00:01:11,655
+a single message.
+
+27
+00:01:11,655 --> 00:01:14,540
+
+
+28
+00:01:14,540 --> 00:01:17,150
+For consumer B, we'll acknowledge the message
+
+29
+00:01:17,150 --> 00:01:20,270
+that it just consumed.
+
+30
+00:01:20,270 --> 00:01:23,390
+So now what's the state of the consumer group?
+
+31
+00:01:23,390 --> 00:01:25,700
+Running XINFO GROUPS, you can see here
+
+32
+00:01:25,700 --> 00:01:27,710
+that we have two consumers.
+
+33
+00:01:27,710 --> 00:01:30,050
+We also have one pending message.
+
+34
+00:01:30,050 --> 00:01:32,430
+That should be no surprise.
+
+35
+00:01:32,430 --> 00:01:36,300
+We can run XINFO CONSUMERS to find out where that pending
+
+36
+00:01:36,300 --> 00:01:37,980
+message lives.
+
+37
+00:01:37,980 --> 00:01:40,720
+And you can see here that it must belong to consumer A,
+
+38
+00:01:40,720 --> 00:01:43,980
+as consumer B has no pending messages.
+
+39
+00:01:43,980 --> 00:01:47,190
+Now, suppose that consumer A has gone offline.
+
+40
+00:01:47,190 --> 00:01:51,240
+In this case, we need a way to reassign its pending messages.
+
+41
+00:01:51,240 --> 00:01:54,780
+There are two commands that can help with this, XPENDING
+
+42
+00:01:54,780 --> 00:01:56,580
+and XCLAIM.
+
+43
+00:01:56,580 --> 00:01:59,690
+Let's start with XPENDING.
+
+44
+00:01:59,690 --> 00:02:03,830
+In its most basic form, XPENDING takes two arguments,
+
+45
+00:02:03,830 --> 00:02:07,960
+the name of the stream and the name of a consumer group.
+
+46
+00:02:07,960 --> 00:02:11,950
+Let's run XPENDING on our numbers stream and evens group.
+
+47
+00:02:11,950 --> 00:02:14,040
+Check out the output.
+
+48
+00:02:14,040 --> 00:02:17,490
+First, we get the total number of pending messages.
+
+49
+00:02:17,490 --> 00:02:20,340
+Next, we can see the range of message IDs
+
+50
+00:02:20,340 --> 00:02:23,000
+in the Pending Entries List.
+
+51
+00:02:23,000 --> 00:02:25,840
+We also get to see how many pending entries per consumer
+
+52
+00:02:25,840 --> 00:02:27,220
+exist.
+
+53
+00:02:27,220 --> 00:02:31,030
+As we saw earlier, consumer A has one pending entry.
+
+54
+00:02:31,030 --> 00:02:32,830
+But what does that entry look like?
+
+55
+00:02:32,830 --> 00:02:36,250
+To get that information, we need to run XPENDING with a few more
+
+56
+00:02:36,250 --> 00:02:39,330
+arguments.
+
+57
+00:02:39,330 --> 00:02:41,430
+The next variant of the XPENDING command
+
+58
+00:02:41,430 --> 00:02:44,730
+takes a range of message IDs and a count.
+
+59
+00:02:44,730 --> 00:02:48,450
+As with XRANGE, here we can use the special minus
+
+60
+00:02:48,450 --> 00:02:52,440
+and plus operators to iterate the entire range of pending
+
+61
+00:02:52,440 --> 00:02:53,760
+IDs.
+
+62
+00:02:53,760 --> 00:02:56,490
+When we do that, we can learn a bit more about the pending
+
+63
+00:02:56,490 --> 00:03:00,480
+message ID currently assigned to consumer A.
+
+64
+00:03:00,480 --> 00:03:04,590
+Here we see the message ID, the name of the consumer it's assigned
+
+65
+00:03:04,590 --> 00:03:08,970
+to, the number of milliseconds elapsed since it was delivered
+
+66
+00:03:08,970 --> 00:03:13,150
+to the consumer, and a delivery counter, which,
+
+67
+00:03:13,150 --> 00:03:15,910
+as you might expect, records the number of times
+
+68
+00:03:15,910 --> 00:03:20,330
+the message has been delivered.
+
+69
+00:03:20,330 --> 00:03:23,890
+One thing to note here is that the time since delivery field
+
+70
+00:03:23,890 --> 00:03:27,610
+will be reset each time the consumer reads this message.
+
+71
+00:03:27,610 --> 00:03:30,490
+Thus, we can run the following XREADGROUP command.
+
+72
+00:03:30,490 --> 00:03:35,760
+
+
+73
+00:03:35,760 --> 00:03:38,220
+When we run XPENDING again, you'll
+
+74
+00:03:38,220 --> 00:03:42,270
+notice that the time since delivery field has been reset.
+
+75
+00:03:42,270 --> 00:03:44,700
+So what does XPENDING do for us?
+
+76
+00:03:44,700 --> 00:03:46,920
+Effectively, it gives us more information
+
+77
+00:03:46,920 --> 00:03:50,640
+about the currently pending entries for our consumer group.
+
+78
+00:03:50,640 --> 00:03:54,810
+Specifically, it gives us the IDs of the pending messages,
+
+79
+00:03:54,810 --> 00:03:58,500
+the number of times each message has been read by the consumer,
+
+80
+00:03:58,500 --> 00:04:02,400
+and the elapsed time since the message was last delivered.
+
+81
+00:04:02,400 --> 00:04:05,040
+So suppose we've decided to reassign the pending
+
+82
+00:04:05,040 --> 00:04:07,680
+message from consumer A to consumer
+
+83
+00:04:07,680 --> 00:04:12,020
+B. We'll need to use the XCLAIM command.
+
+84
+00:04:12,020 --> 00:04:14,840
+In its most basic usage, the XCLAIM command
+
+85
+00:04:14,840 --> 00:04:20,690
+takes four arguments, the stream name, the consumer group name,
+
+86
+00:04:20,690 --> 00:04:23,930
+the name of the consumer claiming the message,
+
+87
+00:04:23,930 --> 00:04:26,495
+and a min idle time.
+
+88
+00:04:26,495 --> 00:04:29,900
+XCLAIM will succeed only if the elapsed time
+
+89
+00:04:29,900 --> 00:04:32,360
+since the last delivery of the message
+
+90
+00:04:32,360 --> 00:04:35,270
+is greater than this min idle time.
+
+91
+00:04:35,270 --> 00:04:38,270
+This gives you an automatic way of preventing XCLAIM
+
+92
+00:04:38,270 --> 00:04:40,190
+from claiming a message that hasn't had
+
+93
+00:04:40,190 --> 00:04:42,230
+a chance to be processed yet.
+
+94
+00:04:42,230 --> 00:04:44,690
+So to claim A's pending message for B,
+
+95
+00:04:44,690 --> 00:04:47,290
+we run the command like so.
+
+96
+00:04:47,290 --> 00:04:50,950
+When successful, XCLAIM returns the message that was claimed,
+
+97
+00:04:50,950 --> 00:04:53,670
+as you can see here.
+
+98
+00:04:53,670 --> 00:04:55,770
+If we quickly run XPENDING, we'll
+
+99
+00:04:55,770 --> 00:05:00,150
+see that the message is now indeed owned by consumer B.
+
+100
+00:05:00,150 --> 00:05:02,630
+Now, here are some things you need to know about the XCLAIM
+
+101
+00:05:02,630 --> 00:05:03,900
+command.
+
+102
+00:05:03,900 --> 00:05:06,600
+First, any Redis client can claim a message
+
+103
+00:05:06,600 --> 00:05:09,690
+on behalf of a consumer using XCLAIM.
+
+104
+00:05:09,690 --> 00:05:12,540
+This means that you can have an out of band process
+
+105
+00:05:12,540 --> 00:05:16,080
+that monitors consumer groups and reassigns pending messages
+
+106
+00:05:16,080 --> 00:05:18,280
+as necessary.
+
+107
+00:05:18,280 --> 00:05:21,940
+Second, claiming a message resets the elapsed time
+
+108
+00:05:21,940 --> 00:05:26,461
+since delivery and increments the delivery count by one.
+
+109
+00:05:26,461 --> 00:05:29,650
+Third, if you want to reset the delivery counter,
+
+110
+00:05:29,650 --> 00:05:33,290
+use XCLAIM's RETRYCOUNT option.
+
+111
+00:05:33,290 --> 00:05:36,008
+This allows you to set the counter to zero, for instance,
+
+112
+00:05:36,008 --> 00:05:36,550
+on an XCLAIM.
+
+113
+00:05:36,550 --> 00:05:39,180
+
+
+114
+00:05:39,180 --> 00:05:42,630
+So to summarize, the XPENDING and XCLAIM commands,
+
+115
+00:05:42,630 --> 00:05:46,980
+combined with XINFO, give you the ability to detect and then
+
+116
+00:05:46,980 --> 00:05:50,730
+reassign messages from one consumer's Pending Entries List
+
+117
+00:05:50,730 --> 00:05:52,380
+to another's.
+
+118
+00:05:52,380 --> 00:05:55,110
+In the next unit, we'll talk about consumer recovery
+
+119
+00:05:55,110 --> 00:05:57,980
+scenarios in a bit more detail.
+

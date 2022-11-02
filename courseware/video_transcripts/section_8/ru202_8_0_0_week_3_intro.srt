@@ -1,0 +1,68 @@
+0
+00:00:00,000 --> 00:00:00,670
+
+
+1
+00:00:00,670 --> 00:00:03,490
+Welcome to week three of Redis Streams.
+
+2
+00:00:03,490 --> 00:00:06,080
+This week's topic is consumer groups,
+
+3
+00:00:06,080 --> 00:00:08,200
+which is Redis Streams' way of distributing
+
+4
+00:00:08,200 --> 00:00:12,120
+the consumption of a stream across multiple consumers.
+
+5
+00:00:12,120 --> 00:00:14,850
+In this week, we're going to cover a lot of ground,
+
+6
+00:00:14,850 --> 00:00:18,190
+including how to create consumer groups
+
+7
+00:00:18,190 --> 00:00:21,460
+and add consumers to them; how to query
+
+8
+00:00:21,460 --> 00:00:25,360
+the state of a consumer group; what the Pending Entries
+
+9
+00:00:25,360 --> 00:00:29,140
+List is and why it's important; and how
+
+10
+00:00:29,140 --> 00:00:32,950
+to adjust a consumer group's position in a stream.
+
+11
+00:00:32,950 --> 00:00:36,250
+As in chapter 1, we're providing a hands-on example
+
+12
+00:00:36,250 --> 00:00:39,070
+that you can run locally or in your virtual lab
+
+13
+00:00:39,070 --> 00:00:41,720
+to help you better understand the material.
+
+14
+00:00:41,720 --> 00:00:44,150
+As always, if you have any questions,
+
+15
+00:00:44,150 --> 00:00:46,000
+please hit us up on the forums.
+
+16
+00:00:46,000 --> 00:00:46,500
+
+

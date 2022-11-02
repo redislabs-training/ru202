@@ -1,0 +1,312 @@
+0
+00:00:00,000 --> 00:00:00,210
+
+
+1
+00:00:00,210 --> 00:00:01,800
+Let's take a few minutes to review
+
+2
+00:00:01,800 --> 00:00:04,230
+the differences between the Redis Streams and Redis
+
+3
+00:00:04,230 --> 00:00:05,800
+Pub/Sub.
+
+4
+00:00:05,800 --> 00:00:08,860
+Pub/Sub, which is short for Publish/Subscribe,
+
+5
+00:00:08,860 --> 00:00:11,860
+is just what the name implies, a Redis construct
+
+6
+00:00:11,860 --> 00:00:16,110
+for publishing messages to any and all subscribers.
+
+7
+00:00:16,110 --> 00:00:19,050
+Under this paradigm, both senders and recipients
+
+8
+00:00:19,050 --> 00:00:20,880
+are oblivious to each other.
+
+9
+00:00:20,880 --> 00:00:25,290
+They simply agree on a channel for communication of messages.
+
+10
+00:00:25,290 --> 00:00:27,750
+The senders publish messages to channels,
+
+11
+00:00:27,750 --> 00:00:30,820
+without knowing who is going to receive them.
+
+12
+00:00:30,820 --> 00:00:34,210
+Similarly, receivers subscribe to the channels that interest
+
+13
+00:00:34,210 --> 00:00:36,460
+them but are not assured that there
+
+14
+00:00:36,460 --> 00:00:40,440
+are any publishers on the other side.
+
+15
+00:00:40,440 --> 00:00:42,480
+Of course, channels may have any number
+
+16
+00:00:42,480 --> 00:00:44,700
+of publishers and consumers.
+
+17
+00:00:44,700 --> 00:00:46,920
+This makes Pub/Sub a common pattern
+
+18
+00:00:46,920 --> 00:00:49,560
+to allow dynamic scaling of a distributed system.
+
+19
+00:00:52,540 --> 00:00:54,950
+The Pub/Sub messaging paradigm in Redis
+
+20
+00:00:54,950 --> 00:00:59,020
+is exposed via the PUBLISH and SUBSCRIBE commands.
+
+21
+00:00:59,020 --> 00:01:02,760
+Subscribers are blocked as long as there are no new messages
+
+22
+00:01:02,760 --> 00:01:05,650
+and are immediately messaged and freed as soon
+
+23
+00:01:05,650 --> 00:01:08,240
+as a publisher sends news.
+
+24
+00:01:08,240 --> 00:01:10,310
+With Pub/Sub, subscribers can only
+
+25
+00:01:10,310 --> 00:01:13,040
+start listening for new messages.
+
+26
+00:01:13,040 --> 00:01:15,140
+In other words, a Pub/Sub channel
+
+27
+00:01:15,140 --> 00:01:17,240
+doesn't store any messages.
+
+28
+00:01:17,240 --> 00:01:20,690
+Messages are published immediately to all subscribers
+
+29
+00:01:20,690 --> 00:01:21,785
+and are then forever lost.
+
+30
+00:01:24,790 --> 00:01:28,180
+You can implement the Pub/Sub paradigm with Redis Streams,
+
+31
+00:01:28,180 --> 00:01:31,220
+but there are a few important differences.
+
+32
+00:01:31,220 --> 00:01:34,210
+First, a stream entry is semi-structured,
+
+33
+00:01:34,210 --> 00:01:37,250
+whereas Pub/Sub's is just a string.
+
+34
+00:01:37,250 --> 00:01:40,760
+Second, each stream message has an ID,
+
+35
+00:01:40,760 --> 00:01:44,490
+whereas Pub/Sub messages don't.
+
+36
+00:01:44,490 --> 00:01:47,910
+Besides the embedded temporal information that a stream entry
+
+37
+00:01:47,910 --> 00:01:51,750
+ID carries, we've seen how we can use these IDs to access
+
+38
+00:01:51,750 --> 00:01:52,860
+messages in the stream.
+
+39
+00:01:55,470 --> 00:02:00,370
+Next, unlike a Pub/Sub channel, a stream actually stores data.
+
+40
+00:02:00,370 --> 00:02:02,370
+In other words, the messages in a stream
+
+41
+00:02:02,370 --> 00:02:05,850
+are stored so that they can later be retrieved and processed
+
+42
+00:02:05,850 --> 00:02:12,050
+by a variety of consumers.
+
+43
+00:02:12,050 --> 00:02:15,750
+So let's think delivery semantics for a moment.
+
+44
+00:02:15,750 --> 00:02:17,650
+You really need to think of Redis Pub/Sub as a fire-
+
+45
+00:02:17,650 --> 00:02:20,740
+and-forget mechanism.
+
+46
+00:02:20,740 --> 00:02:23,010
+Formally speaking, it has at-most-once message delivery
+
+47
+00:02:23,010 --> 00:02:24,800
+semantics.
+
+48
+00:02:24,800 --> 00:02:28,470
+If a subscriber has crashed, or if the network has failed,
+
+49
+00:02:28,470 --> 00:02:31,390
+or if, for any other reason, the message was not delivered,
+
+50
+00:02:31,390 --> 00:02:34,470
+there's no way to retrieve it.
+
+51
+00:02:34,470 --> 00:02:38,000
+For cases where at-most-once delivery is inadequate,
+
+52
+00:02:38,000 --> 00:02:40,650
+Redis Streams is a better alternative.
+
+53
+00:02:40,650 --> 00:02:43,980
+Using a Redis Streams consumer, you can always mimic
+
+54
+00:02:43,980 --> 00:02:47,310
+the at-most-once semantics of Redis Pub/Sub by using
+
+55
+00:02:47,310 --> 00:02:51,270
+the special "$" ID, which will retrieve only the latest
+
+56
+00:02:51,270 --> 00:02:53,100
+messages.
+
+57
+00:02:53,100 --> 00:02:56,600
+But by keeping track of the message ID that it receives,
+
+58
+00:02:56,600 --> 00:03:00,000
+the consumer can also pick up where it left off.
+
+59
+00:03:00,000 --> 00:03:01,600
+The ID could be stored only locally,
+
+60
+00:03:01,600 --> 00:03:04,500
+in the consumer's memory, or persisted somehow,
+
+61
+00:03:04,500 --> 00:03:08,500
+to Redis for example, for process-failure resilience
+
+62
+00:03:08,500 --> 00:03:10,510
+purposes.
+
+63
+00:03:10,510 --> 00:03:12,460
+This way, with Redis Streams, you
+
+64
+00:03:12,460 --> 00:03:17,650
+can implement an at-least-once message delivery semantics.
+
+65
+00:03:17,650 --> 00:03:20,200
+The table on screen provides a concise summary
+
+66
+00:03:20,200 --> 00:03:23,750
+of the differences between Redis Pub/Sub and Redis Streams.
+
+67
+00:03:23,750 --> 00:03:26,000
+So what's the upshot?
+
+68
+00:03:26,000 --> 00:03:28,000
+You should use Redis Pub/Sub when
+
+69
+00:03:28,000 --> 00:03:30,200
+you need a lightweight channel to deliver messages
+
+70
+00:03:30,200 --> 00:03:32,300
+to a number of subscribers.
+
+71
+00:03:32,300 --> 00:03:35,220
+If this is all you need, the simplicity of Redis Pub/Sub
+
+72
+00:03:35,220 --> 00:03:37,940
+is a win over Redis Streams.
+
+73
+00:03:37,940 --> 00:03:42,220
+However, if you need at-least-once semantics,
+
+74
+00:03:42,200 --> 00:03:44,900
+ID-based access to messages,
+
+75
+00:03:44,900 --> 00:03:46,900
+a structured key value format,
+
+76
+00:03:46,900 --> 00:03:50,200
+or fine grained control over your message consumption,
+
+77
+00:03:50,200 --> 00:03:54,000
+then Redis Streams is the way to go.
+

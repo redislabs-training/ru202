@@ -1,0 +1,72 @@
+0
+00:00:00,000 --> 00:00:00,620
+
+
+1
+00:00:00,620 --> 00:00:03,260
+Thanks again for being part of this course.
+
+2
+00:00:03,260 --> 00:00:04,820
+We hope you've enjoyed it, and we
+
+3
+00:00:04,820 --> 00:00:07,910
+hope it's provided you with the tools you need to successfully
+
+4
+00:00:07,910 --> 00:00:10,150
+use Redis Streams.
+
+5
+00:00:10,150 --> 00:00:13,600
+If you pass the course with a grade of 65% or greater,
+
+6
+00:00:13,600 --> 00:00:16,780
+please see the next steps for generating your certificate
+
+7
+00:00:16,780 --> 00:00:19,450
+and posting it to your LinkedIn profile.
+
+8
+00:00:19,450 --> 00:00:21,400
+And if you have any feedback or insights
+
+9
+00:00:21,400 --> 00:00:24,520
+you want to share with the Redis University team,
+
+10
+00:00:24,520 --> 00:00:27,813
+don't hesitate to leave a note on the discussion forums.
+
+11
+00:00:27,813 --> 00:00:29,230
+We'll also be sending out a survey
+
+12
+00:00:29,230 --> 00:00:32,170
+in the near future, where you can leave comments and help
+
+13
+00:00:32,170 --> 00:00:35,500
+us to improve future versions of Redis Streams.
+
+14
+00:00:35,500 --> 00:00:37,870
+Again, we're grateful you've taken the time
+
+15
+00:00:37,870 --> 00:00:40,300
+to work through this Redis University course.
+
+16
+00:00:40,300 --> 00:00:43,234
+Happy learning, and see you next time.
+
+17
+00:00:43,234 --> 00:00:43,734
+
+

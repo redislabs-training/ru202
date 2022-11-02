@@ -1,0 +1,84 @@
+0
+00:00:00,000 --> 00:00:00,540
+
+
+1
+00:00:00,540 --> 00:00:03,720
+Well, you've finished your first week of Redis Streams.
+
+2
+00:00:03,720 --> 00:00:07,180
+We've covered what we hope is a lot of exciting new material.
+
+3
+00:00:07,180 --> 00:00:08,850
+Itamar started off the course
+
+4
+00:00:08,850 --> 00:00:11,610
+with a broad introduction to distributed systems,
+
+5
+00:00:11,610 --> 00:00:14,760
+stream processing, and streaming pipelines.
+
+6
+00:00:14,760 --> 00:00:17,310
+This essential background paved the way
+
+7
+00:00:17,310 --> 00:00:20,090
+for a general introduction to Redis Streams.
+
+8
+00:00:20,090 --> 00:00:23,730
+There I presented some of the main features of Redis Streams.
+
+9
+00:00:23,730 --> 00:00:26,840
+And I tried to show how Redis Streams compares to other Redis
+
+10
+00:00:26,840 --> 00:00:28,470
+data structures.
+
+11
+00:00:28,470 --> 00:00:30,210
+We also studied a working example
+
+12
+00:00:30,210 --> 00:00:34,000
+of Redis Streams written in Python.
+
+13
+00:00:34,000 --> 00:00:35,740
+Having completed this introduction,
+
+14
+00:00:35,740 --> 00:00:38,560
+it's now it's time to get down to brass tacks.
+
+15
+00:00:38,560 --> 00:00:40,030
+Next week, we'll start to describe
+
+16
+00:00:40,030 --> 00:00:44,380
+producers, range queries, and consumers in great detail.
+
+17
+00:00:44,380 --> 00:00:46,540
+Then in week 3, you'll learn everything
+
+18
+00:00:46,540 --> 00:00:48,160
+you ever wanted to know about consumer
+
+19
+00:00:48,160 --> 00:00:50,290
+groups and their management.
+
+20
+00:00:50,290 --> 00:00:53,150
+Looking forward to having you along.
+

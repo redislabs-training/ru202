@@ -1,0 +1,248 @@
+0
+00:00:00,000 --> 00:00:00,500
+
+
+1
+00:00:00,500 --> 00:00:02,520
+We've seen how messages are identified
+
+2
+00:00:02,520 --> 00:00:04,470
+in a stream with their IDs.
+
+3
+00:00:04,470 --> 00:00:07,440
+So let's talk about their contents now.
+
+4
+00:00:07,440 --> 00:00:10,170
+Every message in the stream contains data.
+
+5
+00:00:10,170 --> 00:00:12,480
+The data, as far as Redis is concerned,
+
+6
+00:00:12,480 --> 00:00:17,010
+is opaque and can be anything that the producer provides.
+
+7
+00:00:17,010 --> 00:00:19,410
+Redis does not assume anything about the data
+
+8
+00:00:19,410 --> 00:00:22,590
+you store in the stream but, rather, provides ordered
+
+9
+00:00:22,590 --> 00:00:26,690
+access to it efficiently.
+
+10
+00:00:26,690 --> 00:00:28,610
+In the previous examples, we've seen
+
+11
+00:00:28,610 --> 00:00:31,160
+how XADD expects data arguments to be
+
+12
+00:00:31,160 --> 00:00:36,050
+field-value tuples, similarly to how Redis's hashes behave.
+
+13
+00:00:36,050 --> 00:00:38,810
+Empty messages are not allowed, so every message
+
+14
+00:00:38,810 --> 00:00:41,780
+has to have at least one field-value pair.
+
+15
+00:00:41,780 --> 00:00:45,590
+But you can use any number of fields up to some arbitrary
+
+16
+00:00:45,590 --> 00:00:49,530
+power of 2 to construct it.
+
+17
+00:00:49,530 --> 00:00:53,760
+Each value in a field name is a plain old regular Redis string
+
+18
+00:00:53,760 --> 00:00:57,510
+capable of storing up to half a gigabyte of data.
+
+19
+00:00:57,510 --> 00:01:00,690
+The actual data can be a simple numerical value,
+
+20
+00:01:00,690 --> 00:01:04,410
+such as a sensor's reading, a string representing an order
+
+21
+00:01:04,410 --> 00:01:07,050
+confirmation number, a compressed JSON
+
+22
+00:01:07,050 --> 00:01:12,050
+document, or any other type of serialization format.
+
+23
+00:01:12,050 --> 00:01:14,300
+The data itself is opaque to Redis,
+
+24
+00:01:14,300 --> 00:01:16,190
+meaning that the server does not attempt
+
+25
+00:01:16,190 --> 00:01:18,200
+to process it in any way.
+
+26
+00:01:18,200 --> 00:01:21,890
+The field names, however, undergo a compression of sorts
+
+27
+00:01:21,890 --> 00:01:25,220
+in order to optimize the total memory footprint of the stream
+
+28
+00:01:25,220 --> 00:01:26,454
+data structure.
+
+29
+00:01:26,454 --> 00:01:29,180
+
+
+30
+00:01:29,180 --> 00:01:31,610
+Field-name compression kicks in automatically
+
+31
+00:01:31,610 --> 00:01:33,710
+when consecutive messages in the stream
+
+32
+00:01:33,710 --> 00:01:35,720
+share the same field names.
+
+33
+00:01:35,720 --> 00:01:39,530
+In such cases, Redis will avoid storing the actual names
+
+34
+00:01:39,530 --> 00:01:42,380
+repeatedly for new messages and, instead,
+
+35
+00:01:42,380 --> 00:01:44,580
+uses pointer-like logic.
+
+36
+00:01:44,580 --> 00:01:47,240
+Because in a lot of streams, the message's format
+
+37
+00:01:47,240 --> 00:01:50,420
+remains constant while only the data changes,
+
+38
+00:01:50,420 --> 00:01:53,090
+this on-the-fly optimization eliminates
+
+39
+00:01:53,090 --> 00:01:57,590
+redundant duplication of the metadata.
+
+40
+00:01:57,590 --> 00:02:00,170
+Don't worry too much, however, if field-name compression
+
+41
+00:02:00,170 --> 00:02:02,450
+is not applicable in your use case.
+
+42
+00:02:02,450 --> 00:02:05,060
+Like other Redis identifiers, just
+
+43
+00:02:05,060 --> 00:02:09,380
+strive to keep your field names short and descriptive-ish.
+
+44
+00:02:09,380 --> 00:02:11,780
+At this point, it is important to understand
+
+45
+00:02:11,780 --> 00:02:16,550
+that when read, messages are always returned as a whole.
+
+46
+00:02:16,550 --> 00:02:19,130
+Redis commands that read from streams
+
+47
+00:02:19,130 --> 00:02:22,250
+return the full messages without filtering or allowing
+
+48
+00:02:22,250 --> 00:02:24,180
+field-level selection.
+
+49
+00:02:24,180 --> 00:02:26,240
+So if you're storing a combination
+
+50
+00:02:26,240 --> 00:02:28,670
+of tiny and large fields, don't assume
+
+51
+00:02:28,670 --> 00:02:31,250
+that you can optimize the response's size
+
+52
+00:02:31,250 --> 00:02:34,070
+by selecting only the small fields.
+
+53
+00:02:34,070 --> 00:02:36,680
+Let's summarize what we've learned in this video.
+
+54
+00:02:36,680 --> 00:02:38,600
+Data is stored in stream messages
+
+55
+00:02:38,600 --> 00:02:41,300
+as a collection of fields and their values.
+
+56
+00:02:41,300 --> 00:02:43,340
+Values are Redis strings, so they
+
+57
+00:02:43,340 --> 00:02:45,980
+can contain texts or numerical values
+
+58
+00:02:45,980 --> 00:02:48,500
+as well as any serialized data.
+
+59
+00:02:48,500 --> 00:02:51,490
+When consecutive messages share the same fields,
+
+60
+00:02:51,490 --> 00:02:54,770
+Redis uses in-flight compression to reduce their memory
+
+61
+00:02:54,770 --> 00:02:56,620
+footprint.
+

@@ -1,0 +1,480 @@
+0
+00:00:00,000 --> 00:00:00,560
+
+
+1
+00:00:00,560 --> 00:00:02,450
+Polling and sleeping between new messages
+
+2
+00:00:02,450 --> 00:00:05,150
+is wasteful, tricky, and hard to scale.
+
+3
+00:00:05,150 --> 00:00:07,190
+XREAD's real power is that it can
+
+4
+00:00:07,190 --> 00:00:09,890
+be coded in blocking manner, effectively abolishing
+
+5
+00:00:09,890 --> 00:00:12,070
+the need for consumers to poll.
+
+6
+00:00:12,070 --> 00:00:16,059
+In this unit, we'll learn how to do that.
+
+7
+00:00:16,059 --> 00:00:18,250
+Generally, Redis's blocking commands
+
+8
+00:00:18,250 --> 00:00:22,210
+are so named because they block the Redis client's execution.
+
+9
+00:00:22,210 --> 00:00:25,090
+Redis lists and sorted sets, for example,
+
+10
+00:00:25,090 --> 00:00:27,760
+provide a blocking pop operation that
+
+11
+00:00:27,760 --> 00:00:30,250
+can wait for new elements and members
+
+12
+00:00:30,250 --> 00:00:33,040
+to be stored in an empty data structure.
+
+13
+00:00:33,040 --> 00:00:36,970
+Similarly, pub/sub subscriptions are also blocking.
+
+14
+00:00:36,970 --> 00:00:40,090
+The subscribing Redis client waits for new messages
+
+15
+00:00:40,090 --> 00:00:42,820
+to arrive over channels, and is essentially
+
+16
+00:00:42,820 --> 00:00:45,280
+blocked until they do.
+
+17
+00:00:45,280 --> 00:00:47,290
+Streams also provide a blocking way
+
+18
+00:00:47,290 --> 00:00:50,530
+to consume messages with the optional BLOCK sub-command
+
+19
+00:00:50,530 --> 00:00:51,520
+that XREAD accepts.
+
+20
+00:00:54,340 --> 00:00:59,140
+When used with BLOCK, XREAD will either return immediately
+
+21
+00:00:59,140 --> 00:01:01,870
+with up to COUNT messages in the input streams
+
+22
+00:01:01,870 --> 00:01:04,870
+if there are any, or will block execution
+
+23
+00:01:04,870 --> 00:01:08,740
+for the specified number of milliseconds before timing out.
+
+24
+00:01:08,740 --> 00:01:11,440
+If new messages are added to any of the streams
+
+25
+00:01:11,440 --> 00:01:14,710
+during the block period, XREAD will return these.
+
+26
+00:01:14,710 --> 00:01:17,940
+However, in that case, COUNT will always be 1.
+
+27
+00:01:17,940 --> 00:01:20,930
+Let's try that in the CLI.
+
+28
+00:01:20,930 --> 00:01:23,390
+First, we'll make sure that our static natural numbers
+
+29
+00:01:23,390 --> 00:01:24,930
+stream is ready.
+
+30
+00:01:24,930 --> 00:01:27,140
+Then, for demonstration purposes,
+
+31
+00:01:27,140 --> 00:01:31,550
+I'll use XRANGE to get the final two messages in the stream,
+
+32
+00:01:31,550 --> 00:01:36,560
+so I have IDs to use with XREAD.
+
+33
+00:01:36,560 --> 00:01:39,650
+When we call the command with the second-to-last message ID,
+
+34
+00:01:39,650 --> 00:01:42,380
+despite being provided with a full second to block,
+
+35
+00:01:42,380 --> 00:01:44,330
+XREAD immediately returns.
+
+36
+00:01:44,330 --> 00:01:46,550
+This is because it was able to fetch the next,
+
+37
+00:01:46,550 --> 00:01:49,850
+and in our case, the last, message in the stream.
+
+38
+00:01:49,850 --> 00:01:53,330
+However, calling XREAD again with the ID
+
+39
+00:01:53,330 --> 00:01:55,100
+of the last message in the stream
+
+40
+00:01:55,100 --> 00:01:57,170
+puts it into blocking mode, because there
+
+41
+00:01:57,170 --> 00:02:00,890
+are no new messages after that.
+
+42
+00:02:00,890 --> 00:02:03,860
+After a second has passed, and because no new numbers were
+
+43
+00:02:03,860 --> 00:02:08,270
+added, XREAD times out, and Redis returns the nil response
+
+44
+00:02:08,270 --> 00:02:11,230
+to signal that.
+
+45
+00:02:11,230 --> 00:02:12,790
+Like other Redis subcommands that
+
+46
+00:02:12,790 --> 00:02:16,140
+accept a timeout, 0 is a valid but dangerous value.
+
+47
+00:02:16,140 --> 00:02:18,460
+0 is interpreted as "block forever,"
+
+48
+00:02:18,460 --> 00:02:21,610
+and you don't really want to do that in the real world.
+
+49
+00:02:21,610 --> 00:02:23,800
+An infinite timeout, on the other hand,
+
+50
+00:02:23,800 --> 00:02:27,250
+is a very handy tool in demonstrating how a blocking
+
+51
+00:02:27,250 --> 00:02:31,000
+XREAD call is unblocked.
+
+52
+00:02:31,000 --> 00:02:32,710
+In the first terminal window, I call
+
+53
+00:02:32,710 --> 00:02:35,170
+XREAD with an infinite timeout.
+
+54
+00:02:35,170 --> 00:02:37,030
+This gives me all the time in the world
+
+55
+00:02:37,030 --> 00:02:39,490
+to switch to another terminal window and type
+
+56
+00:02:39,490 --> 00:02:40,990
+the XADD command.
+
+57
+00:02:40,990 --> 00:02:43,570
+During that time, the XREAD is blocking the client
+
+58
+00:02:43,570 --> 00:02:46,500
+until the server sends a reply.
+
+59
+00:02:46,500 --> 00:02:48,780
+It took me slightly less than 20 seconds
+
+60
+00:02:48,780 --> 00:02:51,330
+to add the new message in the other terminal.
+
+61
+00:02:51,330 --> 00:02:53,050
+The instant it was added,
+
+62
+00:02:53,050 --> 00:02:56,310
+Redis had also sent it to the XREADing client,
+
+63
+00:02:56,310 --> 00:02:59,890
+effectively unblocking it.
+
+64
+00:02:59,890 --> 00:03:02,590
+Some programs will need to process the entire stream
+
+65
+00:03:02,590 --> 00:03:04,690
+at once, but others may only need
+
+66
+00:03:04,690 --> 00:03:07,090
+to get new messages to do their work.
+
+67
+00:03:07,090 --> 00:03:09,880
+Another type of consumer, perhaps more common,
+
+68
+00:03:09,880 --> 00:03:13,120
+is one that only listens to new messages.
+
+69
+00:03:13,120 --> 00:03:16,630
+In the previous example, I used XREVRANGE to retrieve
+
+70
+00:03:16,630 --> 00:03:19,210
+the last message ID in the stream, which I then
+
+71
+00:03:19,210 --> 00:03:21,400
+used as input for XREAD.
+
+72
+00:03:21,400 --> 00:03:24,130
+While effective, this pattern involves two calls,
+
+73
+00:03:24,130 --> 00:03:27,460
+and could be streamlined using only XREAD, plus yet
+
+74
+00:03:27,460 --> 00:03:31,330
+another special message ID.
+
+75
+00:03:31,330 --> 00:03:34,120
+To start an XREAD operation from the next new message
+
+76
+00:03:34,120 --> 00:03:36,700
+in the stream, pass in the dollar sign character ("$")
+
+77
+00:03:36,700 --> 00:03:38,250
+as the message ID.
+
+78
+00:03:38,250 --> 00:03:40,780
+The special dollar sign message ID ("$")
+
+79
+00:03:40,780 --> 00:03:44,830
+is a shortcut that tells Redis to use the last message.
+
+80
+00:03:44,830 --> 00:03:47,410
+So with it, I can subscribe to the stream
+
+81
+00:03:47,410 --> 00:03:49,900
+and will then receive any new message from there
+
+82
+00:03:49,900 --> 00:03:54,760
+on out, until the timeout is triggered.
+
+83
+00:03:54,760 --> 00:03:56,530
+The special dollar message ID should
+
+84
+00:03:56,530 --> 00:04:00,430
+be used, however, only for fetching the first new message.
+
+85
+00:04:00,430 --> 00:04:03,040
+Once the first new message has been read,
+
+86
+00:04:03,040 --> 00:04:05,800
+we want to move on to the next new message.
+
+87
+00:04:05,800 --> 00:04:09,100
+But remember, that it is possible that more than one message
+
+88
+00:04:09,100 --> 00:04:11,110
+has been added to the stream.
+
+89
+00:04:11,110 --> 00:04:14,020
+To ensure that new messages aren't skipped over,
+
+90
+00:04:14,020 --> 00:04:17,560
+subsequent calls should use the last-processed ID.
+
+91
+00:04:17,560 --> 00:04:20,730
+This pattern allows the consumer to begin its processing
+
+92
+00:04:20,730 --> 00:04:22,570
+at the first new message and then
+
+93
+00:04:22,570 --> 00:04:26,680
+process all messages after it.
+
+94
+00:04:26,680 --> 00:04:29,230
+Armed with this knowledge, I can now implement an efficient
+
+95
+00:04:29,230 --> 00:04:32,230
+running sum that blocks and listens for new messages,
+
+96
+00:04:32,230 --> 00:04:34,060
+instead of polling for them.
+
+97
+00:04:34,060 --> 00:04:36,160
+It uses a blocking XREAD and employs
+
+98
+00:04:36,160 --> 00:04:40,120
+a basic exponential back-off mechanism to handle timeouts.
+
+99
+00:04:40,120 --> 00:04:42,790
+When I run it on the static natural numbers stream,
+
+100
+00:04:42,790 --> 00:04:44,900
+this is what it looks like.
+
+101
+00:04:44,900 --> 00:04:47,230
+Note that after consuming all the messages
+
+102
+00:04:47,230 --> 00:04:49,840
+and then politely retrying to wait for new ones,
+
+103
+00:04:49,840 --> 00:04:53,840
+this process eventually quits.
+
+104
+00:04:53,840 --> 00:04:56,150
+We can provide a continuous stream to the consumer
+
+105
+00:04:56,150 --> 00:04:59,420
+by reverting to our original producer code.
+
+106
+00:04:59,420 --> 00:05:01,970
+I'll start by flushing the database and then starting
+
+107
+00:05:01,970 --> 00:05:04,850
+producer_1.py.
+
+108
+00:05:04,850 --> 00:05:08,570
+Then, in a different session, I can run the consumer.
+
+109
+00:05:08,570 --> 00:05:10,550
+This time, the consumer will continue
+
+110
+00:05:10,550 --> 00:05:14,360
+to run until the producer, or the consumer, itself are stopped.
+
+111
+00:05:18,240 --> 00:05:22,470
+The blocking consumer pattern is a reason for XREAD's existence.
+
+112
+00:05:22,470 --> 00:05:25,380
+There is no "XREVREAD", because that does not
+
+113
+00:05:25,380 --> 00:05:27,420
+align with our current interpretation
+
+114
+00:05:27,420 --> 00:05:29,920
+of the arrow of time.
+
+115
+00:05:29,920 --> 00:05:33,090
+Blocking consumer can begin consuming one or more streams
+
+116
+00:05:33,090 --> 00:05:35,010
+at any arbitrary position.
+
+117
+00:05:35,010 --> 00:05:37,260
+However, the blocking pattern is especially
+
+118
+00:05:37,260 --> 00:05:39,180
+suitable for consumers that process
+
+119
+00:05:39,180 --> 00:05:41,960
+new messages as they arrive.
+

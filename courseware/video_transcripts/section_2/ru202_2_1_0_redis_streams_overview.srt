@@ -1,0 +1,480 @@
+0
+00:00:00,000 --> 00:00:00,530
+
+
+1
+00:00:00,530 --> 00:00:02,150
+With the ever-growing need to process
+
+2
+00:00:02,150 --> 00:00:04,460
+more and more real-time streaming data,
+
+3
+00:00:04,460 --> 00:00:06,620
+it was only natural for Redis to add support
+
+4
+00:00:06,620 --> 00:00:08,990
+for a stream-like data structure.
+
+5
+00:00:08,990 --> 00:00:12,080
+This feature, officially known as Redis Streams,
+
+6
+00:00:12,080 --> 00:00:15,980
+was released in October 2018 with Redis 5.0.
+
+7
+00:00:15,980 --> 00:00:17,810
+In this chapter, I'm going to give you
+
+8
+00:00:17,810 --> 00:00:21,020
+an overview of Redis Streams, describing the features that
+
+9
+00:00:21,020 --> 00:00:23,910
+make them unique.
+
+10
+00:00:23,910 --> 00:00:26,490
+Redis Streams is a sophisticated feature.
+
+11
+00:00:26,490 --> 00:00:28,380
+But you can make sense of it by understanding
+
+12
+00:00:28,380 --> 00:00:30,540
+the following main ideas--
+
+13
+00:00:30,540 --> 00:00:33,870
+first, Redis Streams is essentially a new Redis data
+
+14
+00:00:33,870 --> 00:00:34,830
+structure.
+
+15
+00:00:34,830 --> 00:00:38,170
+This data structure is known as a stream.
+
+16
+00:00:38,170 --> 00:00:43,990
+Second, the stream behaves like an append-only list or log.
+
+17
+00:00:43,990 --> 00:00:47,170
+Third, each entry in a stream is structured
+
+18
+00:00:47,170 --> 00:00:49,420
+as a set of key value pairs.
+
+19
+00:00:49,420 --> 00:00:51,010
+So you can think of a stream entry
+
+20
+00:00:51,010 --> 00:00:54,040
+as something akin to a Redis hash.
+
+21
+00:00:54,040 --> 00:00:57,730
+Fourth, every stream entry has a unique ID.
+
+22
+00:00:57,730 --> 00:01:01,400
+And by default, these IDs are time-prefixed.
+
+23
+00:01:01,400 --> 00:01:05,930
+Fifth, streams support ID-based range queries.
+
+24
+00:01:05,930 --> 00:01:09,350
+And finally, streams can be consumed and processed
+
+25
+00:01:09,350 --> 00:01:12,210
+by multiple distinct sets of consumers.
+
+26
+00:01:12,210 --> 00:01:14,550
+These are known as consumer groups.
+
+27
+00:01:14,550 --> 00:01:16,040
+Now, that's a lot to unpack.
+
+28
+00:01:16,040 --> 00:01:18,960
+So let's look at each of these ideas one by one.
+
+29
+00:01:18,960 --> 00:01:22,250
+First, Redis Streams is a new Redis data structure.
+
+30
+00:01:22,250 --> 00:01:24,800
+Like all Redis data structures, each Redis Stream
+
+31
+00:01:24,800 --> 00:01:26,420
+is addressed with a key.
+
+32
+00:01:26,420 --> 00:01:29,690
+And that key points to a value of type stream.
+
+33
+00:01:29,690 --> 00:01:31,280
+What this means is that you can use
+
+34
+00:01:31,280 --> 00:01:33,620
+all of the standard key operations
+
+35
+00:01:33,620 --> 00:01:36,270
+against keys that point to a stream.
+
+36
+00:01:36,270 --> 00:01:39,830
+For instance, you can use the del command to delete a stream.
+
+37
+00:01:39,830 --> 00:01:41,450
+And you can use the expire command
+
+38
+00:01:41,450 --> 00:01:44,030
+to set a time to live or TTL.
+
+39
+00:01:44,030 --> 00:01:47,300
+TTL's are, of course, incredibly powerful and often essential
+
+40
+00:01:47,300 --> 00:01:51,550
+for keeping streaming data sets from growing too large.
+
+41
+00:01:51,550 --> 00:01:54,730
+The next idea is that a stream acts like an append-only log.
+
+42
+00:01:54,730 --> 00:01:57,790
+In other words, the only way to put data into a stream
+
+43
+00:01:57,790 --> 00:01:59,530
+is to add it to the end.
+
+44
+00:01:59,530 --> 00:02:02,500
+This, in fact, nicely fits a common definition of streams
+
+45
+00:02:02,500 --> 00:02:06,470
+as an ordered or semi-ordered series of events.
+
+46
+00:02:06,470 --> 00:02:07,940
+Streams are also immutable.
+
+47
+00:02:07,940 --> 00:02:11,280
+That is, the ordering of entries cannot be changed.
+
+48
+00:02:11,280 --> 00:02:14,270
+However, Redis does allow stream entries to be deleted.
+
+49
+00:02:14,270 --> 00:02:19,030
+And that will be discussed in a later chapter of this course.
+
+50
+00:02:19,030 --> 00:02:21,150
+The third idea is that each stream entry
+
+51
+00:02:21,150 --> 00:02:23,190
+is structured as a set of key value pairs
+
+52
+00:02:23,190 --> 00:02:24,990
+just like a Redis hash.
+
+53
+00:02:24,990 --> 00:02:27,330
+For instance, you could create a weather-based stream
+
+54
+00:02:27,330 --> 00:02:29,558
+containing fields for temperature, humidity,
+
+55
+00:02:29,558 --> 00:02:30,975
+barometric pressure, and location.
+
+56
+00:02:30,975 --> 00:02:33,610
+
+
+57
+00:02:33,610 --> 00:02:36,260
+The next idea is that each entry in a Redis Stream
+
+58
+00:02:36,260 --> 00:02:37,580
+has a unique ID.
+
+59
+00:02:37,580 --> 00:02:40,370
+By default, these ideas consist of a timestamp prefix
+
+60
+00:02:40,370 --> 00:02:42,290
+and a sequence number suffix.
+
+61
+00:02:42,290 --> 00:02:46,110
+So stream entries are effectively indexed by time.
+
+62
+00:02:46,110 --> 00:02:48,840
+What's more is that stream support range queries.
+
+63
+00:02:48,840 --> 00:02:51,840
+When you combine this with time prefixed IDs,
+
+64
+00:02:51,840 --> 00:02:53,670
+you get time-based range queries.
+
+65
+00:02:53,670 --> 00:02:56,520
+In other words, I can read and process all stream events
+
+66
+00:02:56,520 --> 00:02:58,890
+from a particular time range.
+
+67
+00:02:58,890 --> 00:03:00,540
+To go back to our earlier example,
+
+68
+00:03:00,540 --> 00:03:02,920
+suppose we're collecting weather readings.
+
+69
+00:03:02,920 --> 00:03:05,970
+If we've been collecting this data over a period of time,
+
+70
+00:03:05,970 --> 00:03:08,700
+and we want to reprocess the data from midnight UTC
+
+71
+00:03:08,700 --> 00:03:13,050
+January 1 to 2:00 AM January 1, well, Redis Streams
+
+72
+00:03:13,050 --> 00:03:15,450
+can make that happen.
+
+73
+00:03:15,450 --> 00:03:17,610
+The final major feature of Redis Streams
+
+74
+00:03:17,610 --> 00:03:20,180
+is its support for consumer groups.
+
+75
+00:03:20,180 --> 00:03:23,150
+A consumer group is a set of one or more consumers
+
+76
+00:03:23,150 --> 00:03:26,310
+that, together, process the stream in its entirety.
+
+77
+00:03:26,310 --> 00:03:29,410
+For instance, here's a picture of a stream.
+
+78
+00:03:29,410 --> 00:03:32,060
+And here are it's consumer groups.
+
+79
+00:03:32,060 --> 00:03:34,270
+Notice that each consumer group processes
+
+80
+00:03:34,270 --> 00:03:35,920
+the stream in its entirety.
+
+81
+00:03:35,920 --> 00:03:42,030
+
+
+82
+00:03:42,030 --> 00:03:43,710
+So really, you can think of a consumer
+
+83
+00:03:43,710 --> 00:03:47,490
+group as akin to a subscriber in a pub/sub system.
+
+84
+00:03:47,490 --> 00:03:49,140
+And so to create a consumer group
+
+85
+00:03:49,140 --> 00:03:50,910
+is to create something like a subscriber
+
+86
+00:03:50,910 --> 00:03:52,920
+to a particular stream.
+
+87
+00:03:52,920 --> 00:03:54,450
+The difference with consumer groups
+
+88
+00:03:54,450 --> 00:03:57,510
+is that each group may divide its consumption of the stream
+
+89
+00:03:57,510 --> 00:04:00,910
+among a number of consumer instances.
+
+90
+00:04:00,910 --> 00:04:04,300
+You can see how that looks in the diagram here.
+
+91
+00:04:04,300 --> 00:04:09,560
+Notice that each group consists of a few consumers.
+
+92
+00:04:09,560 --> 00:04:11,990
+Consumer groups give us a lot of flexibility
+
+93
+00:04:11,990 --> 00:04:14,670
+in the way we process a stream.
+
+94
+00:04:14,670 --> 00:04:16,649
+For example, consumer groups allow
+
+95
+00:04:16,649 --> 00:04:18,839
+us to easily syndicate data across
+
+96
+00:04:18,839 --> 00:04:21,209
+multiple internal systems.
+
+97
+00:04:21,209 --> 00:04:23,160
+In the diagram here, you can see that we're
+
+98
+00:04:23,160 --> 00:04:27,200
+sending all of our weather data to three separate systems--
+
+99
+00:04:27,200 --> 00:04:31,500
+first, to a data warehouse, second,
+
+100
+00:04:31,500 --> 00:04:36,660
+to a machine learning pipeline, and lastly, to a notification
+
+101
+00:04:36,660 --> 00:04:37,160
+system.
+
+102
+00:04:37,160 --> 00:04:39,980
+
+
+103
+00:04:39,980 --> 00:04:42,350
+We can also use consumer groups to construct
+
+104
+00:04:42,350 --> 00:04:46,730
+arbitrarily-complex processing topologies or stream pipelines.
+
+105
+00:04:46,730 --> 00:04:49,370
+We'll be discussing all of this in much more detail
+
+106
+00:04:49,370 --> 00:04:52,440
+later in the course.
+
+107
+00:04:52,440 --> 00:04:55,310
+So you should now have a good high-level understanding
+
+108
+00:04:55,310 --> 00:04:57,720
+of Redis Streams.
+
+109
+00:04:57,720 --> 00:05:02,070
+To summarize, Redis Streams is a sophisticated new Redis data
+
+110
+00:05:02,070 --> 00:05:03,580
+structure.
+
+111
+00:05:03,580 --> 00:05:07,180
+As a Redis data structure, it's easy to create and destroy.
+
+112
+00:05:07,180 --> 00:05:08,680
+And a lot of the patterns that apply
+
+113
+00:05:08,680 --> 00:05:11,230
+to the management of any Redis key also
+
+114
+00:05:11,230 --> 00:05:14,030
+apply to keys that point to streams.
+
+115
+00:05:14,030 --> 00:05:17,730
+But with their support for ID-based access, range queries,
+
+116
+00:05:17,730 --> 00:05:19,830
+and consumer groups, Redis Streams
+
+117
+00:05:19,830 --> 00:05:21,570
+provide you with a lot of the primitives
+
+118
+00:05:21,570 --> 00:05:25,200
+you need to build modern streaming applications.
+
+119
+00:05:25,200 --> 00:05:25,700
+
+

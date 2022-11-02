@@ -1,0 +1,460 @@
+0
+00:00:00,000 --> 00:00:00,500
+
+
+1
+00:00:00,500 --> 00:00:02,170
+In the previous unit, I described
+
+2
+00:00:02,170 --> 00:00:04,900
+some of the key features of Redis Streams.
+
+3
+00:00:04,900 --> 00:00:08,140
+But to give you an even better idea of how Redis Streams fits
+
+4
+00:00:08,140 --> 00:00:11,110
+into the complete family of Redis data structures,
+
+5
+00:00:11,110 --> 00:00:13,600
+it's useful to make a few comparisons.
+
+6
+00:00:13,600 --> 00:00:15,610
+Specifically there are three axes
+
+7
+00:00:15,610 --> 00:00:18,760
+we can look at to compare Redis Streams to other Redis data
+
+8
+00:00:18,760 --> 00:00:20,860
+structures.
+
+9
+00:00:20,860 --> 00:00:24,780
+The first is blocking versus non-blocking commands.
+
+10
+00:00:24,780 --> 00:00:27,300
+The second is mutability.
+
+11
+00:00:27,300 --> 00:00:30,280
+And the third is storage and delivery,
+
+12
+00:00:30,280 --> 00:00:33,150
+especially as it relates to Redis Pub/Sub.
+
+13
+00:00:33,150 --> 00:00:36,070
+Let's take each of these in turn.
+
+14
+00:00:36,070 --> 00:00:38,710
+When we talk here about blocking versus non-blocking,
+
+15
+00:00:38,710 --> 00:00:40,990
+we're specifically referring to the question
+
+16
+00:00:40,990 --> 00:00:43,420
+of whether a Redis command returns immediately
+
+17
+00:00:43,420 --> 00:00:45,970
+or blocks until new data is available.
+
+18
+00:00:45,970 --> 00:00:48,820
+We're not talking about blocking versus non-blocking I/O,
+
+19
+00:00:48,820 --> 00:00:52,420
+otherwise known as async I/O, which is a lower-level concern
+
+20
+00:00:52,420 --> 00:00:55,270
+and beyond the scope of this course.
+
+21
+00:00:55,270 --> 00:00:57,340
+Anyway, as you probably already know,
+
+22
+00:00:57,340 --> 00:00:59,840
+most Redis commands don't block.
+
+23
+00:00:59,840 --> 00:01:02,410
+If I called get on a key that doesn't exist,
+
+24
+00:01:02,410 --> 00:01:05,170
+Redis returns immediately with a nil response.
+
+25
+00:01:05,170 --> 00:01:06,760
+It doesn't block.
+
+26
+00:01:06,760 --> 00:01:10,130
+Similarly, if I call lpop on an empty list,
+
+27
+00:01:10,130 --> 00:01:12,460
+Redis again returns a nil response.
+
+28
+00:01:12,460 --> 00:01:16,690
+For example, here, I'm pushing a single value onto a list.
+
+29
+00:01:16,690 --> 00:01:18,880
+I then pop it off with LPOP.
+
+30
+00:01:18,880 --> 00:01:20,920
+Now the list is empty.
+
+31
+00:01:20,920 --> 00:01:26,050
+When I call LPOP again, the command returns right away.
+
+32
+00:01:26,050 --> 00:01:28,330
+Now, when dealing with lists, we also
+
+33
+00:01:28,330 --> 00:01:31,140
+have the option of using a blocking command.
+
+34
+00:01:31,140 --> 00:01:34,180
+LPOP has a sister command called BLPOP,
+
+35
+00:01:34,180 --> 00:01:35,770
+and this version of the command blocks
+
+36
+00:01:35,770 --> 00:01:38,640
+for a specified period of time.
+
+37
+00:01:38,640 --> 00:01:42,350
+So see here, again, how I add a single element to a list.
+
+38
+00:01:42,350 --> 00:01:46,740
+I then run BLPOP, specifying a time-out of 30 seconds.
+
+39
+00:01:46,740 --> 00:01:50,250
+The first time I run this, BLPOP returns immediately.
+
+40
+00:01:50,250 --> 00:01:53,850
+But if I run it again BLPOP blocks for 30 seconds,
+
+41
+00:01:53,850 --> 00:01:58,060
+waiting for new data to appear in the list.
+
+42
+00:01:58,060 --> 00:02:00,280
+As with lists, Redis Streams gives you
+
+43
+00:02:00,280 --> 00:02:03,100
+the option to process a stream in both non-blocking
+
+44
+00:02:03,100 --> 00:02:04,780
+and blocking modes.
+
+45
+00:02:04,780 --> 00:02:06,250
+This gives you a lot of flexibility
+
+46
+00:02:06,250 --> 00:02:10,500
+in the way you can design your applications.
+
+47
+00:02:10,500 --> 00:02:13,580
+Now let's briefly talk about mutability.
+
+48
+00:02:13,580 --> 00:02:16,530
+A data structure is mutable when the contents of the structure
+
+49
+00:02:16,530 --> 00:02:19,050
+can be changed after being inserted.
+
+50
+00:02:19,050 --> 00:02:22,220
+Generally speaking, Redis data structures are mutable.
+
+51
+00:02:22,220 --> 00:02:26,090
+For example, I can modify the contents of a hash
+
+52
+00:02:26,090 --> 00:02:29,540
+after the fact using the HSET command.
+
+53
+00:02:29,540 --> 00:02:32,900
+Here, I'm creating a hash, and now I'm
+
+54
+00:02:32,900 --> 00:02:34,280
+changing one of the hash keys.
+
+55
+00:02:34,280 --> 00:02:36,840
+
+
+56
+00:02:36,840 --> 00:02:38,580
+Or to take another example, here I'm
+
+57
+00:02:38,580 --> 00:02:39,835
+creating a new list of names.
+
+58
+00:02:39,835 --> 00:02:42,860
+
+
+59
+00:02:42,860 --> 00:02:45,960
+And with this new list, I can insert a new element
+
+60
+00:02:45,960 --> 00:02:48,030
+into the middle of the list, like so.
+
+61
+00:02:48,030 --> 00:02:52,580
+Here, I'm adding the name Sue before Alice.
+
+62
+00:02:52,580 --> 00:02:55,070
+And here, I'm replacing the name Bob with Bill.
+
+63
+00:02:55,070 --> 00:02:59,180
+
+
+64
+00:02:59,180 --> 00:03:01,970
+Clearly, hashes and lists are mutable.
+
+65
+00:03:01,970 --> 00:03:04,360
+So what about Redis Streams?
+
+66
+00:03:04,360 --> 00:03:07,300
+It turns out that with streams, mutability
+
+67
+00:03:07,300 --> 00:03:09,100
+is quite a bit more limited.
+
+68
+00:03:09,100 --> 00:03:10,660
+Generally speaking, you should think
+
+69
+00:03:10,660 --> 00:03:13,870
+of a stream as an append-only data structure.
+
+70
+00:03:13,870 --> 00:03:17,090
+When writing to a stream, you write to the end only.
+
+71
+00:03:17,090 --> 00:03:19,990
+There's no ability to insert into the middle of a stream
+
+72
+00:03:19,990 --> 00:03:22,840
+or to replace stream entries.
+
+73
+00:03:22,840 --> 00:03:26,500
+Also, the stream entries themselves cannot be modified,
+
+74
+00:03:26,500 --> 00:03:30,250
+even though these entries are structured like a hash.
+
+75
+00:03:30,250 --> 00:03:34,190
+But streams are mutable in the following two ways.
+
+76
+00:03:34,190 --> 00:03:37,510
+First, you can delete entries from a stream.
+
+77
+00:03:37,510 --> 00:03:41,020
+Now, it's important to note that when you delete a stream entry,
+
+78
+00:03:41,020 --> 00:03:44,290
+Redis will internally mark the entry as deleted.
+
+79
+00:03:44,290 --> 00:03:46,750
+This means that the entry won't be physically removed
+
+80
+00:03:46,750 --> 00:03:48,940
+from the stream, but it will never
+
+81
+00:03:48,940 --> 00:03:53,200
+be delivered when the stream is reprocessed or replayed.
+
+82
+00:03:53,200 --> 00:03:55,720
+Second, you can trim a stream.
+
+83
+00:03:55,720 --> 00:03:58,270
+When you trim a stream, you cut down the stream
+
+84
+00:03:58,270 --> 00:04:00,430
+to an approximate number of entries,
+
+85
+00:04:00,430 --> 00:04:03,130
+dropping the oldest entries in the process.
+
+86
+00:04:03,130 --> 00:04:07,790
+This is similar to the way in which you can trim a list.
+
+87
+00:04:07,790 --> 00:04:10,550
+Now let's discuss storage and delivery.
+
+88
+00:04:10,550 --> 00:04:12,680
+Like all other Redis data structures,
+
+89
+00:04:12,680 --> 00:04:16,160
+such as hashes, lists, and sets, Redis streams
+
+90
+00:04:16,160 --> 00:04:17,839
+are stored in memory.
+
+91
+00:04:17,839 --> 00:04:20,880
+But this is in contrast to Redis Pub/Sub.
+
+92
+00:04:20,880 --> 00:04:23,480
+Redis Pub/Sub doesn't store any data.
+
+93
+00:04:23,480 --> 00:04:26,240
+Instead, it delivers all data immediately
+
+94
+00:04:26,240 --> 00:04:28,760
+to any connected subscribers.
+
+95
+00:04:28,760 --> 00:04:30,530
+So Pub/Sub should really be thought
+
+96
+00:04:30,530 --> 00:04:33,150
+of as an ephemeral channel.
+
+97
+00:04:33,150 --> 00:04:36,240
+This is important to point out because Redis Pub/Sub
+
+98
+00:04:36,240 --> 00:04:39,480
+and Redis streams have some amount of overlap in the way
+
+99
+00:04:39,480 --> 00:04:41,350
+you might use them.
+
+100
+00:04:41,350 --> 00:04:43,860
+For instance, you might use either feature
+
+101
+00:04:43,860 --> 00:04:46,890
+to implement a notification system.
+
+102
+00:04:46,890 --> 00:04:49,950
+The difference is that with Pub/Sub, the notification
+
+103
+00:04:49,950 --> 00:04:52,770
+will only be delivered to connected clients,
+
+104
+00:04:52,770 --> 00:04:55,500
+as you can see in the diagram here.
+
+105
+00:04:55,500 --> 00:04:59,250
+Whereas with streams, a client may receive its notifications
+
+106
+00:04:59,250 --> 00:05:01,860
+whenever it connects, as the notifications will
+
+107
+00:05:01,860 --> 00:05:06,080
+be stored for later retrieval.
+
+108
+00:05:06,080 --> 00:05:08,750
+So by now, you should have a pretty good understanding
+
+109
+00:05:08,750 --> 00:05:12,500
+of how Redis Streams relates to other Redis data structures.
+
+110
+00:05:12,500 --> 00:05:15,620
+Specifically, we saw how Redis Streams compares
+
+111
+00:05:15,620 --> 00:05:19,130
+in the area of blocking versus non-blocking commands,
+
+112
+00:05:19,130 --> 00:05:23,360
+mutability, and storage and delivery.
+
+113
+00:05:23,360 --> 00:05:26,630
+After the quiz, we'll round out this discussion of Streams
+
+114
+00:05:26,630 --> 00:05:28,750
+with a working example.
+

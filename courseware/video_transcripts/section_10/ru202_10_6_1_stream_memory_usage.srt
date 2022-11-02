@@ -1,0 +1,332 @@
+0
+00:00:00,000 --> 00:00:00,500
+
+
+1
+00:00:00,500 --> 00:00:02,850
+In this unit, we'll look at how the memory requirements
+
+2
+00:00:02,850 --> 00:00:06,390
+for streams compare to other data types that could be used
+
+3
+00:00:06,390 --> 00:00:08,720
+to represent the same data.
+
+4
+00:00:08,720 --> 00:00:10,290
+We'll then move on to see why it's
+
+5
+00:00:10,290 --> 00:00:13,860
+important to estimate the memory required for a stream
+
+6
+00:00:13,860 --> 00:00:16,830
+and begin to think about how we can control that.
+
+7
+00:00:16,830 --> 00:00:19,230
+For many use cases with large data sets,
+
+8
+00:00:19,230 --> 00:00:21,870
+streams can require significantly less space
+
+9
+00:00:21,870 --> 00:00:24,340
+than other Redis data structures.
+
+10
+00:00:24,340 --> 00:00:26,010
+As we saw in the previous module,
+
+11
+00:00:26,010 --> 00:00:29,070
+streams are implemented using a Radix tree data
+
+12
+00:00:29,070 --> 00:00:31,680
+structure, an extremely efficient way
+
+13
+00:00:31,680 --> 00:00:34,510
+of storing key value data.
+
+14
+00:00:34,510 --> 00:00:36,460
+The Redis stream's implementation
+
+15
+00:00:36,460 --> 00:00:40,300
+contains a further optimization to reduce memory usage, field
+
+16
+00:00:40,300 --> 00:00:42,070
+name compression.
+
+17
+00:00:42,070 --> 00:00:45,370
+When multiple consecutive messages have the same field
+
+18
+00:00:45,370 --> 00:00:47,890
+names and are appended to the stream,
+
+19
+00:00:47,890 --> 00:00:51,280
+Redis will not replicate the storage of the field names.
+
+20
+00:00:51,280 --> 00:00:54,490
+Instead, each subsequent message having the same set
+
+21
+00:00:54,490 --> 00:00:57,490
+of field names is marked using a flag
+
+22
+00:00:57,490 --> 00:01:01,580
+rather than repeating the same field names over and over.
+
+23
+00:01:01,580 --> 00:01:03,770
+This means that you can save memory
+
+24
+00:01:03,770 --> 00:01:06,530
+by having the same structure for a series of messages
+
+25
+00:01:06,530 --> 00:01:09,920
+in a stream while retaining the flexibility to change
+
+26
+00:01:09,920 --> 00:01:12,810
+that structure over time.
+
+27
+00:01:12,810 --> 00:01:15,180
+Let's compare the memory used by a stream
+
+28
+00:01:15,180 --> 00:01:17,670
+with that required for a sorted set.
+
+29
+00:01:17,670 --> 00:01:19,650
+We'll experiment by storing the same data
+
+30
+00:01:19,650 --> 00:01:22,290
+using both data types.
+
+31
+00:01:22,290 --> 00:01:26,220
+The Python example code adds a configurable number of entries
+
+32
+00:01:26,220 --> 00:01:29,570
+to both this sorted set and a stream.
+
+33
+00:01:29,570 --> 00:01:33,350
+In the case of the stream, IDs begin at 1-0
+
+34
+00:01:33,350 --> 00:01:36,470
+and are incremented by one for each entry.
+
+35
+00:01:36,470 --> 00:01:40,250
+For the sorted set, scores begin at 1 for the first entry,
+
+36
+00:01:40,250 --> 00:01:43,370
+and are incremented for each subsequent one.
+
+37
+00:01:43,370 --> 00:01:46,460
+In both cases, the data stored is a simple string
+
+38
+00:01:46,460 --> 00:01:49,920
+"hello" plus a sequence number.
+
+39
+00:01:49,920 --> 00:01:54,030
+Once the entries are created, we use Redis' memory usage command
+
+40
+00:01:54,030 --> 00:01:55,800
+to compare the number of bytes required
+
+41
+00:01:55,800 --> 00:01:59,760
+to store each of the two representations of the data.
+
+42
+00:01:59,760 --> 00:02:02,610
+Let's run the code to generate a stream and sorted
+
+43
+00:02:02,610 --> 00:02:06,310
+set each containing 1,000,000 entries.
+
+44
+00:02:06,310 --> 00:02:08,770
+The output tells us that in this case,
+
+45
+00:02:08,770 --> 00:02:12,130
+the stream is substantially more memory efficient.
+
+46
+00:02:12,130 --> 00:02:15,460
+The sorted set takes up just over 3 and 1/2 times the memory
+
+47
+00:02:15,460 --> 00:02:19,310
+used by the stream implementation.
+
+48
+00:02:19,310 --> 00:02:22,490
+In this example, the size of our data is very small.
+
+49
+00:02:22,490 --> 00:02:26,120
+We're just storing the string "hello" and a number.
+
+50
+00:02:26,120 --> 00:02:29,180
+As the size of the data stored increases,
+
+51
+00:02:29,180 --> 00:02:31,220
+the relative difference in memory usage
+
+52
+00:02:31,220 --> 00:02:33,890
+between the sorted set and the stream implementation
+
+53
+00:02:33,890 --> 00:02:35,295
+will decrease.
+
+54
+00:02:35,295 --> 00:02:36,920
+This is because the data itself becomes
+
+55
+00:02:36,920 --> 00:02:41,370
+a larger percentage of the size of both data structures.
+
+56
+00:02:41,370 --> 00:02:44,010
+If you are choosing between whether to use a stream
+
+57
+00:02:44,010 --> 00:02:47,370
+or sorted set, you may wish to try a small experiment
+
+58
+00:02:47,370 --> 00:02:50,010
+like this and see what the space savings could
+
+59
+00:02:50,010 --> 00:02:53,550
+be with your own data set.
+
+60
+00:02:53,550 --> 00:02:55,830
+A stream processing approach is commonly
+
+61
+00:02:55,830 --> 00:02:58,740
+chosen when working with a data set that has the potential
+
+62
+00:02:58,740 --> 00:03:00,330
+to grow indefinitely.
+
+63
+00:03:00,330 --> 00:03:02,820
+For example, a stream of temperature readings
+
+64
+00:03:02,820 --> 00:03:07,940
+from a fleet of IoT sensors has no logical end to it.
+
+65
+00:03:07,940 --> 00:03:10,130
+Redis does not, of course, have the ability
+
+66
+00:03:10,130 --> 00:03:12,950
+to retain an infinitely growing data set.
+
+67
+00:03:12,950 --> 00:03:15,500
+A Redis server will reject write operations
+
+68
+00:03:15,500 --> 00:03:17,360
+when it runs out of memory.
+
+69
+00:03:17,360 --> 00:03:21,260
+This means that it is important to manage the size of a stream
+
+70
+00:03:21,260 --> 00:03:24,550
+so that it doesn't grow on forever.
+
+71
+00:03:24,550 --> 00:03:27,160
+Remember that consumers read from the stream,
+
+72
+00:03:27,160 --> 00:03:31,030
+but do not cause messages to be deleted from it once consumed.
+
+73
+00:03:31,030 --> 00:03:34,790
+You need to manage the stream's length separately.
+
+74
+00:03:34,790 --> 00:03:36,860
+When using streams, it's important to understand
+
+75
+00:03:36,860 --> 00:03:39,460
+how much memory you might need for your specific data
+
+76
+00:03:39,460 --> 00:03:43,070
+set and the options available to you to manage that.
+
+77
+00:03:43,070 --> 00:03:44,630
+In this unit, we saw how streams can
+
+78
+00:03:44,630 --> 00:03:47,810
+be more memory efficient than other data structures.
+
+79
+00:03:47,810 --> 00:03:50,690
+Next, we'll look at some common strategies used
+
+80
+00:03:50,690 --> 00:03:52,670
+to control the length of a stream
+
+81
+00:03:52,670 --> 00:03:57,367
+and how each can be applied to Redis Streams specifically.
+
+82
+00:03:57,367 --> 00:03:57,867
+
+
