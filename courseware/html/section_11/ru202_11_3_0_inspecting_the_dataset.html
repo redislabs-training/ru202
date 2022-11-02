@@ -1,0 +1,33 @@
+<p>Let's verify that the producer created all the data, and set the expiry times on the streams.</p>
+<p>Using the terminal, start <span style="font-family: 'courier new', courier;">redis-cli</span> then we'll look at the lengths, expiry times, and contents of the stream partitions that were created.</p>
+<h2>1. Checking Stream Lengths</h2>
+<p>First, check the number of messages that the producer put into each day's stream partition:</p>
+<pre>
+$ redis-cli
+127.0.0.1:6379> XLEN temps:20250101
+(integer) 86400
+</pre>
+<p>Here we see that the stream contains 86,400 messages (one for every second of the day).  All 10 stream partitions that were created should contain the same number of messages.  You can verify this by running the <span style="font-family: 'courier new', courier;">XLEN</span> command for another partition, for example <span style="font-family: 'courier new', courier;">temps:20250103</span>.
+</p>
+<h2>2. Checking Stream Expiry</h2>
+<p>Next, check how long each stream partition has left until it expires:</p>
+<pre>
+127.0.0.1:6379> TTL temps:20250101
+(integer) 178787320
+127.0.0.1:6379> TTL temps:20250102
+(integer) 178873689
+</pre>
+<p>You should notice that <span style="font-family: 'courier new', courier;">temps:20250101</span> has the shortest time to expiry (because it contains the oldest data), and <span style="font-family: 'courier new', courier;">temps:20250110</span> the longest (because it contains the newest data).</p>
+<p>The TTLs on these keys are very large as our scenario assumes we started writing data on January 1st 2025.  This means that the stream that we finished writing at the end of January 1st 2025 won't expire until the beginning of January 4th 2025.</p>
+<h2>3. Looking at the Messages</h2>
+<p>Finally, let's see what the messages look like using <span style="font-family: 'courier new', courier;">XRANGE</span>:</p>
+<pre>
+127.0.0.1:6379> XRANGE temps:20250105 - + COUNT 2
+1) 1) "1736035200-0"
+   2) 1) "temp_f"
+      2) "73"
+2) 1) "1736035201-0"
+   2) 1) "temp_f"
+      2) "72"
+</pre>
+<p>Each message's ID is the timestamp that the temperature reading is for (<span style="font-family: 'courier new', courier;">1736035200</span> = January 5th 2025 at 00:00 for example).  The payload is a single item named <span style="font-family: 'courier new', courier;">temp_f</span> whose value is the temperature reading in Fahrenheit.</p>

@@ -1,0 +1,30 @@
+<h2>Description</h2>
+<p>For this exercise, we’ll look at some example Python code that demonstrates two stream memory management techniques presented in this week's material:</p>
+<ol>
+  <li>Time-based partitioning with expiry, to manage a potentially never ending stream whose rate of growth may change over time.</li>
+  <li>Trimming with <span style="font-family: 'courier new', courier;">XADD</span> to maintain a stream at a constant length as new messages are added to it.</li>
+</ol>
+<p>Imagine we have a device that generates a new temperature reading every second.  More of these devices could be added to the system in future, in which case we would expect to receive several readings per second.  The readings are used to calculate hourly average temperatures, which are displayed on a dashboard and stored in a data warehouse.  There is no requirement for long-term storage of the raw temperature readings in Redis Streams.</p>
+<h2>Stream Implementation Choices</h2>
+<p>Our example implementation uses two data streams:</p>
+<ul>
+  <li>An incoming stream of raw temperature readings.  These will arrive at one-second intervals from each producer.  There could potentially be many producers.  The data is important, but does not need to be kept forever.</li>
+  <li>A stream of hourly average temperature values, calculated from data in the raw temperature readings stream.  There will always be one value calculated and placed into this stream for every hour of raw temperature data gathered, no matter how many producers are generating readings.  We’d like to always have about five days worth of hourly average temperature data available in the stream.</li>
+</ul>
+<p>For the raw temperature readings, we’ll use a time-partitioned stream with expiry strategy as follows:</p>
+<ul>
+  <li>Every day, a new stream will be created and named <span style="font-family: 'courier new', courier;">temps:YYYYMMDD</span>.  For example a stream for the 1st of January 2025 would be called <span style="font-family: 'courier new', courier;">temps:20250101</span>.</li>
+  <li>Each time a new entry is written to the stream, the stream's expiry time is extended two days into the future from the time of the message that was written.</li>
+  <li>With this approach, our data set is represented as a rolling set of streams where the oldest expire automatically to be replaced by new ones.</li>
+  <li>Implementing this strategy will require both the producer and consumer code bases to understand the stream naming strategy.</li>
+</ul>
+<p>For the hourly average temperature values, we'll use a single stream whose length is capped as new messages are placed onto the stream.  This strategy need only be implemented in the producer code base, as the stream's length can be trimmed using the <span style="font-family: 'courier new', courier;">MAXLEN</span> modifier to the <span style="font-family: 'courier new', courier;">XADD</span> command.</p>
+<h2>Code</h2>
+<p>The code is contained in two Python files, both in the folder <span style="font-family: 'courier new', courier;">src/week4</span>.</p>
+<p><span style="font-family: 'courier new', courier;">partitioned_stream_producer.py</span> contains the producer code which will generate a sample temperature data set across a number of stream partitions.<p>
+<p><span style="font-family: 'courier new', courier;">stream_consumers.py</span> contains code for two consumer processes:</p>
+<ul>
+  <li>The aggregating consumer: This process reads from the partitioned streams of temperature data and calculates hourly averages.  It then acts as a producer, placing the hourly averages on another stream whose length is capped with <span style="font-family: 'courier new', courier;">XADD</span>.</li>
+  <li>The averages consumer: This process simply reads from the hourly averages stream and displays values from the messages in it.</li>
+</ul>
+<p>Before each run, the producer code will reset all streams and other Redis keys that the code references.  This example code uses the Python Redis Client to connect to Redis and issue commands.</p>

@@ -1,0 +1,56 @@
+<h2>The Producer</h2>
+<p>Now that you have your environment up and running, let's try starting each of the components, beginning with the producer.  Using one terminal window, type:</p>
+<pre style="font-family: 'courier new', courier;" class="code sh literal-block">
+cd src/intro   
+python producer.py
+</pre>
+<p>You should see the producer start up, and begin adding temperature messages to the stream.  The output should look like this:</p>
+<pre style="font-family: 'courier new', courier;" class="code sh literal-block">
+$ python producer.py
+Wrote {"postal_code": 94016, "temp_f": 51} with ID 1554921766941-0
+Wrote {"postal_code": 94016, "temp_f": 50} with ID 1554921767946-0
+Wrote {"postal_code": 94016, "temp_f": 51} with ID 1554921768948-0
+Wrote {"postal_code": 94016, "temp_f": 52} with ID 1554921769949-0
+Wrote {"postal_code": 94016, "temp_f": 51} with ID 1554921770953-0
+</pre>
+<p>Leave the producer running.</p>
+<h2>The Consumers</h2>
+<p>Next, we'll start the both the data warehouse and rolling average consumer processes. Go ahead and enter these commands into a second terminal window:</p>
+<pre style="font-family: 'courier new', courier;" class="code sh literal-block">
+cd src/intro
+./run-consumers.sh
+</pre>
+<p>The data warehouse consumer will start reading from the stream and produce output similar to the following:</p>
+<pre style="font-family: 'courier new', courier;" class="code sh literal-block">
+$ ./run-consumers.sh
+Wrote [["stream:weather", [["1554922470338-0", {"postal_code": "94016", "temp_f": "34"}]]]] to data warehouse.
+
+Wrote [["stream:weather", [["1554922471341-0", {"postal_code": "94016", "temp_f": "33"}]]]] to data warehouse.
+
+Wrote [["stream:weather", [["1554922472342-0", {"postal_code": "94016", "temp_f": "32"}]]]] to data warehouse.
+</pre>
+<p>The rolling average consumer will also start, and its log output will be in yellow.  You can expect to see output similar to that shown below.</p>
+<pre style="font-family: 'courier new', courier;" class="code sh literal-block">
+Processing: [["stream:weather", [["1554922911708-0", {"postal_code": "94016", "temp_f": "30"}]]]]
+Rolling Average: 30.0
+
+Processing: [["stream:weather", [["1554922912709-0", {"postal_code": "94016", "temp_f": "29"}]]]]
+Rolling Average: 29.5
+
+Processing: [["stream:weather", [["1554922913711-0", {"postal_code": "94016", "temp_f": "30"}]]]]
+Rolling Average: 29.666666666666668
+
+Processing: [["stream:weather", [["1554922914714-0", {"postal_code": "94016", "temp_f": "29"}]]]]
+Rolling Average: 29.5
+
+Processing: [["stream:weather", [["1554922915718-0", {"postal_code": "94016", "temp_f": "30"}]]]]
+Rolling Average: 29.6
+</pre>
+<h2>Stopping the System</h2>
+<p>To stop the producer, click on the its terminal window in your lab environment and press <span style="font-family: 'courier new', courier;">Ctrl + C</span>.</p>
+<p>Stop both consumers by using the idle terminal window to run a script:</p>
+<pre style="font-family: 'courier new', courier;" class="code sh literal-block">
+./stop-consumers.sh
+</pre>
+<h2>Need Help?</h2>
+<p>If you get stuck or have any questions, please don't hesitate to reach out on <a href="https://discord.gg/V2jj3qW">Discord</a>.</p>

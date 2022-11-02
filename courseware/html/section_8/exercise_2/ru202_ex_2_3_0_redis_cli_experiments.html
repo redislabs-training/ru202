@@ -1,0 +1,108 @@
+<h2>How to Get Started</h2>
+  <p>Try experimenting with the running code using the Redis CLI.  To do so:</p>
+  <ol>
+    <li>Run <span style="font-family: 'courier new', courier;">python consumer_group.py</span> in a terminal window.</li>
+    <li>Start <span style="font-family: 'courier new', courier;">redis-cli</span> another terminal window.</li>
+  </ol>
+<p><b>Now, run each of the following commands in the CLI.</b></p>
+
+<h2>Exercise #1</h2>
+<p>Get the length of the stream:</p>
+<pre>
+XLEN numbers
+</pre>
+<p>Running this command a number of times should show that the stream is constantly growing as the producer adds more numbers to it.  For example:</p>
+<pre>
+127.0.0.1:6379> XLEN numbers
+(integer) 148
+127.0.0.1:6379> XLEN numbers
+(integer) 159
+</pre>
+<p>Here we can see that between the two invocations of <span style="font-family: 'courier new', courier;">XLEN</span>, the producer added another 11 messages to the stream.</p>
+<h2>Exercise #2</h2>
+<p>Get information about the stream:</p>
+<pre>
+XINFO STREAM numbers
+</pre>
+<p>The <span style="font-family: 'courier new', courier;">XINFO STREAM</span> command shows information about the current state of the stream, including:</p>
+<ul>
+  <li>The stream's overall length</li>
+  <li>Information about the underlying radix tree implementation</li>
+  <li>The number of consumer groups associated with the screen (we have 1, the <span style="font-family: 'courier new', courier;">primes</span> group)</li>
+  <li>The last (highest) ID in the stream</li>
+  <li>The first and last entries in the stream</li>
+</ul>
+<p>You should see output similar to the following:</p>
+<pre>
+127.0.0.1:6379> XINFO STREAM numbers
+ 1) "length"
+ 2) (integer) 489
+ 3) "radix-tree-keys"
+ 4) (integer) 5
+ 5) "radix-tree-nodes"
+ 6) (integer) 13
+ 7) "groups"
+ 8) (integer) 1
+ 9) "last-generated-id"
+10) "1556600608383-0"
+11) "first-entry"
+12) 1) "1556600526564-0"
+    2) 1) "n"
+       2) "0"
+13) "last-entry"
+14) 1) "1556600608383-0"
+    2) 1) "n"
+       2) "488"
+</pre>
+<h2>Exercise #3</h2>
+<p>Get information about consumer groups:</p>
+<pre>
+XINFO GROUPS numbers
+</pre>
+<p>The output from <span style="font-family: 'courier new', courier;">XINFO GROUPS</span> shows us which consumer groups are associated with the stream.  We have one group named <span style="font-family: 'courier new', courier;">primes</span>, containing our three consumers instances:</p>
+<pre>
+127.0.0.1:6379> XINFO GROUPS numbers
+1) 1) "name"
+   2) "primes"
+   3) "consumers"
+   4) (integer) 3
+   5) "pending"
+   6) (integer) 48
+   7) "last-delivered-id"
+   8) "1556600638386-0"
+</pre>
+<p>The output from <span style="font-family: 'courier new', courier;">XINFO GROUPS</span> command also shows us how many pending messages the group has (these messages have been delivered to the group's consumers but not yet acknowledged).
+<h2>Exercise #4</h2>
+<p>Get information about consumers:</p>
+<pre>
+XINFO CONSUMERS numbers primes
+</pre>
+<p>The <span style="font-family: 'courier new', courier;">XINFO CONSUMERS</span> command's output shows us information about the status of each consumer in the group <span style="font-family: 'courier new', courier;">primes</span>:</p>
+<pre>
+127.0.0.1:6379> XINFO CONSUMERS numbers primes
+1) 1) "name"
+   2) "BOB-0"
+   3) "pending"
+   4) (integer) 25
+   5) "idle"
+   6) (integer) 1276
+2) 1) "name"
+   2) "BOB-1"
+   3) "pending"
+   4) (integer) 24
+   5) "idle"
+   6) (integer) 1363
+3) 1) "name"
+   2) "BOB-2"
+   3) "pending"
+   4) (integer) 15
+   5) "idle"
+   6) (integer) 671
+</pre>
+<p>For each consumer in the group, we can see the consumer's name, how many pending messages it has, and how long it has been idle (milliseconds since it last acknowledged a message or read from the stream).</p>
+<h2>Exercise #5</h2>
+<p>Get information about the stream’s memory usage:</p>
+<pre>
+MEMORY USAGE numbers 
+</pre>
+<p>This command will return the number of bytes used to store the stream's structure and values.</p>

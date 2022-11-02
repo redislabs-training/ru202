@@ -1,0 +1,30 @@
+<h2>Run the Program</h2>
+<p>Type the following commands into a terminal window:</p>
+<pre>
+cd src
+python consumer_group.py
+</pre>
+<p>You should see the project start up and generate output similar to the following:</p>
+<pre>
+$ python consumer_group.py
+BOB-1: 2 is a prime number
+BOB-2: 3 is a prime number
+BOB-0: 5 is a prime number
+BOB-2: 7 is a prime number
+...
+BOB-0: 79 is a prime number
+BOB-2: 89 is a prime number
+CHAOS: Restarted BOB-1
+BOB-1: Recovering pending messages...
+BOB-0: 97 is a prime number
+BOB-1: 101 is a prime number
+</pre>
+
+<h2>What You Will See</h2>
+<p>From the output, we can see three consumers (<span style="font-family: 'courier new', courier;">BOB-0</span>, <span style="font-family: 'courier new', courier;">BOB-1</span>, <span style="font-family: 'courier new', courier;">BOB-2</span>) working together as a consumer group to process a stream of numbers and determine if each number is prime or not.  Each consumer processes messages one-by-one, but as the message processing takes a variable amount of time, it’s not possible to determine which consumer will process which message.</p>
+
+<h2>The "Chaos" Function</h2>
+<p>Periodically, a chaos function (<span style="font-family: 'courier new', courier;">CHAOS</span>) restarts one of the consumers, which then has to read its pending entry list so that it can resume processing where it left off.  The program also starts a producer process, which doesn’t output anything but will keep pushing increasing natural numbers to the stream at semi-random intervals.</p>
+
+<h2>STOPPING THE PROGRAM</h2>
+<p>To stop the program, click in the terminal window that it is running in, and press <span style="font-family: 'courier new', courier;">Ctrl + C</span>.</p>

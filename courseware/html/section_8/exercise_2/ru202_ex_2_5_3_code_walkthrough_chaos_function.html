@@ -1,0 +1,2 @@
+<h3>THE CHAOS FUNCTION</h3>
+<p>The chaos function, <span style="font-family: 'courier new', courier;">chaos_func</span>, begins at line 97.  It enters an infinite loop at line 99, and randomly kills one of the consumer processes periodically.  Every time around the loop a random number between 2 and 12 is generated, simulating rolling a pair of dice.  If we roll double 1 (for a total of 2), then a random consumer process is terminated and replaced with a new instance of itself.  The chaos function then waits for a random time period before starting the loop again.</p>
