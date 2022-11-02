@@ -2,6 +2,10 @@
 
 This repository contains the source code for the [RU202 Redis Streams Course](https://university.redis.com/courses/ru202/) at [Redis University](https://university.redis.com/).  These materials can be accessed by installing them locally on your machine, or through a self-contained lab in a Docker container.
 
+## Reporting Errata
+
+Spotted an error in a text segment, image or video transcript?  Please report an issue here on GitHub, we also welcome pull requests with your suggestions.  The files for each text segment, image and video transcript can be found in the `courseware` folder in this repository.
+
 ## Optional Docker Environment
 
 You access these materials through a self-contained Docker lab environment including an IDE and Redis install that we have setup for you:
