@@ -1,0 +1,24 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>Which type of process can <span style="font-family: 'courier new', courier;">XCLAIM</span> a
+      pending message and reassign it to another consumer in the group?</p>
+    <label>Choose <u>one</u> answer:</label>
+    <choicegroup>
+      <choice correct="false">Only consumer processes that are members of the consumer group
+      </choice>
+      <choice correct="false">Only the consumer that currently owns the message</choice>
+      <choice correct="false">Only the process that created the consumer group</choice>
+      <choice correct="true">Any process with a connection to the Redis server</choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p> Any process with a connection to the Redis database can <span
+            style="font-family: 'courier new', courier;">XCLAIM</span> messages and reassign them to
+          any other consumer. This means that you can separate your recovery logic from your
+          consumer logic and place each in different processes for separation of concerns. </p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  

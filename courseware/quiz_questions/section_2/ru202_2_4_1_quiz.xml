@@ -1,0 +1,19 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>Which modes of consumption are supported by Redis streams?</p>
+    <label>Pick <u>one</u> answer</label>
+    <choicegroup type="MultipleChoice">
+      <choice correct="false">Blocking</choice>
+      <choice correct="false">Non-Blocking</choice>
+      <choice correct="true">Both blocking and non-blocking</choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>Streams can be read using both blocking (will wait for data) and non-blocking (will
+          return immediately if there is no data) commands.</p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  

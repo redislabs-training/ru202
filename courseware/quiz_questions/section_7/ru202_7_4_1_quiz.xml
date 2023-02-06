@@ -1,0 +1,36 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>The <span style="font-family: 'courier new', courier;" class="code sh literal-block">$</span>
+      symbol has a special meaning when used as a message ID with <span
+        style="font-family: 'courier new', courier;">XREAD</span>. Given that, what should the
+      following command return? </p>
+    <pre style="font-family: 'courier new', courier;" class="code sh literal-block">XREAD BLOCK 5000 STREAMS numbers $</pre>
+    <br />
+    <label>Choose <u>one</u> answer</label>
+    <choicegroup>
+      <choice correct="true">Messages added to the stream after this <span
+          style="font-family: 'courier new', courier;">XREAD</span> command executes and begins to
+        block</choice>
+      <choice correct="false">Messages added to the stream since the last time this client performed
+        an <span style="font-family: 'courier new', courier;">XREAD</span> operation </choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p> The server does not maintain details on how far through a stream individual clients have
+          read. It is the client's responsibility to do this. The special message ID <span
+            style="font-family: 'courier new', courier;" class="code sh literal-block">$</span> can
+          be used the first time a client performs an <span
+            style="font-family: 'courier new', courier;">XREAD</span> operation and will start
+          returning messages created after this operation begin. The client should then store the
+          highest ID retrieved from the stream, and use this in subsequent calls to <span
+            style="font-family: 'courier new', courier;">XREAD</span> so that processing picks up
+          from the point at which it left off with no gaps in the data. Using <span
+            style="font-family: 'courier new', courier;" class="code sh literal-block">$</span> a
+          second time would cause any messages added to the stream between the last time that the
+          client connected and now to never reach the client for processing. </p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  

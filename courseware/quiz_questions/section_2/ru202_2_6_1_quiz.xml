@@ -1,0 +1,21 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>What portion of the stream's messages will be read by each of our two consumer groups:
+      "data_warehouse_writer" and "rolling_average_printer"?</p>
+    <label>Pick <u>one</u> answer</label>
+    <choicegroup type="MultipleChoice">
+      <choice correct="false">Each can expect to read half of the messages</choice>
+      <choice correct="true">Each can expect to read all of the messages</choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>Both consumer groups receive all of the messages, which are then distributed for
+          processing between members of the group. If we added a second consumer to the
+          "data_warehouse_writer" group, the work of performing data warehouse tasks would be
+          divided between the two but not affect the delivery of entries to the
+          "rolling_average_printer" group.</p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>

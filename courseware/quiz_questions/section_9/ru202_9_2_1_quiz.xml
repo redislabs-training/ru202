@@ -1,0 +1,23 @@
+<problem>
+  <choiceresponse>
+    <p>What does the <span style="font-family: 'courier new', courier;">XGROUP DELCONSUMER</span>
+      command do?</p>
+    <label>Choose <u>two</u> answers:</label>
+    <checkboxgroup>
+      <choice correct="true">Deletes a consumer from a group</choice>
+      <choice correct="true">Deletes the consumer's list of pending entries</choice>
+      <choice correct="false">Sets the last delivered ID of the group to one before the deleted
+        consumer's first pending message.</choice>
+      <choice correct="false">Deletes all consumers for a given consumer group</choice>
+    </checkboxgroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p> Deleting a consumer with the <span style="font-family: 'courier new', courier;">XGROUP
+          DELCONSUMER</span> command will delete both the consumer and its list of pending entries,
+          but does not affect the overall read position of the consumer group in the stream. </p>
+      </div>
+    </solution>
+  </choiceresponse>
+</problem>
+  

@@ -1,0 +1,38 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>Imagine we have a consumer named “myConsumer” working in a consumer group named “myGroup”
+      reading from a stream named “myStream”. “myConsumer” needs to know if it has any outstanding
+      messages in its pending entries list.</p>
+    <p>Which command would the consumer use to get any messages in its pending entry list?</p>
+    <label>Choose <u>one</u> answer:</label>
+    <choicegroup>
+      <choice correct="false">
+        <span style="font-family: 'courier new', courier;">XREADGROUP GROUP myGroup myConsumer
+          STREAMS myStream &gt;</span>
+      </choice>
+      <choice correct="true">
+        <span style="font-family: 'courier new', courier;">XREADGROUP GROUP myGroup myConsumer
+          STREAMS myStream 0</span>
+      </choice>
+      <choice correct="false">
+        <span style="font-family: 'courier new', courier;">XINFO CONSUMERS myStream myGroup</span>
+      </choice>
+      <choice correct="false">
+        <span style="font-family: 'courier new', courier;">XINFO GROUPS myStream</span>
+      </choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>To read its own pending entry list backlog, a consumer within a group needs to use <span
+            style="font-family: 'courier new', courier;">XREADGROUP</span> starting from message ID <span
+            style="font-family: 'courier new', courier;">0</span>. Once it has processed and
+          acknowledged all messages returned by this command, it can then use <span
+            style="font-family: 'courier new', courier;">XREADGROUP</span> with the special <span
+            style="font-family: 'courier new', courier;">&gt;</span> message ID to request new
+          messages.</p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  

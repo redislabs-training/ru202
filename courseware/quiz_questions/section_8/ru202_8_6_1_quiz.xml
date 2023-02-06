@@ -1,0 +1,26 @@
+<problem>
+  <choiceresponse>
+    <p>When creating a consumer group, you must specify the initial message ID for the group to
+      begin processing from.</p>
+    <p>Which of the following can be used as an initial message ID when creating a consumer group?</p>
+    <label>Choose <u>two or more</u> answers:</label>
+    <checkboxgroup>
+      <choice correct="true">The partial ID 0 to begin with the first message</choice>
+      <choice correct="true">The full ID 0-0, to begin with the first message</choice>
+      <choice correct="false">The special ID "*"</choice>
+      <choice correct="true">Any valid partial or full ID</choice>
+      <choice correct="true">The special ID “$”</choice>
+    </checkboxgroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>
+          The XGROUP command accepts full or partial message IDs when specifying the initial ID that
+          the group should start reading from. The special ID $ is also accepted, and will cause the
+          group to start reading messages added to the stream after the group itself was created.
+        </p>
+      </div>
+    </solution>
+  </choiceresponse>
+</problem>
+  

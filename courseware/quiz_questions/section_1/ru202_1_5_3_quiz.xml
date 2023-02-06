@@ -1,0 +1,22 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>What's the name for the input to a streaming pipeline?</p>
+    <label>Choose <u>one</u> answer</label>
+    <choicegroup>
+      <choice correct="false">The input batch</choice>
+      <choice correct="true">The data source</choice>
+      <choice correct="false">The data sink</choice>
+      <choice correct="false">The database</choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>
+          The input to a stream pipeline is called the "data source". The output is called the "data
+          sink".
+        </p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  

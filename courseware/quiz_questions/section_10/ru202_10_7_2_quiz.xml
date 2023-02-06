@@ -1,0 +1,26 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>True or False? The <span style="font-family: 'courier new', courier;">XREAD</span>, <span
+        style="font-family: 'courier new', courier;">XRANGE</span> and <span
+        style="font-family: 'courier new', courier;">XREVRANGE</span> commands allow consumers to
+      trim a stream while reading from it.</p>
+    <label>Choose <u>one</u> answer:</label>
+    <choicegroup>
+      <choice correct="false">True</choice>
+      <choice correct="true">False</choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p><span style="font-family: 'courier new', courier;">XREAD</span>, <span
+            style="font-family: 'courier new', courier;">XRANGE</span> and <span
+            style="font-family: 'courier new', courier;">XREVRANGE</span> do not provide options to
+          trim the stream. You need to manage the stream’s length by using <span
+            style="font-family: 'courier new', courier;">XADD</span> with the <span
+            style="font-family: 'courier new', courier;">MAXLEN</span> sub-command or with <span
+            style="font-family: 'courier new', courier;">XTRIM</span>.</p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  

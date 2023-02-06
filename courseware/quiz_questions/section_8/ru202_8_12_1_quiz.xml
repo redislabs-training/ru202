@@ -1,0 +1,32 @@
+<problem>
+  <choiceresponse>
+    <p>What happens when you use the <span style="font-family: 'courier new', courier;">NOACK</span>
+      option with <span style="font-family: 'courier new', courier;">XREADGROUP</span>?</p>
+    <label>Choose <u>two</u> answers:</label>
+    <checkboxgroup>
+      <choice correct="true">The message delivery semantics will change from at-least-once to
+        at-most-once.</choice>
+      <choice correct="false">Messages returned are added to the consumer’s Pending Entries List
+        (PEL).</choice>
+      <choice correct="false">The consumer will need to acknowledge each message manually after
+        processing it using the <span style="font-family: 'courier new', courier;">XACK</span>
+        command.</choice>
+      <choice correct="true">Redis will consider all messages returned by <span
+          style="font-family: 'courier new', courier;">XREADGROUP</span> to be acknowledged.</choice>
+    </checkboxgroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p> When using the <span style="font-family: 'courier new', courier;">NOACK</span> option
+          with <span style="font-family: 'courier new', courier;">XREADGROUP</span>, Redis considers
+          all messages read by <span style="font-family: 'courier new', courier;">XREADGROUP</span>
+          to be automatically acknowledged whether the client successfully processes them or not.
+          This means that stream processing will then operate in an at-most-once delivery semantic.
+          The pending entry list will not be maintained for the consumer, and the consumer will not
+          be required to acknowledge successful processing of messages using the <span
+            style="font-family: 'courier new', courier;">XACK</span> command. </p>
+      </div>
+    </solution>
+  </choiceresponse>
+</problem>
+  

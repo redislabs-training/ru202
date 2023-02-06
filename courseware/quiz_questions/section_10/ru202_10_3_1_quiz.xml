@@ -1,0 +1,21 @@
+<problem>
+  <choiceresponse>
+    <p>Which criteria can you use to determine when to claim a message for another consumer?</p>
+    <label>Choose <u>one or more</u> answers:</label>
+    <checkboxgroup>
+      <choice correct="true">Consumer idle time</choice>
+      <choice correct="false">The number of messages in a stream</choice>
+      <choice correct="true">Time since message delivery</choice>
+      <choice correct="true">Message delivery count</choice>
+    </checkboxgroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>Redis exposes consumer idle time, time since message delivery, and the message delivery
+          count. These are all reasonable metrics to use to decide when to reassign a message. The
+          total number of messages in a stream is irrelevant.</p>
+      </div>
+    </solution>
+  </choiceresponse>
+</problem>
+  

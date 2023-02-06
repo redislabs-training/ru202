@@ -1,0 +1,28 @@
+<problem>
+  <choiceresponse>
+    <p>Which of the following factors may affect the speed at which an individual consumer can
+      process a single message from a stream? </p>
+    <label>Choose <u>two</u> answers:</label>
+    <checkboxgroup>
+      <choice correct="false">The rate at which producers add new messages to the stream</choice>
+      <choice correct="true">Latency in the network connection between the consumer and the Redis
+        server</choice>
+      <choice correct="true">The data contained in the message</choice>
+      <choice correct="false">The number of messages in the stream</choice>
+    </checkboxgroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>
+          The length of the stream and the rate at which producers are adding to it do not affect
+          the rate at which a consumer can process an individual message. Depending on the task
+          being performed, the data in the message may cause the consumer to take longer to
+          calculate a result for some messages than others. Additionally, if the consumer is
+          connected to the Redis server over a network with variable latency, this will contribute
+          to messages being processed at variable speeds.
+        </p>
+      </div>
+    </solution>
+  </choiceresponse>
+</problem>
+  

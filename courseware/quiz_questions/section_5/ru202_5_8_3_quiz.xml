@@ -1,0 +1,22 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>What does the <span style="font-family: 'courier new', courier;">XLEN</span> command return?</p>
+    <label>Pick <u>one</u> answer</label>
+    <choicegroup type="MultipleChoice">
+      <choice correct="true">The number of messages in a stream</choice>
+      <choice correct="false">The length of a stream in bytes</choice>
+      <choice correct="false">The number of deleted stream messages</choice>
+      <choice correct="false">The number of field-value pairs in each message of the stream
+      </choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p><span style="font-family: 'courier new', courier;">XLEN</span> tells us the number of
+          messages in a stream. It will return <span style="font-family: 'courier new', courier;">0</span>
+          both in the case of an empty stream and a non-existent stream.</p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  

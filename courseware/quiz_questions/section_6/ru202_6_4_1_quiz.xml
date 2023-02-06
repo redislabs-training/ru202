@@ -1,0 +1,26 @@
+<problem>
+  <choiceresponse>
+    <p>How do the <span style="font-family: 'courier new', courier;">XRANGE</span> and <span
+        style="font-family: 'courier new', courier;">XREVRANGE</span> commands differ?</p>
+    <label>Pick <u>two</u> answers:</label>
+    <checkboxgroup>
+      <choice correct="true">the order of the 'start' and 'end' ID arguments</choice>
+      <choice correct="false">the order of fields returned in each message</choice>
+      <choice correct="true">the order of messages returned</choice>
+      <choice correct="false">the time complexity of the range operation</choice>
+    </checkboxgroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p><span style="font-family: 'courier new', courier;">XRANGE</span> returns messages from
+          the stream in the order that they were created. <span
+            style="font-family: 'courier new', courier;">XREVRANGE</span> reverses this order, and
+          expects its start and end arguments the opposite way around from <span
+            style="font-family: 'courier new', courier;">XRANGE</span>.</p>
+        <p>The fields are returned in the same order. Both command have the same O(n) performance.
+        </p>
+      </div>
+    </solution>
+  </choiceresponse>
+</problem>
+  

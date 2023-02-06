@@ -1,0 +1,19 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>What is the time complexity of seeking to a particular message in a Redis stream?</p>
+    <label>Choose <u>one</u> answer:</label>
+    <choicegroup>
+      <choice correct="false">O(n) on the length of the stream</choice>
+      <choice correct="true">O(1)</choice>
+      <choice correct="false">O(log n) on the length of the stream</choice>
+      <choice correct="false">O(n log(n))</choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>Seeking to a single message in a Redis stream is a constant-time operation, or O(1).</p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  

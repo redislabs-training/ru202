@@ -1,0 +1,23 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>Suppose you're trying to decide whether to use a Redis stream, sorted set, or list. Memory
+      efficiency is the most important criterion. How do you decide which data structure to use?</p>
+    <label>Choose <u>one</u> answer:</label>
+    <choicegroup>
+      <choice correct="false">Choose the stream</choice>
+      <choice correct="false">Choose the sorted set</choice>
+      <choice correct="false">Choose the list</choice>
+      <choice correct="true">Generate realistic sample data, add the data to each data stucture, and
+        then compare the data structures using the <span
+          style="font-family: 'courier new', courier;">MEMORY USAGE</span> command</choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>It's always best to generate a sample data set and compare the memory usage using the
+          built-in <span style="font-family: 'courier new', courier;">MEMORY USAGE</span> command.</p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  

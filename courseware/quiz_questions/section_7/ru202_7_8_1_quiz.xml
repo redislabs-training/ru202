@@ -1,0 +1,21 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>Which of the following delivery semantics does Redis Pub/Sub support?</p>
+    <label>Choose <u>one</u> answer</label>
+    <choicegroup>
+      <choice correct="true">At-Most-Once</choice>
+      <choice correct="false">At-Least-Once</choice>
+      <choice correct="false">Exactly-Once</choice>
+      <choice correct="false">Either at-most-once or at-least-once, depending on how it's used</choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>Pub/Sub can only implement the At Most Once delivery pattern because messages are not
+          persisted. This means that if no client is subscribed to a channel when a message is
+          published on it, that message will never be received by any client.</p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  

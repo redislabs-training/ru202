@@ -1,0 +1,20 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>Redis tracks the messages delivered to a consumer using the Pending Entries List (PEL). How
+      are entries removed from the PEL?</p>
+    <label>Choose <u>one</u> answer:</label>
+    <choicegroup>
+      <choice correct="false">As consumers read them</choice>
+      <choice correct="true">As consumers explicitly acknowledge them using XACK</choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p> Entries are removed from the PEL using the <span
+            style="font-family: 'courier new', courier;">XACK</span> command, which tells Redis that
+          a consumer has successfully processed a message. </p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  

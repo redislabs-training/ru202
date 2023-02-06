@@ -1,0 +1,22 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>Where do message IDs in a Redis stream come from?</p>
+    <label>Pick <u>one</u> answer</label>
+    <choicegroup type="MultipleChoice">
+      <choice correct="false">The Redis server</choice>
+      <choice correct="false">The stream producer</choice>
+      <choice correct="true">Either the Redis server or the producer, depending on the options used
+        when producing the message</choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>Redis streams can automatically generate message IDs for you, using a <span
+            style="font-family: 'courier new', courier;">&lt;timestamp&gt;-&lt;sequence&gt;</span>
+          format. You may also specify your own ID for each message, for example when you are
+          ingesting data from another system into Redis, and that data already has unique IDs.</p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  

@@ -1,0 +1,22 @@
+<problem>
+  <choiceresponse><p>Which of the following message IDs can be used to refer to the first message in
+    a stream when using <span style="font-family: 'courier new', courier;">XRANGE</span>?</p><label>
+    Choose <u>two or more</u> answers</label>: <checkboxgroup>
+      <choice correct="true">The special character '<span
+          style="font-family: 'courier new', courier;">-</span>'</choice>
+      <choice correct="true">The partial message ID '<span
+          style="font-family: 'courier new', courier;">0</span>'</choice>
+      <choice correct="true">The full message ID '<span style="font-family: 'courier new', courier;">
+    0-1</span>'</choice>
+      <choice correct="false">The empty message ID ""</choice>
+    </checkboxgroup><solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>“<span style="font-family: 'courier new', courier;">-</span>” is a special character
+    representing the first ID in the stream. “<span style="font-family: 'courier new', courier;">0</span>”
+    is the lowest possible timestamp, so will also represent the first ID in the stream. “<span
+            style="font-family: 'courier new', courier;">0-1</span>” is the lowest possible complete
+    identifier, again representing the first ID in the stream. </p>
+      </div>
+    </solution></choiceresponse>
+</problem>

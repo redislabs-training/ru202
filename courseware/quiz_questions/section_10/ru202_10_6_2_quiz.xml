@@ -1,0 +1,27 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>If a stream’s growth is allowed to continue unchecked, what will eventually happen once the
+      Redis Server runs out of memory?</p>
+    <label>Choose <u>one</u> answer:</label>
+    <choicegroup>
+      <choice correct="false">Redis will automatically truncate the stream
+      </choice>
+      <choice correct="false">Redis will delete the largest existing key in the keyspace</choice>
+      <choice correct="true">Redis will reject subsequent write operations</choice>
+      <choice correct="false">Redis will exit with an out-of-memory error</choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>Redis does not automatically truncate or otherwise manage the length of streams or the
+          resources required to maintain them. A stream’s length has to be managed separately from
+          its production and consumption.
+        </p>
+        <p>
+          In a low memory situation, the Redis Server will reject further write operations but will
+          continue to serve reads.</p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  
