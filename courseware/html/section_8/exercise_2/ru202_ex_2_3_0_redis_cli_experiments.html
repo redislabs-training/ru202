@@ -1,39 +1,42 @@
+<style type= text/css>
+   .code {font-family: 'courier new', courier; font-weight: bold; font-size: 18px !important;}
+</style>
 <h2>How to Get Started</h2>
   <p>Try experimenting with the running code using the Redis CLI.  To do so:</p>
   <ol>
-    <li>Run <span style="font-family: 'courier new', courier;">python consumer_group.py</span> in a terminal window.</li>
-    <li>Start <span style="font-family: 'courier new', courier;">redis-cli</span> another terminal window.</li>
+    <li>Run <span class="code">python consumer_group.py</span> in a terminal window.</li>
+    <li>Start <span class="code">redis-cli</span> another terminal window.</li>
   </ol>
 <p><b>Now, run each of the following commands in the CLI.</b></p>
 
 <h2>Exercise #1</h2>
 <p>Get the length of the stream:</p>
-<pre>
+<p><pre class="code">
 XLEN numbers
-</pre>
+</pre></p>
 <p>Running this command a number of times should show that the stream is constantly growing as the producer adds more numbers to it.  For example:</p>
-<pre>
+<p><pre class="code">
 127.0.0.1:6379> XLEN numbers
 (integer) 148
 127.0.0.1:6379> XLEN numbers
 (integer) 159
-</pre>
-<p>Here we can see that between the two invocations of <span style="font-family: 'courier new', courier;">XLEN</span>, the producer added another 11 messages to the stream.</p>
+</pre></p>
+<p>Here we can see that between the two invocations of <span class="code">XLEN</span>, the producer added another 11 messages to the stream.</p>
 <h2>Exercise #2</h2>
 <p>Get information about the stream:</p>
-<pre>
+<p><pre class="code">
 XINFO STREAM numbers
-</pre>
-<p>The <span style="font-family: 'courier new', courier;">XINFO STREAM</span> command shows information about the current state of the stream, including:</p>
+</pre></p>
+<p>The <span class="code">XINFO STREAM</span> command shows information about the current state of the stream, including:</p>
 <ul>
   <li>The stream's overall length</li>
   <li>Information about the underlying radix tree implementation</li>
-  <li>The number of consumer groups associated with the screen (we have 1, the <span style="font-family: 'courier new', courier;">primes</span> group)</li>
+  <li>The number of consumer groups associated with the screen (we have 1, the <span class="code">primes</span> group)</li>
   <li>The last (highest) ID in the stream</li>
   <li>The first and last entries in the stream</li>
 </ul>
 <p>You should see output similar to the following:</p>
-<pre>
+<p><pre class="code">
 127.0.0.1:6379> XINFO STREAM numbers
  1) "length"
  2) (integer) 489
@@ -53,14 +56,14 @@ XINFO STREAM numbers
 14) 1) "1556600608383-0"
     2) 1) "n"
        2) "488"
-</pre>
+</pre></p>
 <h2>Exercise #3</h2>
 <p>Get information about consumer groups:</p>
-<pre>
+<p><pre class="code">
 XINFO GROUPS numbers
-</pre>
-<p>The output from <span style="font-family: 'courier new', courier;">XINFO GROUPS</span> shows us which consumer groups are associated with the stream.  We have one group named <span style="font-family: 'courier new', courier;">primes</span>, containing our three consumers instances:</p>
-<pre>
+</pre></p>
+<p>The output from <span class="code">XINFO GROUPS</span> shows us which consumer groups are associated with the stream.  We have one group named <span class="code">primes</span>, containing our three consumers instances:</p>
+<p><pre class="code">
 127.0.0.1:6379> XINFO GROUPS numbers
 1) 1) "name"
    2) "primes"
@@ -70,15 +73,15 @@ XINFO GROUPS numbers
    6) (integer) 48
    7) "last-delivered-id"
    8) "1556600638386-0"
-</pre>
-<p>The output from <span style="font-family: 'courier new', courier;">XINFO GROUPS</span> command also shows us how many pending messages the group has (these messages have been delivered to the group's consumers but not yet acknowledged).
+</pre></p>
+<p>The output from <span class="code">XINFO GROUPS</span> command also shows us how many pending messages the group has (these messages have been delivered to the group's consumers but not yet acknowledged).
 <h2>Exercise #4</h2>
 <p>Get information about consumers:</p>
-<pre>
+<p><pre class="code">
 XINFO CONSUMERS numbers primes
-</pre>
-<p>The <span style="font-family: 'courier new', courier;">XINFO CONSUMERS</span> command's output shows us information about the status of each consumer in the group <span style="font-family: 'courier new', courier;">primes</span>:</p>
-<pre>
+</pre></p>
+<p>The <span class="code">XINFO CONSUMERS</span> command's output shows us information about the status of each consumer in the group <span class="code">primes</span>:</p>
+<p><pre class="code">
 127.0.0.1:6379> XINFO CONSUMERS numbers primes
 1) 1) "name"
    2) "BOB-0"
@@ -98,11 +101,10 @@ XINFO CONSUMERS numbers primes
    4) (integer) 15
    5) "idle"
    6) (integer) 671
-</pre>
+</pre></p>
 <p>For each consumer in the group, we can see the consumer's name, how many pending messages it has, and how long it has been idle (milliseconds since it last acknowledged a message or read from the stream).</p>
 <h2>Exercise #5</h2>
 <p>Get information about the stream’s memory usage:</p>
-<pre>
-MEMORY USAGE numbers 
-</pre>
+<p><pre class="code">MEMORY USAGE numbers 
+</pre></p>
 <p>This command will return the number of bytes used to store the stream's structure and values.</p>

@@ -1,6 +1,8 @@
+<style type= text/css>
+    .code {font-family: 'courier new', courier; font-weight: bold; font-size: 18px !important;}
+</style>
 <p><b>The following section is <u>optional</u>. But you may find it useful if you'd like a more detailed explanation of the Python code.</b></p>
-
-<p>You should take some time to look through the code in <span style="font-family: 'courier new', courier;">consumer_group.py</span> so that you understand how it works.  Also, feel free to try changing things such as the number of consumers in the consumer group. Then re-run the code to see what effect your changes make.</p>
-<p>Let’s take a look through the code, beginning with the entry point at line 111.  First, the <span style="font-family: 'courier new', courier;">setup</span> function is called - this establishes a connection to Redis, deletes any existing stream named "numbers" and re-creates it along with a consumer group called "primes".</p>
-<p>The <span style="font-family: 'courier new', courier;">for</span> loop at line 115 then creates a set of consumer processes, named <span style="font-family: 'courier new', courier;">BOB-0</span>, <span style="font-family: 'courier new', courier;">BOB-1</span>, etc., and keeps track of them in a list named "consumers".</p>
+<p>You should take some time to look through the code in <span class="code">consumer_group.py</span> so that you understand how it works.  Also, feel free to try changing things such as the number of consumers in the consumer group. Then re-run the code to see what effect your changes make.</p>
+<p>Let’s take a look through the code, beginning with the entry point at line 111.  First, the <span class="code">setup</span> function is called - this establishes a connection to Redis, deletes any existing stream named "numbers" and re-creates it along with a consumer group called "primes".</p>
+<p>The <span class="code">for</span> loop at line 115 then creates a set of consumer processes, named <span class="code">BOB-0</span>, <span class="code">BOB-1</span>, etc., and keeps track of them in a list named "consumers".</p>
 <p>At line 118, a thread is created for the chaos component, then the producer starts up at line 119.  Let’s look at each of these in turn.</p>

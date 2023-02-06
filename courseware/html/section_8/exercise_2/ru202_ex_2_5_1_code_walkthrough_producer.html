@@ -1,2 +1,5 @@
+<style type= text/css>
+    .code {font-family: 'courier new', courier; font-weight: bold; font-size: 18px !important;}
+</style>
 <h2>THE PRODUCER</h2>
-<p>The producer’s code is contained in <span style="font-family: 'courier new', courier;">producer_func</span>, beginning at line 28.  It gets a named connection to Redis, then simply enters an infinite loop in which it uses <span style="font-family: 'courier new', courier;">XADD</span> to push a message onto the stream containing the current value of <span style="font-family: 'courier new', courier;">n</span> (an integer).  <span style="font-family: 'courier new', courier;">n</span> is then incremented and the producer waits a semi-random time before going around the loop again to add the next number to the stream.</p>
+<p>The producer’s code is contained in <span class="code">producer_func</span>, beginning at line 28.  It gets a named connection to Redis, then simply enters an infinite loop in which it uses <span class="code">XADD</span> to push a message onto the stream containing the current value of <span class="code">n</span> (an integer).  <span class="code">n</span> is then incremented and the producer waits a semi-random time before going around the loop again to add the next number to the stream.</p>
