@@ -1,0 +1,21 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>What is the time complexity of scanning and returning messages from a Redis stream?</p>
+    <label>Choose <u>one</u> answer:</label>
+    <choicegroup>
+      <choice correct="false">O(n) on the length of the stream</choice>
+      <choice correct="false">O(1)</choice>
+      <choice correct="false">O(log n) on the length of the stream</choice>
+      <choice correct="true">O(n) on the number of messages returned</choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>Scannning a stream is O(n) on the number of messages returned. Thus, an <span
+            style="font-family: 'courier new', courier;">XRANGE</span> command that returns
+          1,000,000 messages is O(1,000,000).</p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  

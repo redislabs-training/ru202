@@ -1,0 +1,28 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>What's the limit in size for a single Redis stream data structure?</p>
+    <label>Choose <u>one</u> answer:</label>
+    <choicegroup>
+      <choice correct="false">2^32 bytes</choice>
+      <choice correct="false"> 2^32 messages</choice>
+      <choice correct="false">A single stream can occupy as many bytes as a Redis cluster can
+        provide.
+      </choice>
+      <choice correct="true">A single stream can occupy as many bytes as a single Redis instance can
+        provide.
+      </choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>A single stream can be as large as, but no larger than, the Redis instance where it
+          resides. Thus, the largest Redis stream on a 50GB Redis instance will be 50GB, assuming no
+          other data is stored on the instance.</p>
+        <br />
+        <p>A stream must be partitioned to work across a Redis cluster. A single stream will not
+          automatically be partitioned by Redis across the cluster.</p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  

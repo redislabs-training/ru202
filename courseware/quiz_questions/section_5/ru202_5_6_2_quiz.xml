@@ -1,0 +1,19 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>What is the datatype used to store the value of a field-value pair in a Redis stream?</p>
+    <label>Pick <u>one</u> answer</label>
+    <choicegroup type="MultipleChoice">
+      <choice correct="false">Integer</choice>
+      <choice correct="true">String</choice>
+      <choice correct="false">Double</choice>
+      <choice correct="false">List</choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>The values associated with each field in a message payload are always Redis strings.</p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  

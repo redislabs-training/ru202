@@ -1,0 +1,18 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>Can the values stored in a stream entry be changed?</p>
+    <label>Pick <u>one</u> answer</label>
+    <choicegroup type="MultipleChoice">
+      <choice correct="false">Yes</choice>
+      <choice correct="true">No</choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>Stream entries are structured in the same way as a Redis hash. However, unlike a Redis
+          hash, stream entries cannot be modified once created.</p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  

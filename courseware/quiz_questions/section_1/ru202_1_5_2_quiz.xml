@@ -1,0 +1,26 @@
+<problem>
+  <choiceresponse>
+    <p>What benefits do stream pipelines provide to distributed systems? (select all that apply):
+    </p>
+    <label>Pick <u>one</u> or <u>more</u> answers</label>
+    <checkboxgroup>
+      <choice correct="true">Increased throughput</choice>
+      <choice correct="true">Asynchronous processing</choice>
+      <choice correct="false">Fewer system component failures</choice>
+      <choice correct="true">Decoupling of system components</choice>
+    </checkboxgroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>The use of streams helps to enable parallel processing for greater throughput, allows
+          components to process data at different speeds from each other and provides a way for
+          disparate system components to communicate with each other using standard messages.</p>
+        <br />
+        <p>
+          The use of stream pipelines is unrelated to the expected number of component failures.
+        </p>
+      </div>
+    </solution>
+  </choiceresponse>
+</problem>
+  

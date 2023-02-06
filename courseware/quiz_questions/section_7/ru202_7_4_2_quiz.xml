@@ -1,0 +1,28 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>In the following command, what is the effect of specifying <span
+        style="font-family: 'courier new', courier;" class="code sh literal-block">BLOCK 0</span>?:</p>
+    <pre style="font-family: 'courier new', courier;" class="code sh literal-block">XREAD BLOCK 0 STREAMS numbers $</pre>
+    <br />
+    <label>Choose <u>one</u> answer</label>
+    <choicegroup>
+      <choice correct="false">The <span style="font-family: 'courier new', courier;"
+          class="code sh literal-block">XREAD</span> command blocks for 0 milliseconds, returning
+        immediately. </choice>
+      <choice correct="true">The <span style="font-family: 'courier new', courier;"
+          class="code sh literal-block">XREAD</span> command blocks indefinitely until a message is
+        added to the stream and will never return if no new messages are added.</choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>When used in blocking mode, <span style="font-family: 'courier new', courier;"
+            class="code sh literal-block">XREAD</span> can be told how long in milliseconds to block
+          while waiting for new messages. It will return after this time if none appear. A value of
+          0 will cause the client to block indefinitely in the case where no new messages appear on
+          the stream, and should be used with caution.</p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  

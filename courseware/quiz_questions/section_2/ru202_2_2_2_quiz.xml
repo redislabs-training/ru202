@@ -1,0 +1,20 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>How can entries can be added to a stream?</p>
+    <label>Pick <u>one</u> answer</label>
+    <choicegroup type="MultipleChoice">
+      <choice correct="true">By appending to the end of the stream</choice>
+      <choice correct="false">By prepending to the front of the stream</choice>
+      <choice correct="false">By inserting them at a specific location in the stream</choice>
+      <choice correct="false">By swapping with an existing stream entry</choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>Streams behave like an append-only log. The only way to add entries to a stream is by
+          appending them to the end.</p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  

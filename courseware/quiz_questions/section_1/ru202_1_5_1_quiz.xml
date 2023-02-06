@@ -1,0 +1,21 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>Why are stream pipelines good for managing continuous flows of data?
+    </p>
+    <label>Pick <u>one</u> answer</label>
+    <choicegroup type="MultipleChoice">
+      <choice correct="false">Because they batch up all of the data before performing any
+        processing.</choice>
+      <choice correct="true">Because they can effectively produce results in near real-time.
+      </choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>Stream processing is ideal for near real-time data processing. It is, in this regard, the
+          opposite of batch processing.</p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  

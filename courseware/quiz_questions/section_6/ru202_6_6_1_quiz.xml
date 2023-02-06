@@ -1,0 +1,25 @@
+<problem>
+  <choiceresponse><p>Which of the following commands can be used to get a single message from a
+    stream? Assume that we know the message's ID.</p><label>Choose <u>two</u> answers</label>: <checkboxgroup>
+      <choice correct="false">
+        <span style="font-family: 'courier new', courier;">XGET</span>
+      </choice>
+      <choice correct="false">
+        <span style="font-family: 'courier new', courier;">XLEN</span>
+      </choice>
+      <choice correct="true">
+        <span style="font-family: 'courier new', courier;">XRANGE</span>
+      </choice>
+      <choice correct="true">
+        <span style="font-family: 'courier new', courier;">XREVRANGE</span>
+      </choice>
+    </checkboxgroup><solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>To get a single message, use <span style="font-family: 'courier new', courier;">XRANGE</span>
+    or <span style="font-family: 'courier new', courier;">XREVRANGE</span>, specifying the desired
+    message ID as both the upper and lower bound of the range. There is no singular <span
+            style="font-family: 'courier new', courier;">XGET</span> command.</p>
+      </div>
+    </solution></choiceresponse>
+</problem>

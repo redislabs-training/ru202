@@ -1,0 +1,28 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>Using the <span style="font-family: 'courier new', courier;">XPENDING</span> command, we can
+      see the value of the <span style="font-family: 'courier new', courier;">time-since-delivery</span>
+      field for each message in the Pending Entries List. What happens to the <span
+        style="font-family: 'courier new', courier;">time-since-delivery</span> value when a
+      consumer reads the message using <span style="font-family: 'courier new', courier;">XREADGROUP</span>
+      ? </p>
+    <label>Choose <u>one</u> answer:</label>
+    <choicegroup>
+      <choice correct="false">The value remains unchanged</choice>
+      <choice correct="true">The value is reset to 0</choice>
+      <choice correct="false">The value doubles each time it is read</choice>
+      <choice correct="false">The value is deleted, since the message is removed from the Pending
+        Entries List</choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>When a pending message is read or re-read by a consumer using the <span
+            style="font-family: 'courier new', courier;">XREADGROUP command</span>, that message's <span
+            style="font-family: 'courier new', courier;">time-since-delivery</span> field has its
+          value reset to 0.</p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  

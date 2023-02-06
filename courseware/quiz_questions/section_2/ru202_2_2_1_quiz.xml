@@ -1,0 +1,19 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>How are streams implemented in Redis?</p>
+    <label>Pick <u>one</u> answer</label>
+    <choicegroup type="MultipleChoice">
+      <choice correct="false">As an optional module</choice>
+      <choice correct="false">Using sorted sets</choice>
+      <choice correct="true">As a new Redis data structure</choice>
+      <choice correct="true">Using RPC to Apache Spark</choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>Streams were introduced as a new data type in Redis 5.0.</p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  

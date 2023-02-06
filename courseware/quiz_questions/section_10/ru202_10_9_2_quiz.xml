@@ -1,0 +1,37 @@
+<problem>
+  <choiceresponse>
+    <p>Which of the following are reasons for using consumer groups over a single consumer when
+      processing a stream?</p>
+    <label>Choose <u>two</u> answers:</label>
+    <checkboxgroup>
+      <choice correct="false">You need to write the result of processing to a new stream.
+      </choice>
+      <choice correct="false">You need to segment the stream across different types of consumers.
+      </choice>
+      <choice correct="true">You need to process the stream messages out-of-order.
+      </choice>
+      <choice correct="true">Processing the data in your stream requires multiple threads / CPUs in
+        order to keep up.
+      </choice>
+    </checkboxgroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>Choose consumer groups when you need to acknowledge messages out-of-order and/or when you
+          require multiple consumers / threads / CPUs in order to keep up.
+        </p>
+        <br />
+        <p>
+          You can segment a stream by consumer type using both single consumers and consumer groups.
+          In the single consumer case, each consumer must keep track of its own last-processed
+          offset.</p>
+        <br />
+        <p>Also, you can write the results of a processed stream to a new stream with both single
+          consumers and consumer groups.
+
+        </p>
+      </div>
+    </solution>
+  </choiceresponse>
+</problem>
+  

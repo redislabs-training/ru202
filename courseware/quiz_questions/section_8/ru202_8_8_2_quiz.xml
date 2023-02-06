@@ -1,0 +1,26 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>What does the "<span style="font-family: 'courier new', courier;">&gt;</span>" character mean
+      when used with <span style="font-family: 'courier new', courier;">XREADGROUP</span>?</p>
+    <label>Choose <u>one</u> answer</label>
+    <choicegroup>
+      <choice correct="false">Read the message immediately following the last message delivered to
+        the <b>consumer</b>
+      </choice>
+      <choice correct="true">Read the message immediately following the last message delivered to
+        the <b>consumer group</b>
+      </choice>
+      <choice correct="false">Read the first message in the stream</choice>
+      <choice correct="false">Block until a new message is added to the stream</choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>The "<span style="font-family: 'courier new', courier;">&gt;</span>" character ensure
+          that XREADGROUP will deliver the message that follows the last message delivered to any
+          consumer in the group.</p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  

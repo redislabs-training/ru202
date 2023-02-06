@@ -1,0 +1,21 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>You have 4 consumers listening for messages on a stream using blocking <span
+        style="font-family: 'courier new', courier;" class="code sh literal-block">XREAD</span>
+      calls. How are messages delivered to these 4 consumers?</p>
+    <label>Choose <u>one</u> answer:</label>
+    <choicegroup>
+      <choice correct="false">Each consumer receives every 4th new message in a round-robin pattern.</choice>
+      <choice correct="true">All 4 consumers receive every message.</choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>Multiple consumers performing blocked reads on the same stream will all receive the same
+          messages from the stream, allowing different jobs requiring the same data to be performed
+          in parallel.</p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  

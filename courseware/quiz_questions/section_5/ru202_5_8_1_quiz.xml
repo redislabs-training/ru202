@@ -1,0 +1,27 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>What does the following command do?</p>
+    <pre style="font-family: 'courier new', courier;" class="code sh literal-block">XTRIM message MAXLEN ~ 1000
+  </pre>
+    <br />
+    <label>Pick <u>one</u> answer</label>
+    <choicegroup type="MultipleChoice">
+      <choice correct="false">It truncates the stream down to <b>exactly</b> 1000 of the latest
+        messages. </choice>
+      <choice correct="true">It truncates the stream down to <b>approximately</b> 1000 of the latest
+        messages. </choice>
+      <choice correct="false">It removes all messages greater than 1000 bytes in length.</choice>
+      <choice correct="false">It forces the stream to reject messages greater than 1000 bytes in
+        length.</choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>The <span style="font-family: 'courier new', courier;">XTRIM</span> command is used to
+          truncate a stream to contain either an exact or approximate number of entries. With the <span
+            style="font-family: 'courier new', courier;">~</span>, it will truncate approximately.</p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  

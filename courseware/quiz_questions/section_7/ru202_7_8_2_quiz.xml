@@ -1,0 +1,22 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>Which of the following delivery semantics does Redis Streams support?</p>
+    <label>Choose <u>one</u> answer</label>
+    <choicegroup>
+      <choice correct="false">At-Most-Once</choice>
+      <choice correct="false">At-Least-Once</choice>
+      <choice correct="false">Exactly-Once</choice>
+      <choice correct="true">Either at-most-once or at-least-once, depending on how it's used</choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>If the <span style="font-family: 'courier new', courier;" class="code sh literal-block">$</span>
+          operator is always used when consuming from a Redis stream, then the behavior is
+          effectivey at-most-once. If client keeps track of the last-seen message ID, then the
+          behavior becomes at-least-once.</p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  

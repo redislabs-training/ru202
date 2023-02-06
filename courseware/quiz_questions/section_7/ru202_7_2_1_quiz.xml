@@ -1,0 +1,27 @@
+<problem>
+  <choiceresponse>
+    <p>Which of the following statements are true?:</p>
+    <label>Choose <u>two or more</u> answers:</label>
+    <checkboxgroup>
+      <choice correct="true">The ID given to <span style="font-family: 'courier new', courier;">
+        XRANGE</span> is the beginning of an <b>inclusive</b> range.</choice>
+      <choice correct="false">The ID given to <span style="font-family: 'courier new', courier;">
+        XREAD</span> is the beginning of an <b>inclusive</b> range.</choice>
+      <choice correct="false">The ID given to <span style="font-family: 'courier new', courier;">
+        XRANGE</span> is the beginning of an <b>exclusive</b> range</choice>
+      <choice correct="true">The ID given to <span style="font-family: 'courier new', courier;">
+        XREAD</span> is the beginning of an <b>exclusive</b> range </choice>
+    </checkboxgroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p><span style="font-family: 'courier new', courier;">XRANGE</span> uses an inclusive range,
+          so will return messages including the one whose ID is specified, if it exists. <span
+            style="font-family: 'courier new', courier;">XREAD</span> returns messages whose IDs are
+          greater than the one supplied, allowing clients to read new messages since the last time
+          they accessed the stream. </p>
+      </div>
+    </solution>
+  </choiceresponse>
+</problem>
+  

@@ -1,0 +1,26 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>Redis tracks the ID of the last delivered message for each consumer group. Which of the
+      following mechanisms is used for this?</p>
+    <label>Choose <u>one</u> answer</label>
+    <choicegroup>
+      <choice correct="false">A queue</choice>
+      <choice correct="true">A <span style="font-family: 'courier new', courier;">last-delivered-id</span>
+        property on the group</choice>
+      <choice correct="false">The Pending Entries List (PEL)</choice>
+      <choice correct="false">A secondary stream</choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>A property called <span style="font-family: 'courier new', courier;">last-delivered-id</span>
+          is used to track which message ID was delivered last to any consumer within a consumer
+          group. This can be seen when using the XINFO command to get information about the consumer
+          group.</p>
+        <p>The PEL is specific to a consumer within a group. It’s not global to a consumer group.
+          The PEL keeps tracking of which messages have been delivered to a consumer.</p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  

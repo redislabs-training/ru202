@@ -1,0 +1,18 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>True or False? Every message in a given Redis stream must have the same set of key names.</p>
+    <label>Pick <u>one</u> answer</label>
+    <choicegroup type="MultipleChoice">
+      <choice correct="false">True</choice>
+      <choice correct="true">False</choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>Redis does not process the key/value pairs in the message, so does not require them all
+          to conform to the same schema.</p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  

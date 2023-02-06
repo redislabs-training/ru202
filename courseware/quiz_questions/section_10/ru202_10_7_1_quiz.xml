@@ -1,0 +1,30 @@
+<problem>
+  <choiceresponse>
+    <p>Which two approaches can be used with both the <span
+        style="font-family: 'courier new', courier;">XADD</span> and <span
+        style="font-family: 'courier new', courier;">XTRIM</span> commands to control a stream’s
+      growth? </p>
+    <label>Choose <u>two</u> answers:</label>
+    <checkboxgroup>
+      <choice correct="false">Trimming the stream to a specific byte size
+      </choice>
+      <choice correct="false">Trimming the stream to remove entries older than a specific date-time
+      </choice>
+      <choice correct="true">Trimming the stream to an <b>exact</b> number of messages </choice>
+      <choice correct="true">Trimming the stream to an <b>approximate</b> number of messages</choice>
+    </checkboxgroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>Both <span style="font-family: 'courier new', courier;">XADD</span> and <span
+            style="font-family: 'courier new', courier;">XTRIM</span> provide the ability to trim a
+          stream’s length to either an exact or an approximate number of entries. Capping to an
+          approximate number using <span style="font-family: 'courier new', courier;">MAXLEN</span>
+          and the tilde modifier is the most efficient and recommended way to do this.</p>
+        <p>Trimming a stream to a specific byte size or time period are not currently supported by
+          Redis Streams.</p>
+      </div>
+    </solution>
+  </choiceresponse>
+</problem>
+  

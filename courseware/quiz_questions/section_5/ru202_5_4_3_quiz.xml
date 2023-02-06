@@ -1,0 +1,33 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>What is the smallest, valid Redis Streams message ID?</p>
+    <label>Pick <u>one</u> answer</label>
+    <choicegroup type="MultipleChoice">
+      <choice correct="false">
+        <span style="font-family: 'courier new', courier;">-1-0</span>
+      </choice>
+      <choice correct="false">
+        <span style="font-family: 'courier new', courier;">0-0</span>
+      </choice>
+      <choice correct="true">
+        <span style="font-family: 'courier new', courier;">0-1</span>
+      </choice>
+      <choice correct="false">
+        <span style="font-family: 'courier new', courier;">1-0</span>
+      </choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p><span style="font-family: 'courier new', courier;">0-1</span> is the lowest allowable
+          message ID. <span style="font-family: 'courier new', courier;">0</span> represents the
+          lowest timestamp value. When using <span style="font-family: 'courier new', courier;">0</span>
+          as the timestamp, <span style="font-family: 'courier new', courier;">1</span> represents
+          the lowest sequence number allowed. For all other timestamp values, <span
+            style="font-family: 'courier new', courier;">0</span> would be the lowest sequence
+          number allowed.</p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  

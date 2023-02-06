@@ -1,0 +1,27 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>Which of the following is a key difference between Redis Pub/Sub and Redis Streams?
+
+    </p>
+    <label>Pick <u>one</u> answer</label>
+    <choicegroup type="MultipleChoice">
+      <choice correct="false">Streams allow multiple clients to receive data data. Pub/Sub does not.</choice>
+      <choice correct="false">Pub/Sub allows multiple clients to connect and receive data, but
+        streams does not.
+      </choice>
+      <choice correct="true">Streams store data in memory for later consumption by clients. Pub/Sub
+        doesn't store any messages.</choice>
+      <choice correct="false">Pub/Sub stores data in memory for later consumption by clients.
+        Streams doesn't store any messages.</choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>Redis Pub/Sub is fire-and-forget: if clients are not connected when a message is
+          published, they will never receive it. Streams are persistent, meaning that clients can
+          connect and request all messages ever published to the stream.</p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  

@@ -1,0 +1,24 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>Which of the following increases the probability of failure in a distributed system?</p>
+    <label>Pick <u>one</u> answer</label>
+    <choicegroup type="MultipleChoice">
+      <choice correct="false">An increase in the reliability of the storage systems, such as the
+        disks</choice>
+      <choice correct="false">An increase in the redundancy of the system's components</choice>
+      <choice correct="true">An increase in the number of system components</choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>
+          As the number of components in the system increases, so does the probability of the
+          failure of one of those components.</p>
+        <p>Increasing the reliability of the storage systems and the redundancy of systems
+          components actually decreases the probability of failure in a distributed system.
+        </p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  

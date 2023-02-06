@@ -1,0 +1,21 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>Which of these best describes the role of a consumer group?</p>
+    <label>Pick <u>one</u> answer</label>
+    <choicegroup type="MultipleChoice">
+      <choice correct="false">A random-access stream reader
+      </choice>
+      <choice correct="true">A subscriber to the stream</choice>
+      <choice correct="false">A partial consumer of the stream
+      </choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>A consumer group can be thought of as subscriber. As such, it receives all stream
+          messages.</p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  

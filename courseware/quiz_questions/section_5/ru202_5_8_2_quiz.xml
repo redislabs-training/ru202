@@ -1,0 +1,20 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>If you delete all messages in a stream using <span
+        style="font-family: 'courier new', courier;">XDEL</span>, does the stream itself still
+      exist? </p>
+    <label>Pick <u>one</u> answer</label>
+    <choicegroup type="MultipleChoice">
+      <choice correct="true">Yes, but it's empty.</choice>
+      <choice correct="false">No, because empty keys in Redis are automatically removed.</choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>Unlike other data structures in Redis (for example a list), the key for a stream is not
+          deleted when the stream is empty.</p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  

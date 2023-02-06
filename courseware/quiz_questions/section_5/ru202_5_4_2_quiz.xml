@@ -1,0 +1,19 @@
+<problem>
+  <multiplechoiceresponse>
+    <p>What is the resolution of the timestamp portion of a Redis stream's message ID?</p>
+    <label>Pick <u>one</u> answer</label>
+    <choicegroup type="MultipleChoice">
+      <choice correct="false">Second</choice>
+      <choice correct="true">Millisecond</choice>
+      <choice correct="false">Microsecond</choice>
+      <choice correct="false">Nanosecond</choice>
+    </choicegroup>
+    <solution>
+      <div class="detailed-solution">
+        <h2>Explanation</h2>
+        <p>Redis generates message identifiers using timestamps to millisecond precision.</p>
+      </div>
+    </solution>
+  </multiplechoiceresponse>
+</problem>
+  
