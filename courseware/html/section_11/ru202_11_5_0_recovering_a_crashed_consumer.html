@@ -1,6 +1,9 @@
-<p>Both of the consumers in our application use <span style="font-family: 'courier new', courier;">XREAD</span> to get new messages from their streams.  When using <span style="font-family: 'courier new', courier;">XREAD</span>, the consumer needs to remember the last ID that it received in a response from Redis, then re-use that ID in subsequent calls to <span style="font-family: 'courier new', courier;">XREAD</span> to get the next message.</p>
-<p>As our averages consumer simply reads messages and prints data from their payloads, it only needs to store the last message ID received between calls to <span style="font-family: 'courier new', courier;">XREAD</span>.</p>
-<p>The aggregating consumer needs to store a few items to maintain state between calls to <span style="font-family: 'courier new', courier;">XREAD</span>:</p>
+<style type= text/css>
+  .code {font-family: 'courier new', courier; font-weight: bold; font-size: 18px !important;}
+</style>
+<p>Both of the consumers in our application use <span class="code">XREAD</span> to get new messages from their streams.  When using <span class="code">XREAD</span>, the consumer needs to remember the last ID that it received in a response from Redis, then re-use that ID in subsequent calls to <span class="code">XREAD</span> to get the next message.</p>
+<p>As our averages consumer simply reads messages and prints data from their payloads, it only needs to store the last message ID received between calls to <span class="code">XREAD</span>.</p>
+<p>The aggregating consumer needs to store a few items to maintain state between calls to <span class="code">XREAD</span>:</p>
 <ul>
   <li>The last message ID that is received.</li>
   <li>The name of the stream it is reading from.  This is required as it is working through a set of streams, each representing a time partition of the overall dataset.  The stream name changes over time.</li>
@@ -11,21 +14,21 @@
 <p>Both consumers in the application use Redis to persist their state to a hash every time they read a message from a stream.  This ensures that if the consumer crashes and comes back up, it can resume processing from where it left off.</p>
 <p>Let's try this out by restarting the consumer processes while they are working, so that we can see how they recover.</p>
 <p>Start the consumers from the beginning of the dataset again:</p>
-<pre>
+<p><pre class="code">
 python stream_consumers.py temps:20250101
-</pre>
-<p>You should see consumption starting from the beginning of <span style="font-family: 'courier new', courier;">temps:20250101</span>:</p>
-<pre>
+</pre></p>
+<p>You should see consumption starting from the beginning of <span class="code">temps:20250101</span>:</p>
+<p><pre class="code">
 $ python stream_consumers.py temps:20250101
 agg: Starting aggregating consumer in stream temps:20250101 at message 0.
 avg: Starting averages consumer in stream temps:averages at message 0.
 avg: Average temperature for 2025/01/01 at 0 was 41F (3600 observations).
 avg: Average temperature for 2025/01/01 at 1 was 64F (3600 observations).
 avg: Average temperature for 2025/01/01 at 2 was 83F (3600 observations).
-</pre>
-<p>After the consumers have produced two to three hourly average messages, simulate a crash by stopping them with <span style="font-family: 'courier new', courier;">Ctrl+C</span>.</p>
-<p>Before re-starting the consumers, let's use <span style="font-family: 'courier new', courier;">redis-cli</span> to take a look at their stored state beginning with the aggregating consumer:</p>
-<pre>
+</pre></p>
+<p>After the consumers have produced two to three hourly average messages, simulate a crash by stopping them with <span class="code">Ctrl+C</span>.</p>
+<p>Before re-starting the consumers, let's use <span class="code">redis-cli</span> to take a look at their stored state beginning with the aggregating consumer:</p>
+<p><pre class="code">
 127.0.0.1:6379> HGETALL aggregating_consumer_state
 1) "current_stream_key"
 2) "temps:20250101"
@@ -35,25 +38,25 @@ avg: Average temperature for 2025/01/01 at 2 was 83F (3600 observations).
 6) "61857"
 7) "current_hourly_count"
 8) "2368"
-</pre>
+</pre></p>
 <p>As we see, the aggregating consumer's stored stage includes the name of the stream partition it was working on, the ID of the last message that it read and the other items required to resume calculating the hourly average when execution restarts.</p>
-<p>We can also look at the stored state for the averages consumer, which only needs to store the last message ID for the <span style="font-family: 'courier new', courier;">temps:averages</span> stream that it reads:</p>
-<pre>
+<p>We can also look at the stored state for the averages consumer, which only needs to store the last message ID for the <span class="code">temps:averages</span> stream that it reads:</p>
+<p><pre class="code">
 127.0.0.1:6379> HGETALL averages_consumer_state
 1) "last_message_id"
 2) "1557107738024-0"
-</pre>
+</pre></p>
 <p>Next, restart the consumers, this time without specifying a stream partition name at the command line:</p>
-<pre>
+<p><pre class="code">
 python stream_consumers.py
-</pre>
-<p>This starts the consumers from their previously saved states.  You should see work continue from where it left off, in this case from message <span style="font-family: 'courier new', courier;">1735702767-0</span> in hour 3 of the 1st of January 2025:</p>
-<pre>
+</pre></p>
+<p>This starts the consumers from their previously saved states.  You should see work continue from where it left off, in this case from message <span class="code">1735702767-0</span> in hour 3 of the 1st of January 2025:</p>
+<p><pre class="code">
 $ python stream_consumers.py
 agg: Starting aggregating consumer in stream temps:20250101 at message 1735702767-0.
 avg: Starting averages consumer in stream temps:averages at message 1557107738024-0.
 avg: Average temperature for 2025/01/01 at 3 was 25F (3600 observations).
 avg: Average temperature for 2025/01/01 at 4 was 64F (3600 observations).
 …
-</pre>
+</pre></p>
 <p>Similarly, the averages consumer restarts from where it left off in the temps:averages stream, and won't report any results that it had already seen.</p>

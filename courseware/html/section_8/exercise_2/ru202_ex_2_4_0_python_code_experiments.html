@@ -1,12 +1,15 @@
-<p><b>This section is <u>optional</u>. However, if you're familiar with Python, you may want to try making some changes to <span style="font-family: 'courier new', courier;">consumer_group.py</span>.</b> This will give you a better understanding of how the code works.</p>
+<style type= text/css>
+    .code {font-family: 'courier new', courier; font-weight: bold; font-size: 18px !important;}
+</style>
+<p><b>This section is <u>optional</u>. However, if you're familiar with Python, you may want to try making some changes to <span class="code">consumer_group.py</span>.</b> This will give you a better understanding of how the code works.</p>
 
 <p>Here are some changes to try:</p>
 
 <h2>Python #1</h2>
-<p>You can add more consumers by changing the value of <span style="font-family: 'courier new', courier;">MEMBERS</span> at line 12 (default is 3). Try changing this value to 10, and then rerun the code. How does this affect the output?</p>
+<p>You can add more consumers by changing the value of <span class="code">MEMBERS</span> at line 12 (default is 3). Try changing this value to 10, and then rerun the code. How does this affect the output?</p>
 
 <h2>Python #2</h2>
-<p>You can slow down the producer by changing the <span style="font-family: 'courier new', courier;">sleep</span> command on line 37. Go ahead and make this code change. Then start the program again. What kind of output do you see?</p>
+<p>You can slow down the producer by changing the <span class="code">sleep</span> command on line 37. Go ahead and make this code change. Then start the program again. What kind of output do you see?</p>
 
 <h2>Python #3</h2>
-<p>Increase the maximum number of messages each consumer reads in a call to <span style="font-family: 'courier new', courier;">XREADGROUP</span>.  The value of <span style="font-family: 'courier new', courier;">count</span> is currently a random number between 1 and 5, inclusive. Trying changing this to a larger number (e.g., 20) at line 48, then see what happens when you run the code.</p>
+<p>Increase the maximum number of messages each consumer reads in a call to <span class="code">XREADGROUP</span>.  The value of <span class="code">count</span> is currently a random number between 1 and 5, inclusive. Trying changing this to a larger number (e.g., 20) at line 48, then see what happens when you run the code.</p>
