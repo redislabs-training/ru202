@@ -4,7 +4,7 @@ This repository contains the source code for the [RU202 Redis Streams Course](ht
 
 ## Reporting Errata
 
-Spotted an error in a text segment, image or video transcript?  Please report an issue here on GitHub, we also welcome pull requests with your suggestions.  The files for each text segment, image and video transcript can be found in the `courseware` folder in this repository.
+Spotted an error in a text segment, image or video transcript?  Please [report an issue](https://github.com/redislabs-training/ru202/issues). We also welcome [pull requests](https://github.com/redislabs-training/ru202/pulls) with your suggestions.  The files for each text segment, image, non-graded quiz question and video transcript can be found in the `courseware` folder in this repository.
 
 ## Environment Setup
 
@@ -26,7 +26,7 @@ If you're using Windows, check out the following resources for help with running
 
 ### Setup
 
-Execute these commands in your shell to clone the repository then create a Python virtual environment and install the depdendencies:
+Execute these commands in your shell to clone the repository, create a Python virtual environment and install the depdendencies:
 
 ```bash
 git clone https://github.com/redislabs-training/ru202.git
@@ -36,7 +36,7 @@ python3 -m venv env
 pip install -r requirements.txt
 ```
 
-**Note:** Ensure you activate your virtual environment before running any of the sample code.
+**Note:** Ensure you activate your virtual environment in each new shell/terminal session before running any of the sample code.
 
 #### Starting Redis (Docker)
 
@@ -114,6 +114,10 @@ python test_connection.py
 ```
 
 If this command outputs `True`, then you are setup and ready to run the example code as described in the course materials.
+
+### Running the Example Code
+
+Throughout the course, you will be asked to run the example code for the various exercises.  Some of these require you to open multiple shell/terminal sessions.  Don't forget to start your Python virtual environment in each new shell session.  You'll also need to set the environment variables `REDIS_HOST`, `REDIS_PORT` and optionally `REDIS_USER` and `REDIS_PASSWORD` if your Redis instance is not running on `localhost:6379`.
 
 ### Optional (but recommended!): RedisInsight
 
