@@ -3,7 +3,6 @@
 </style>
 <h2>Description</h2>
 <p>In this exercise, we’ll take a look at some example Python code that demonstrates ways of working with consumer groups.  We’ll use the natural numbers stream example as before, keeping the same producer code.  This time though, we’ll organize the consumers into consumer groups so that they can work together.</p>
-
 <h2>Code</h2>
 <p>The code is all contained in a single Python file <span class="code">consumer_group.py</span>.  It creates the following sub-processes:</p>
 <ul>
@@ -11,5 +10,5 @@
 <li>A consumer group containing three consumers, each of which reads messages from the stream and calculates whether or not the number in the message is prime.</li>
 <li>A chaos process which periodically randomly terminates one of the consumers and restarts it, forcing it to recover and resume its former workload as it restarts.</li>
 </ul>
-
 <p>Before each run, the code will reset the stream.  This example code uses the Python Redis Client to connect to Redis and issue commands.</p>
+<p>This exercise assumes that you have cloned the course <a href="https://github.com/redislabs-training/ru202" target="_blank" class="page-link">GitHub repository</a> and followed the <a href="https://github.com/redislabs-training/ru202/blob/main/README.md" target="_blank" class="page-link">setup instructions</a>.  Note that you will need to activate your Python virtual environment and set any required environment variables for each new terminal session that you use here.</p>
