@@ -1,11 +1,16 @@
 <style type= text/css>
   .code {font-family: 'courier new', courier; font-weight: bold; font-size: 18px !important;}
 </style>
-<h2>Additional Information</h2>
-<p>The <span class="code">XADD</span> https://redis.io/commands/xadd/ command was enhanced in the Redis 7 release to allow you to provide an additional form of incomplete ID when adding a new entry to a stream.</p>
+<h2>Enhancements in Redis 7</h2>
+<p>The <a href="https://redis.io/commands/xadd/" target="_blank" class="page-link"><span class="code">XADD</span></a> command was enhanced in the Redis 7 release to allow you to provide an additional form of incomplete ID when adding a new entry to a stream.</p>
 <p>From Redis 7 onwards, it is possible to specify just the milliseconds part of the ID, and have the server generate just the sequence number part automatically.  This allows you to import data from other data sources where multiple entries exist for the same millisecond, without having to write your own code to add the incrementing sequence part that Redis requires.</p>
 <p>Use the <span class="code">-*</span> syntax to enable this behavior.  In the following example, we'll add a new entry with a complete explicit ID, then add a second one that is for an event that occurred at the same millisecond timestamp.  In the second case, we'll let Redis assign an appropriate sequence number for the new entry:</p>
 <p>
-<pre>
+<pre class="code">
+> XADD mystream 1526919030474-55 message "Hello"
+"1526919030474-55"
+> XADD mystream 1526919030474-* message "World"
+"1526919030474-56"
 </pre>
 </p>
+<p>When adding the second of these entries, the sequence number <span class="code">56</span> was determined for us by the Redis server.</p>
