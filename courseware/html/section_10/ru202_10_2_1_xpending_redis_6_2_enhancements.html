@@ -53,7 +53,7 @@ OK
          2) 1) "hello"
             2) "world"
 </pre></p>
-Once a few more seconds have passed, let&apos;s use <span class="code">XPENDING</span> to see which entries were read more than 15 seconds ago and have not yet been acknowledged:
+<p>Once a few more seconds have passed, let&apos;s use <span class="code">XPENDING</span> to see which entries were read more than 15 seconds ago and have not yet been acknowledged:</p>
 <p><pre class="code">
 127.0.0.1:6379> XPENDING mystream consumers IDLE 15000 - +  10
 1) 1) "1677608606044-0"
