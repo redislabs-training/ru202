@@ -32,7 +32,7 @@ Execute these commands in your shell to clone the repository, create a Python vi
 git clone https://github.com/redislabs-training/ru202.git
 cd ru202
 python3 -m venv env
-. env/bin/activate
+. env/Scripts/activate
 pip install -r requirements.txt
 ```
 
