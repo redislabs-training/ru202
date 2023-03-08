@@ -3,7 +3,7 @@ venv/
 redisdata/
 .DS_Store
 .idea/
-.vscode/A
+.vscode/
 __pycache__/
 .env
 *.tmp
