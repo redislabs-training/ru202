@@ -1,0 +1,96 @@
+<style type= text/css>
+  .code {font-family: 'courier new', courier; font-weight: bold; font-size: 18px !important;}
+</style>
+<h2>Enhancements in Redis 6.2</h2>
+<p>As we have seen, the ID ranges used with the <a href="https://redis.io/commands/xrange/" target="_blank" class="page-link"><span class="code">XRANGE</span></a> and <a href="https://redis.io/commands/xrevrange/" target="_blank" class="page-link"><span class="code">XREVRANGE</span></a> commands are inclusive.  This means that the IDs of messages returned may include those IDs specified in the range.  For example, let&apos;s perform some range queries on a stream with 5 entries:</p>
+<p>
+<pre class="code">
+127.0.0.1:6379> XADD mystream 1-0 n 1
+"1-0"
+127.0.0.1:6379> XADD mystream 2-0 n 2
+"2-0"
+127.0.0.1:6379> XADD mystream 3-0 n 3
+"3-0"
+127.0.0.1:6379> XADD mystream 4-0 n 4
+"4-0"
+127.0.0.1:6379> XADD mystream 5-0 n 5
+"5-0"
+</pre></p>
+<p>Asking for messages between IDs <span class="code">2-0</span> and <span class="code">4-0</span> returns 3 messages, as those having ID <span class="code">2-0</span> and <span class="code">4-0</span> are included in the results:</p>
+<p>
+<pre class="code">
+127.0.0.1:6379> XRANGE mystream 2-0 4-0
+1) 1) "2-0"
+   2) 1) "n"
+      2) "2"
+2) 1) "3-0"
+   2) 1) "n"
+      2) "3"
+3) 1) "4-0"
+   2) 1) "n"
+      2) "4"
+</pre></p>
+<p><span class="code">XREVRANGE</span> behaves similarly:</p>
+<p>
+<pre class="code">
+127.0.0.1:6379> XREVRANGE mystream 4-0 2-0
+1) 1) "4-0"
+   2) 1) "n"
+      2) "4"
+2) 1) "3-0"
+   2) 1) "n"
+      2) "3"
+3) 1) "2-0"
+   2) 1) "n"
+      2) "2"
+</p></pre>
+<p>In Redis 6.2, support for exclusive ID ranges was added, using the <span class="code">(</span> character to indicate that the range should be exclusive.  Let&apos;s try those queries again, using <span class="code">(</span>:</p>
+<p>
+<pre class="code">
+127.0.0.1:6379> XRANGE mystream (2-0 4-0
+1) 1) "3-0"
+   2) 1) "n"
+      2) "3"
+2) 1) "4-0"
+   2) 1) "n"
+      2) "4"
+</pre></p>
+<p>Notice that <span class="code">2-0</span> is no longer returned.  We can also use <span class="code">(</span> with both the upper and lower bound IDs:</p>
+<p>
+<pre class="code">
+127.0.0.1:6379> XRANGE mystream (2-0 (4-0
+1) 1) "3-0"
+   2) 1) "n"
+      2) "3"
+</pre></p>
+<p>The exclusive range option is especially useful for iterating a stream.  For example, if we want to get the entries one at a time, and don&apos;t know what the next ID is, we can start at <span class="code">0-0</span> and keep asking for the next ID after the one we receive:</p>
+<p>
+<pre class="code">
+127.0.0.1:6379> XRANGE mystream (0-0 + COUNT 1
+1) 1) "1-0"
+   2) 1) "n"
+      2) "1"
+127.0.0.1:6379> XRANGE mystream (1-0 + COUNT 1
+1) 1) "2-0"
+   2) 1) "n"
+      2) "2"
+127.0.0.1:6379> XRANGE mystream (2-0 + COUNT 1
+1) 1) "3-0"
+   2) 1) "n"
+      2) "3"
+</pre></p>
+<p><span class="code">XREVRANGE</span> was enhanced in the same way in Redis 6.2.  Here's an example:</p>
+<p>
+<pre class="code">
+127.0.0.1:6379> XREVRANGE mystream 4-0 (1-0
+1) 1) "4-0"
+   2) 1) "n"
+      2) "4"
+2) 1) "3-0"
+   2) 1) "n"
+      2) "3"
+3) 1) "2-0"
+   2) 1) "n"
+      2) "2"
+</pre></p>
+<p>For more details, see the <a href="https://redis.io/commands/xrange/" target="_blank" class="page-link"><span class="code">XRANGE</span></a> and <a href="https://redis.io/commands/xrevrange/" target="_blank" class="page-link"><span class="code">XREVRANGE</span></a> command pages on redis.io.</p>
