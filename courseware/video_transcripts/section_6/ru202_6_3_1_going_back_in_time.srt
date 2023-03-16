@@ -44,7 +44,7 @@ up and go upstream.
 
 11
 00:00:25,440 --> 00:00:28,110
-That's what XREVERANGE is for.
+That's what XREVRANGE is for.
 
 12
 00:00:28,110 --> 00:00:32,340
@@ -80,7 +80,7 @@ that sums the natural numbers stream to use
 
 20
 00:00:52,630 --> 00:00:55,000
-XREVERANGE instead of XRANGE.
+XREVRANGE instead of XRANGE.
 
 21
 00:00:55,000 --> 00:00:57,910
