@@ -7,7 +7,7 @@
       <choice correct="false">8</choice>
       <choice correct="false">64</choice>
       <choice correct="false">256</choice>
-      <choice correct="true">There's no specific limit, but here must be at least one field-value
+      <choice correct="true">There's no specific limit, but there must be at least one field-value
         pair.</choice>
     </choicegroup>
     <solution>
