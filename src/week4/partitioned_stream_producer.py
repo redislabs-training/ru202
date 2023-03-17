@@ -122,7 +122,7 @@ def main():
         # Pipeline: https://redis.io/topics/pipelining
         pipe = redis.pipeline()
         pipe.xadd(stream_key, entry, current_timestamp)
-        pipe.expireat(stream_key, current_timestamp + PARTITION_EXPIRY_TIME)
+        pipe.expireat(stream_key, (current_timestamp // 1000) + PARTITION_EXPIRY_TIME)
         pipe.execute()
 
         # Have we started a new stream?
