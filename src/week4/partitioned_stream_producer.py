@@ -43,6 +43,10 @@ TIMESTAMP_START = 1735689600000 # 01/01/2025 00:00:00 UTC
 # Number of days of data to generate.
 DAYS_TO_GENERATE = 10
 
+# Maximum number of commands to pipeline before running 
+# execute and sending them to Redis
+MAX_PIPELINE_COMMANDS = 1000
+
 # Utility class to produce wandering temperature range.
 class Measurement:
     def __init__(self):
@@ -103,6 +107,11 @@ def main():
     redis = get_connection()
 
     stream_key = ""
+
+    # Pipeline the commands to Redis for performance reasons, saves
+    # on network round trips: https://redis.io/topics/pipelining
+    pipe = redis.pipeline(transaction=False)
+    pipeline_size = 0
     
     while current_timestamp < end_timestamp:
         # Get the stream partition key name that this timestamp should 
@@ -114,16 +123,10 @@ def main():
         
         # Publish to the current stream partition and set 
         # or update expiry time on the stream partition.
-        # This is done as a pipeline so that both commands are 
-        # executed with a single round trip to the Redis Server 
-        # for performance reasons.  An alternative strategy might 
-        # be to only update the expiry time every 100th message 
-        # or similar.
-        # Pipeline: https://redis.io/topics/pipelining
-        pipe = redis.pipeline()
         pipe.xadd(stream_key, entry, current_timestamp)
         pipe.expireat(stream_key, (current_timestamp // 1000) + PARTITION_EXPIRY_TIME)
-        pipe.execute()
+        # Update the number of pending commands in the current pipeline.
+        pipeline_size += 2
 
         # Have we started a new stream?
         if (stream_key != previous_stream_key):
@@ -133,6 +136,17 @@ def main():
 
         # Move on to the next timestamp value.
         current_timestamp += (TEMPERATURE_READING_INTERVAL_SECONDS * 1000)
+
+        # Execute the pipeline every MAX_PIPELINE_COMMANDS commands...
+        if pipeline_size >= MAX_PIPELINE_COMMANDS:
+            # Execute pipeline and start a new one.
+            pipe.execute()
+            pipe = redis.pipeline(transaction=False)
+            pipeline_size = 0
+
+    # Send any remaining commands in the pipeline to Redis if needed.
+    if pipeline_size > 0:
+        pipe.execute()
     
 if __name__ == "__main__":
     main()
