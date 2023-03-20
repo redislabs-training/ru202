@@ -38,7 +38,7 @@ TEMPERATURE_READING_INTERVAL_SECONDS = 1
 # when the producer is run.  So this timestamp 
 # represents the oldest temperature reading that 
 # will be generated.
-TIMESTAMP_START = 1735689600 # 01/01/2025 00:00:00 UTC
+TIMESTAMP_START = 1735689600000 # 01/01/2025 00:00:00 UTC
 
 # Number of days of data to generate.
 DAYS_TO_GENERATE = 10
@@ -70,10 +70,10 @@ def reset_state():
 
     print("Deleting old streams:")
     for day in range(DAYS_TO_GENERATE):
-        stream_key_name = f"{const.STREAM_KEY_BASE}:{datetime.utcfromtimestamp(stream_timestamp).strftime('%Y%m%d')}"
+        stream_key_name = f"{const.STREAM_KEY_BASE}:{datetime.utcfromtimestamp(stream_timestamp // 1000).strftime('%Y%m%d')}"
         print(stream_key_name)
         keys_to_delete.append(stream_key_name)
-        stream_timestamp += ONE_DAY_SECONDS
+        stream_timestamp += (ONE_DAY_SECONDS * 1000)
         
     redis.delete(*keys_to_delete)
 
@@ -81,7 +81,7 @@ def reset_state():
 # the supplied timestamp in the format specified by
 # format_pattern.  See http://strftime.org/
 def format_timestamp_as_utc(timestamp, format_pattern):
-    return datetime.utcfromtimestamp(timestamp).strftime(format_pattern)
+    return datetime.utcfromtimestamp(timestamp // 1000).strftime(format_pattern)
 
 # Calculate key name for the stream partition that
 # the supplied timestamp belongs to.  Each day has 
@@ -98,7 +98,7 @@ def main():
     current_timestamp = TIMESTAMP_START
 
     # End data production a configurable number of days after we began.
-    end_timestamp = TIMESTAMP_START + (ONE_DAY_SECONDS * DAYS_TO_GENERATE)
+    end_timestamp = (TIMESTAMP_START + ((ONE_DAY_SECONDS * 1000) * DAYS_TO_GENERATE))
 
     redis = get_connection()
 
@@ -122,7 +122,7 @@ def main():
         # Pipeline: https://redis.io/topics/pipelining
         pipe = redis.pipeline()
         pipe.xadd(stream_key, entry, current_timestamp)
-        pipe.expireat(stream_key, current_timestamp + PARTITION_EXPIRY_TIME)
+        pipe.expireat(stream_key, (current_timestamp // 1000) + PARTITION_EXPIRY_TIME)
         pipe.execute()
 
         # Have we started a new stream?
@@ -132,7 +132,7 @@ def main():
             previous_stream_key = stream_key            
 
         # Move on to the next timestamp value.
-        current_timestamp += TEMPERATURE_READING_INTERVAL_SECONDS
+        current_timestamp += (TEMPERATURE_READING_INTERVAL_SECONDS * 1000)
     
 if __name__ == "__main__":
     main()

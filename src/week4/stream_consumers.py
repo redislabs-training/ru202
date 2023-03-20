@@ -156,14 +156,14 @@ def aggregating_consumer_func(current_stream_key, last_message_id, current_hourl
             msg_temperature = msg[1]["temp_f"]
 
             # Get hour for this message
-            msg_date = datetime.utcfromtimestamp(int(msg_timestamp))
+            msg_date = datetime.utcfromtimestamp(int(msg_timestamp) // 1000)
             msg_hour = msg_date.hour
 
             # Get the hour for the last message
             last_message_hour = 0
             if "-" in last_message_id:
                 last_message_timestamp = last_message_id.split("-")[0]
-                last_message_date = datetime.utcfromtimestamp(int(last_message_timestamp))
+                last_message_date = datetime.utcfromtimestamp(int(last_message_timestamp) // 1000)
                 last_message_hour = last_message_date.hour
 
             # Did we start a new hour?
