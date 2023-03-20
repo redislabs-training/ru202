@@ -26,11 +26,11 @@ $ redis-cli
 <p>Finally, let's see what the messages look like using <span class="code">XRANGE</span>:</p>
 <p><pre class="code">
 127.0.0.1:6379> XRANGE temps:20250105 - + COUNT 2
-1) 1) "1736035200-0"
+1) 1) "1736035200000-0"
    2) 1) "temp_f"
       2) "73"
-2) 1) "1736035201-0"
+2) 1) "1736035201000-0"
    2) 1) "temp_f"
       2) "72"
 </pre></p>
-<p>Each message's ID is the timestamp that the temperature reading is for (<span class="code">1736035200</span> = January 5th 2025 at 00:00 for example).  The payload is a single item named <span class="code">temp_f</span> whose value is the temperature reading in Fahrenheit.</p>
+<p>Each message&apos;s ID is the millisecond timestamp that the temperature reading is for (<span class="code">1736035200000</span> = January 5th 2025 at 00:00 for example).  The payload is a single item named <span class="code">temp_f</span> whose value is the temperature reading in Fahrenheit.</p>
