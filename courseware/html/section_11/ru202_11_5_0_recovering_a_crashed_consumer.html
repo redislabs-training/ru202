@@ -12,7 +12,7 @@
 </ul>
 <p>Once it reaches the end of the hour, it then simply divides the sum of all temperatures seen for the hour by the number of messages seen to get an average value.  If the consumer crashes, it needs to be able to recover state when re-starting, so that it can resume reading the stream partition it was working on in the right position with the same working values for calculating the hourly average.</p>
 <p>Both consumers in the application use Redis to persist their state to a hash every time they read a message from a stream.  This ensures that if the consumer crashes and comes back up, it can resume processing from where it left off.</p>
-<p>Let's try this out by restarting the consumer processes while they are working, so that we can see how they recover.</p>
+<p>Let&apos;s try this out by restarting the consumer processes while they are working, so that we can see how they recover.</p>
 <p>Start the consumers from the beginning of the dataset again:</p>
 <p><pre class="code">
 python stream_consumers.py temps:20250101
@@ -27,7 +27,7 @@ avg: Average temperature for 2025/01/01 at 1 was 64F (3600 observations).
 avg: Average temperature for 2025/01/01 at 2 was 83F (3600 observations).
 </pre></p>
 <p>After the consumers have produced two to three hourly average messages, simulate a crash by stopping them with <span class="code">Ctrl+C</span>.</p>
-<p>Before re-starting the consumers, let's use <span class="code">redis-cli</span> to take a look at their stored state beginning with the aggregating consumer:</p>
+<p>Before re-starting the consumers, let&apos;s use <span class="code">redis-cli</span> to take a look at their stored state beginning with the aggregating consumer:</p>
 <p><pre class="code">
 127.0.0.1:6379> HGETALL aggregating_consumer_state
 1) "current_stream_key"
@@ -39,7 +39,7 @@ avg: Average temperature for 2025/01/01 at 2 was 83F (3600 observations).
 7) "current_hourly_count"
 8) "2368"
 </pre></p>
-<p>As we see, the aggregating consumer's stored stage includes the name of the stream partition it was working on, the ID of the last message that it read and the other items required to resume calculating the hourly average when execution restarts.</p>
+<p>As we see, the aggregating consumer&apos;s stored stage includes the name of the stream partition it was working on, the ID of the last message that it read and the other items required to resume calculating the hourly average when execution restarts.</p>
 <p>We can also look at the stored state for the averages consumer, which only needs to store the last message ID for the <span class="code">temps:averages</span> stream that it reads:</p>
 <p><pre class="code">
 127.0.0.1:6379> HGETALL averages_consumer_state
@@ -59,4 +59,4 @@ avg: Average temperature for 2025/01/01 at 3 was 25F (3600 observations).
 avg: Average temperature for 2025/01/01 at 4 was 64F (3600 observations).
 …
 </pre></p>
-<p>Similarly, the averages consumer restarts from where it left off in the temps:averages stream, and won't report any results that it had already seen.</p>
+<p>Similarly, the averages consumer restarts from where it left off in the <span class="code">temps:averages</span> stream, and won&apos;t report any results that it had already seen.</p>
