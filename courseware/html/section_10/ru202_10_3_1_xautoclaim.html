@@ -1,7 +1,6 @@
 <style type= text/css>
   .code {font-family: 'courier new', courier; font-weight: bold; font-size: 18px !important;}
 </style>
-<h2>The XAUTOCLAIM Command</h2>
 <p>The <span class="code">XAUTOCLAIM</span> command was introduced with Redis 6.2 and further enhanced in Redis 7. It provides a simpler way of claiming messages from a failed consumer and is conceptually equivalent to calling <span class="code">XPENDING</span> then <span class="code">XCLAIM</span>.</p> 
 <p>Use <span class="code">XAUTOCLAIM</span> to atomically transfer ownership of messages that have been pending for more than a specified number of milliseconds to a new consumer.</p>
 <p>Let&apos;s see how this works with an example scenario.</p>
