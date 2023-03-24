@@ -1,0 +1,123 @@
+<style type= text/css>
+  .code {font-family: 'courier new', courier; font-weight: bold; font-size: 18px !important;}
+</style>
+<p>The <span class="code">XAUTOCLAIM</span> command was introduced with Redis 6.2 and further enhanced in Redis 7. It provides a simpler way of claiming messages from a failed consumer and is conceptually equivalent to calling <span class="code">XPENDING</span> then <span class="code">XCLAIM</span>.</p> 
+<p>Use <span class="code">XAUTOCLAIM</span> to atomically transfer ownership of messages that have been pending for more than a specified number of milliseconds to a new consumer.</p>
+<p>Let&apos;s see how this works with an example scenario.</p>
+<p>First, we&apos;ll populate a stream with 200 entries. Each entry will have the same data, but that doesn't matter for this example:</p>
+<p><pre class="code">
+127.0.0.1:6379> 200 xadd demostream * hello world
+"1679679140391-0"
+"1679679140411-0"
+"1679679140413-0"
+"1679679140434-0"
+"1679679140492-0"
+"1679679140494-0"
+...
+</pre></p>
+<p>We can verify that 200 entries were created:</p>
+<p><pre class="code">
+127.0.0.1:6379> xlen demostream
+(integer) 200
+</pre></p>
+<p>Next, let&apos;s create a consumer group for this stream, pointing it at the beginning of the stream:</p>
+<p><pre class="code">
+127.0.0.1:6379> xgroup create demostream democonsumers 0
+OK
+</pre></p>
+<p>Our first consumer, <span class="code">consumer1</span> now reads some entries from the stream, but does not yet acknowledge them with <span class="code">XACK</span>:</p>
+<p><pre class="code">
+127.0.0.1:6379> xreadgroup group democonsumers consumer1 count 3 streams demostream >
+1) 1) "demostream"
+   2) 1) 1) "1679679140391-0"
+         2) 1) "hello"
+            2) "world"
+      2) 1) "1679679140411-0"
+         2) 1) "hello"
+            2) "world"
+      3) 1) "1679679140413-0"
+         2) 1) "hello"
+            2) "world"
+</pre></p>
+<p>Having read these entries, <span class="code">consumer1</span> then crashes, and won't play any further part in this example.  This leaves three entries in the pending entries list.</p>
+<p>We can now use <span class="code">XAUTOCLAIM</span> to claim the first two entries from the consumer group that are still pending and have been idle for at least a minute. We&apos;ll assign them to <span class="code">consumer2</span>:
+<p><pre class="code">
+127.0.0.1:6379> xautoclaim demostream democonsumers consumer2 60000 0 count 2
+1) "1679679140413-0"
+2) 1) 1) "1679679140391-0"
+      2) 1) "hello"
+         2) "world"
+   2) 1) "1679679140411-0"
+      2) 1) "hello"
+         2) "world"
+3) (empty array)
+</pre></p>
+<p>When calling <span class="code">XAUTOCLAIM</span> here, we pass it the following parameters:</p>
+<ul>
+  <li>The name of the stream: <span class="code">demostream</span></li>
+  <li>The name of the consumer group: <span class="code">democonsumers</span></li>
+  <li>The name of the consumer to assign any matching stream entries to: <span class="code">consumer2</span></li>
+  <li>The number of milliseconds that matching stream entries must have been idle for (since the consumer they are currently assigned to last read them): <span class="code">60000</span></li>
+  <li>The stream entry ID in the pending entries list to start from, here we provide 0 to start at the beginning of the PEL: <span class="code">0</span></li>
+  <li>An optional <span class="code">COUNT</span> clause specifying the maximum number of entries to re-assign if enough are found that meet the criteria.  Here we&apos;re specifying <span class="code">2</span>.  The default if nothing is specified is 100</li>
+</ul>
+<p><span class="code">XAUTOCLAIM</span> responds with an array type response containing three elements:</p>
+<ol>
+  <li>A stream entry ID to use as the start point for subsequent calls to <span class="code">XAUTOCLAIM</span>.  This is <span class="code">1679679140413-0</span> in the above example.  We can use this to iterate through the pending entries list.</li>
+  <li>An array containing all of the entries claimed, including their IDs and payloads.</li>
+  <li><b>(Redis 7 only):</b> An array containing any message IDs that were in the pending entries list but had been deleted from the stream, and which have now been cleaned up from the pending entries list.</li>
+</ol>
+<p>Note that calling <span class="code">XAUTOCLAIM</span> in this way also increments the attempted delivery count for each matching entry returned.</p>
+<p>Using <span class="code">XINFO CONSUMERS</span>, we can now see that two entries have been re-assigned to <span class="code">consumer2</span>:</p>
+<p><pre class="code">
+127.0.0.1:6379> xinfo consumers demostream democonsumers
+1) 1) "name"
+   2) "consumer1"
+   3) "pending"
+   4) (integer) 1
+   5) "idle"
+   6) (integer) 1268434
+2) 1) "name"
+   2) "consumer2"
+   3) "pending"
+   4) (integer) 2
+   5) "idle"
+   6) (integer) 901664
+</pre></p>
+<p>Finally, let&apos;s look at another optional modifier to the <span class="code">XAUTOCLAIM</span> command.</p>
+<p>Here we&apos;ll use the entry ID returned from the previous call to <span class="code">XAUTOCLAIM</span> to claim more entries and assign them to <span class="code">consumer3</span>:
+<p><pre class="code">
+127.0.0.1:6379> xautoclaim demostream democonsumers consumer3 60000 1679679140413-0 count 10 justid
+1) "0-0"
+2) 1) "1679679140413-0"
+3) (empty array)
+</pre></p>
+<p>The <span class="code">JUSTID</span> modifier changes the behavior of <span class="code">XAUTOCLAIM</span> in two ways:</p>
+<ol>
+  <li>Only the matching entry IDs are returned, the payloads are not.  This can be useful to save network bandwidth if the calling application does not need the payload.</li>
+  <li>The attempted delivery count for each matching entry <b>is not</b> updated.</li>
+</ol>
+<p>In the example above, we have also exhausted matching entries in the pending entries list at this time, so the next ID returned is <span class="code">0-0</span>.</p>
+<p>Finally, we can re-run the <span class="code">XINFO CONSUMERS</span> command to verify that <span class="code">consumer3</span> now has entries assigned to it, and that <span class="code">consumer1</span> has had all entries that were assigned to it moved elsewhere:</p>
+<p><pre class="code">
+127.0.0.1:6379> xinfo consumers demostream democonsumers
+1) 1) "name"
+   2) "consumer1"
+   3) "pending"
+   4) (integer) 0
+   5) "idle"
+   6) (integer) 2259704
+2) 1) "name"
+   2) "consumer2"
+   3) "pending"
+   4) (integer) 2
+   5) "idle"
+   6) (integer) 1892934
+3) 1) "name"
+   2) "consumer3"
+   3) "pending"
+   4) (integer) 1
+   5) "idle"
+   6) (integer) 125686
+</pre></p>
+<p>For more information, refer to the <a href="https://redis.io/commands/xautoclaim/" target="_blank" class="page-link"><span class="code">XAUTOCLAIM</span> command page</a> on redis.io.</p>
