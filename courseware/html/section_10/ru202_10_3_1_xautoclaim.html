@@ -1,0 +1,29 @@
+<style type= text/css>
+  .code {font-family: 'courier new', courier; font-weight: bold; font-size: 18px !important;}
+</style>
+<h2>The XAUTOCLAIM Command</h2>
+<p>The <span class="code">XAUTOCLAIM</span> command was introduced with Redis 6.2 and further enhanced in Redis 7. It provides a simpler way of claiming messages from a failed consumer and is conceptually equivalent to calling <span class="code">XPENDING</span> then <span class="code">XCLAIM</span>.</p> 
+<p>Use <span class="code">XAUTOCLAIM</span> to atomically transfer ownership of messages that have been pending for more than a specified number of milliseconds to a new consumer.</p>
+<p>Let&apos;s see how this works:</p>
+<p>First, we&apos;ll populate a stream with 200 entries. Each entry will have the same data, but that doesn't matter for this example:</p>
+<p><pre class="code">
+127.0.0.1:6379> 200 xadd demostream * hello world
+"1679679140391-0"
+"1679679140411-0"
+"1679679140413-0"
+"1679679140434-0"
+"1679679140492-0"
+"1679679140494-0"
+...
+</pre></p>
+<p>We can verify that 200 entries were created:</p>
+<p><pre class="code">
+127.0.0.1:6379> xlen demostream
+(integer) 200
+</pre></p>
+<p>Next, let&apos;s create a consumer group for this stream, pointing it at the beginngin of the stream:</p>
+<p><pre class="code">
+127.0.0.1:6379> xgroup create demostream democonsumers 0
+OK
+</pre></p>
+<p>For more information, refer to the <a href="https://redis.io/commands/xautoclaim/" target="_blank" class="page-link"><span class="code">XAUTOCLAIM</span> command page</a> on redis.io.</p>
