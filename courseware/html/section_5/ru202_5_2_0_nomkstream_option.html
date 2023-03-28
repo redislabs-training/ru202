@@ -1,0 +1,34 @@
+<style type= text/css>
+  .code {font-family: 'courier new', courier; font-weight: bold; font-size: 18px !important;}
+</style>
+<h2>XADD Enhancements in Redis 6.2</h2>
+<p>In Redis 6.2, the <span class="code">NOMKSTREAM</span> option was added to <span class="code">XADD</span>.</p>
+<p>This option stops <span class="code">XADD</span> from creating a new stream if the key provided does not already exist.</p>
+<p>For example, consider the following sequence of commands:</p>
+<p><pre class="code">
+127.0.0.1:6379> DEL somestream
+(integer) 0
+127.0.0.1:6379> XADD somestream * hello world
+"1680018755244-0"
+127.0.0.1:6379> XLEN somestream
+(integer) 1
+</pre></p>
+<p>Executing the <span class="code">XADD</span> command created the stream whose key is <span class="code">somestream</span>, and added the first entry to it.</p>
+<p>If we execute <span class="code">XADD</span> with the <span class="code">NOMKSTREAM</span> option to add another entry to a stream that already exists, it behaves in the same way as if <span class="code">NOMKSTREAM</span> was not specified:</p>
+<p><pre class="code">
+127.0.0.1:6379> XADD somestream NOMKSTREAM * another entry
+"1680018786343-0"
+</pre></p>
+<p>A second entry was added to the existing stream.</p>
+<p>Let&apos;s delete the stream and try adding a new entry to it, this time with the <span class="code">NOMKSTREAM</span> option:</p>
+<p><pre class="code">
+127.0.0.1:6379> DEL somestream
+(integer) 1
+127.0.0.1:6379> XADD somestream NOMKSTREAM * hello world
+(nil)
+127.0.0.1:6379> EXISTS somestream
+(integer) 0
+</p></pre>
+<p>Here we see that <span class="code">XADD</span> returned <span class="code">nil</span> as no new stream entry was created.  Checking with the <a href="https://redis.io/commands/exists/" target="_blank" class="page-link"><span class="code">EXISTS</span> command</a> also confirms that there is nothing in Redis with the key <span class="code">somestream</span>.</p>
+<h2>Further Information</h2>
+<p>For more information, see the <a href="https://redis.io/commands/xadd/" target="_blank" class="page-link"><span class="code">XADD</span> command page</a> on redis.io.</p>
