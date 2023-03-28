@@ -2,8 +2,9 @@
   .code {font-family: 'courier new', courier; font-weight: bold; font-size: 18px !important;}
 </style>
 <h2>Enhancements in Redis 6.2</h2>
-<p>In Redis 6.2, a new stream trimming strategy was added.  It is called <span class="code">MINID</span>, and allows us to trim a stream TODO.</p>
-<p>In common with the <span class="code">MAXLEN</span> trimming strategy, <span class="code">MINID</span> can be used with both the <a href="https://redis.io/commands/xadd/" target="_blank" class="page-link"><span class="code">XADD</span></a> and <a href="https://redis.io/commands/xtrim/" target="_blank" class="page-link"><span class="code">XTRIM</span></a> commands.</p>
+<p>In Redis 6.2, a new stream trimming strategy was added.  It is called <span class="code">MINID</span>, and allows us to trim a stream such that entries whose ID is lower than one provided are removed.</p>
+<p>When combined with the default timestamp entry ID strategy, this gives us the ability to trim a stream to a given point in time.</p>
+<p>In common with the <span class="code">MAXLEN</span> trimming strategy, <span class="code">MINID</span> can be used with both the <a href="https://redis.io/commands/xadd/" target="_blank" class="page-link"><span class="code">XADD</span></a> and <a href="https://redis.io/commands/xtrim/" target="_blank" class="page-link"><span class="code">XTRIM</span></a> commands, as well as with the <span class="code">~</span> modifier for approximate trimming.</p>
 <p>Let&apos;s explore the <span class="code">MINID</span> trimming strategy using a stream where we&apos;ve added a new entry every 10 minutes for a period of 3 hours between midnight and 2:50am UTC on January 1st 2025.</p>
 <p>First we&apos;ll create the stream, giving each entry a single name/value pair in its payload.  We store the date/time in <span class="code">YYYY-MM-DD HH:MM:SS</span> format so that we can easily see which time the entry ID timestamp represents:</p>
 <p><pre class="code">
