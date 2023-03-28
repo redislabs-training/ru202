@@ -1,0 +1,124 @@
+<style type= text/css>
+  .code {font-family: 'courier new', courier; font-weight: bold; font-size: 18px !important;}
+</style>
+<h2>Enhancements in Redis 6.2</h2>
+<p>In Redis 6.2, a new stream trimming strategy was added.  It is called <span class="code">MINID</span>, and allows us to trim a stream such that entries whose ID is lower than one provided are removed.</p>
+<p>When combined with the default timestamp entry ID strategy, this gives us the ability to trim a stream to a given point in time.</p>
+<p>In common with the <span class="code">MAXLEN</span> trimming strategy, <span class="code">MINID</span> can be used with both the <a href="https://redis.io/commands/xadd/" target="_blank" class="page-link"><span class="code">XADD</span></a> and <a href="https://redis.io/commands/xtrim/" target="_blank" class="page-link"><span class="code">XTRIM</span></a> commands, as well as with the <span class="code">~</span> modifier for approximate trimming.</p>
+<p>Let&apos;s explore the <span class="code">MINID</span> trimming strategy using a stream where we&apos;ve added a new entry every 10 minutes for a period of 3 hours between midnight and 2:50am UTC on January 1st 2025.</p>
+<p>First we&apos;ll create the stream, giving each entry a single name/value pair in its payload.  We store the date/time in <span class="code">YYYY-MM-DD HH:MM:SS</span> format so that we can easily see which time the entry ID timestamp represents:</p>
+<p><pre class="code">
+127.0.0.1:6379> DEL demostream
+(integer) 0
+127.0.0.1:6379> XADD demostream 1735689600000-0 dt "2025-01-01 00:00:00"
+"1735689600000-0"
+127.0.0.1:6379> XADD demostream 1735690200000-0 dt "2025-01-01 00:10:00"
+"1735690200000-0"
+127.0.0.1:6379> XADD demostream 1735690800000-0 dt "2025-01-01 00:20:00"
+"1735690800000-0"
+127.0.0.1:6379> XADD demostream 1735691400000-0 dt "2025-01-01 00:30:00"
+"1735691400000-0"
+127.0.0.1:6379> XADD demostream 1735692000000-0 dt "2025-01-01 00:40:00"
+"1735692000000-0"
+127.0.0.1:6379> XADD demostream 1735692600000-0 dt "2025-01-01 00:50:00"
+"1735692600000-0"
+127.0.0.1:6379> XADD demostream 1735693200000-0 dt "2025-01-01 01:00:00"
+"1735693200000-0"
+127.0.0.1:6379> XADD demostream 1735693800000-0 dt "2025-01-01 01:10:00"
+"1735693800000-0"
+127.0.0.1:6379> XADD demostream 1735694400000-0 dt "2025-01-01 01:20:00"
+"1735694400000-0"
+127.0.0.1:6379> XADD demostream 1735695000000-0 dt "2025-01-01 01:30:00"
+"1735695000000-0"
+127.0.0.1:6379> XADD demostream 1735695600000-0 dt "2025-01-01 01:40:00"
+"1735695600000-0"
+127.0.0.1:6379> XADD demostream 1735696200000-0 dt "2025-01-01 01:50:00"
+"1735696200000-0"
+127.0.0.1:6379> XADD demostream 1735696800000-0 dt "2025-01-01 02:00:00"
+"1735696800000-0"
+127.0.0.1:6379> XADD demostream 1735697400000-0 dt "2025-01-01 02:10:00"
+"1735697400000-0"
+127.0.0.1:6379> XADD demostream 1735698000000-0 dt "2025-01-01 02:20:00"
+"1735698000000-0"
+127.0.0.1:6379> XADD demostream 1735698600000-0 dt "2025-01-01 02:30:00"
+"1735698600000-0"
+127.0.0.1:6379> XADD demostream 1735699200000-0 dt "2025-01-01 02:40:00"
+"1735699200000-0"
+127.0.0.1:6379> XADD demostream 1735699800000-0 dt "2025-01-01 02:50:00"
+"1735699800000-0"
+</pre></p>
+<p>Having created the stream, we can run some checks to make sure that it is the expected length and that the first and last entries represent the time period we are modeling:</p>
+<p><pre class="code">
+127.0.0.1:6379> XLEN demostream
+(integer) 18
+127.0.0.1:6379> XRANGE demostream - + COUNT 1
+1) 1) "1735689600000-0"
+   2) 1) "dt"
+      2) "2025-01-01 00:00:00"
+127.0.0.1:6379> XREVRANGE demostream + - COUNT 1
+1) 1) "1735699800000-0"
+    2) 1) "dt"
+      2) "2025-01-01 02:50:00"
+</pre></p>
+<h3>Time Based Trimming with XADD</h3>
+<p>Imagine that we want to trim the stream so that only the first hour&apos;s entries are removed.  Using the <span class="code">MINID</span> strategy, we can compute an appropriate timestamp value (in our application code) and use that as an argument to either <span class="code">XADD</span> or <span class="code">XTRIM</span>.</p>
+<p>Here we&apos;re trimming the stream to remove entries older than 01:00:00 on Jan 1st 2025 (<span class="code">1735693200000</span>) while adding a new entry for 03:00:00 on Jan 1st 2025 (<span class="code">1735700400000</span>) at the same time:</p>
+<p><pre class="code">
+127.0.0.1:6379> XADD demostream MINID 1735693200000 1735700400000-0 dt "2025-01-01 03:00:00"
+"1735700400000-0"</pre></p>
+<p>Note that we don&apos;t have to add the sequence number to the value for <span class="code">MINID</span>.  If not supplied, a sequence number of <span class="code">-0</span> is assumed.</p>
+<p>Let&apos;s see how running this single command has affected the state of the stream:</p>
+<p><pre class="code">
+127.0.0.1:6379> XLEN demostream
+(integer) 13
+127.0.0.1:6379> XRANGE demostream - + COUNT 1
+1) 1) "1735693200000-0"
+   2) 1) "dt"
+      2) "2025-01-01 01:00:00"
+127.0.0.1:6379> XREVRANGE demostream + - COUNT 1
+1) 1) "1735700400000-0"
+   2) 1) "dt"
+      2) "2025-01-01 03:00:00"
+</p></pre>
+<p>Before running the command there were 18 entries in the stream.  The <span class="code">XADD</span> command added one more, and also atomically trimmed the 6 entries whose ID was less than <span class="code">1735693200000</span> (those entries covering the time period from 00:00 to 00:50).</p>
+<p>This leaves us with a stream containing 13 entries that span the time period 01:00 to 03:00 on Jan 1st 2025.</p>
+<h3>Time Based Trimming with XTRIM</h3>
+<p>We can also trim the stream without adding a new entry to it.  We do this with the <span class="code">XTRIM</span> command.</p>
+<p>Let&apos;s use <span class="code">XTRIM</span> to remove entries older than 02:00 on Jan 1st 2025 UTC from our stream.  As before, we need to calculate the milliseond timestamp for that date and time.  It is <span class="code">1735696800000</span>.</p>
+<p>Next we call <span class="code">XTRIM</span> using the <span class="code">MINID</span> trimming strategy:</p>
+<p><pre class="code">
+127.0.0.1:6379> XTRIM demostream MINID 1735696800000
+(integer) 6
+</pre></p>
+<p>Redis responds with the number of entries that were trimmed from the stream: 6 in this case.</p>
+<p>Note that, in common with <span class="code">XADD</span>, we do not have to provide the sequence ID part of the minimum ID to trim to. <span class="code">-0</span> is implied unless an explicit sequence ID is provided.</p>
+<p>Let&apos;s see how running <span class="code">XTRIM</span> has affected the state of the stream:</p>
+<p><pre class="code">
+127.0.0.1:6379> XLEN demostream
+(integer) 7
+127.0.0.1:6379> XRANGE demostream - +
+1) 1) "1735696800000-0"
+   2) 1) "dt"
+      2) "2025-01-01 02:00:00"
+2) 1) "1735697400000-0"
+   2) 1) "dt"
+      2) "2025-01-01 02:10:00"
+3) 1) "1735698000000-0"
+   2) 1) "dt"
+      2) "2025-01-01 02:20:00"
+4) 1) "1735698600000-0"
+   2) 1) "dt"
+      2) "2025-01-01 02:30:00"
+5) 1) "1735699200000-0"
+   2) 1) "dt"
+      2) "2025-01-01 02:40:00"
+6) 1) "1735699800000-0"
+   2) 1) "dt"
+      2) "2025-01-01 02:50:00"
+7) 1) "1735700400000-0"
+   2) 1) "dt"
+      2) "2025-01-01 03:00:00"
+</pre></p>
+<p>The stream was trimmed to contain only the 7 most recent entries. These cover the time period from 02:00 to 03:00.</p>
+<h3>Additional Resources</h3>
+<p>For more information on the <span class="code">MINID</span> trimming strategy, check out the <a href="https://redis.io/commands/xtrim/" target="_blank" class="page-link"><span class="code">XTRIM</span> command page</a> on redis.io.</p>
