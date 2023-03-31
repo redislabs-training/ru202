@@ -24,12 +24,7 @@
 # the last message ID that it read from the stream
 # for crash recovery purposes. 
 
-import json
-import os
-import random
-import string
 import sys
-import time
 import util.constants as const
 
 from datetime import datetime, timedelta

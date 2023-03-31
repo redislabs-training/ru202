@@ -14,10 +14,7 @@
 # on January 1st 2025, generating 10 days worth of 
 # data at 1 second intervals.
 
-import json
-import os
 import random
-import time
 import util.constants as const
 
 from datetime import datetime 
