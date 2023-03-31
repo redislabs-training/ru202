@@ -1,2 +1,2 @@
-Faker==4.1.1
-redis==3.5
+async-timeout==4.0.2
+redis==4.5.4
