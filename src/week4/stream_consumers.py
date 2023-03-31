@@ -24,12 +24,7 @@
 # the last message ID that it read from the stream
 # for crash recovery purposes. 
 
-import json
-import os
-import random
-import string
 import sys
-import time
 import util.constants as const
 
 from datetime import datetime, timedelta
@@ -292,7 +287,7 @@ def main():
         
         if not h:
             print("No stream key and last message ID found in Redis.")
-            print("Start the consumer with stream key and last message ID parameters.")
+            print("Start the consumer with stream key parameter.")
             sys.exit(1)
         else:
             current_stream_key = h["current_stream_key"]

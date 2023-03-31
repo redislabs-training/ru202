@@ -3,7 +3,6 @@
 from redis import Redis
 from redis.exceptions import ResponseError
 from collections import deque
-import random
 import time
 import json
 import socket
@@ -35,9 +34,9 @@ def main():
     PASSWORD = os.environ.get("REDIS_PASSWORD")
 
     client_kwargs = {
-    "host": HOST,
-    "port": PORT,
-    "decode_responses": True
+        "host": HOST,
+        "port": PORT,
+        "decode_responses": True
     }
 
     if USERNAME:

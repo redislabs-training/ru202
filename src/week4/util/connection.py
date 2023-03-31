@@ -13,9 +13,9 @@ def get_connection(name=None):
     PASSWORD = os.environ.get("REDIS_PASSWORD")
 
     client_kwargs = {
-    "host": HOST,
-    "port": PORT,
-    "decode_responses": True
+        "host": HOST,
+        "port": PORT,
+        "decode_responses": True
     }
 
     if USERNAME:
