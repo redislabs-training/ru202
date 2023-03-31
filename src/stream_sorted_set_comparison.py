@@ -19,14 +19,21 @@ def producer(num_to_add):
 
     redis = get_connection()
 
+    # Pipeline these commands for speed...
+    # https://redis.io/docs/manual/pipelining/
+    pipe = redis.pipeline(transaction=False)
+
     for n in range(1, num_to_add + 1):
         message = f'hello{n}'
 
         # Add to stream. n here is the identifier.
-        redis.xadd(STREAM_KEY, {'m': message}, n)
+        pipe.xadd(STREAM_KEY, {'m': message}, n)
 
         # Add to sorted set. n here is the score.
-        redis.zadd(SORTED_SET_KEY, {message: n})
+        pipe.zadd(SORTED_SET_KEY, {message: n})
+
+    # Execute the pipelined commands.
+    pipe.execute()
 
 def memory_usage():
     """ Compare memory used by stream and sorted set. """
