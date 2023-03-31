@@ -20,7 +20,7 @@ class Measurement:
         elif self.current_temp - 1 >= self.min_temp:
             self.current_temp -= 1
 
-        return {'postal_code': self.postal_codes[0], 'temp_f': self.current_temp}
+        return {'postal_code': random.choice(self.postal_codes), 'temp_f': self.current_temp}
 
 def main():
     HOST = os.environ.get("REDIS_HOST", "localhost")
@@ -29,9 +29,9 @@ def main():
     PASSWORD = os.environ.get("REDIS_PASSWORD")
 
     client_kwargs = {
-    "host": HOST,
-    "port": PORT,
-    "decode_responses": True
+        "host": HOST,
+        "port": PORT,
+        "decode_responses": True
     }
 
     if USERNAME:
