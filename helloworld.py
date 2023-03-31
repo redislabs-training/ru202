@@ -21,4 +21,5 @@ if PASSWORD:
 
 redis = Redis(**client_kwargs)
 
+redis.set("hello", "world")
 print(redis.get("hello"))
