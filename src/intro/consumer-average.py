@@ -3,7 +3,6 @@
 from redis import Redis
 from redis.exceptions import ResponseError
 from collections import deque
-import random
 import time
 import json
 import socket

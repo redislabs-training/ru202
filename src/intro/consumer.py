@@ -2,7 +2,6 @@
 # Usage: Part of Redis University RU202 courseware
 from redis import Redis
 from redis.exceptions import ResponseError
-import random
 import time
 import json
 import socket
