@@ -1,7 +1,7 @@
 <style type= text/css>
   .code {font-family: 'courier new', courier; font-weight: bold; font-size: 18px !important;}
 </style>
-<h2>Enhancements in Redis 6.2</h2>
+<h2>Enhancements in Redis 6.2: The MINID Trimming Strategy</h2>
 <p>In Redis 6.2, a new stream trimming strategy was added.  It is called <span class="code">MINID</span>, and allows us to trim a stream such that entries whose ID is lower than one provided are removed.</p>
 <p>When combined with the default timestamp entry ID strategy, this gives us the ability to trim a stream to a given point in time.</p>
 <p>In common with the <span class="code">MAXLEN</span> trimming strategy, <span class="code">MINID</span> can be used with both the <a href="https://redis.io/commands/xadd/" target="_blank" class="page-link"><span class="code">XADD</span></a> and <a href="https://redis.io/commands/xtrim/" target="_blank" class="page-link"><span class="code">XTRIM</span></a> commands, as well as with the <span class="code">~</span> modifier for approximate trimming.</p>
@@ -120,5 +120,44 @@
       2) "2025-01-01 03:00:00"
 </pre></p>
 <p>The stream was trimmed to contain only the 7 most recent entries. These cover the time period from 02:00 to 03:00.</p>
-<h3>Additional Resources</h3>
-<p>For more information on the <span class="code">MINID</span> trimming strategy, check out the <a href="https://redis.io/commands/xtrim/" target="_blank" class="page-link"><span class="code">XTRIM</span> command page</a> on redis.io.</p>
+<h2>Further Enhancements in Redis 6.2: The LIMIT Clause for Approximate Trimming</h2>
+<p>Redis 6.2 also added a <span class="code">LIMIT</span> clause, which gives you a finer level of control over the time that stream trimming can take.  This works with both the <span class="code">XADD</span> and <span class="code">XTRIM</span> commands in conjunction with the <span class="code">~</span> approximate trimming modifier.</p>
+<p>Imagine that we want our stream length to trend towards a 5000 entry cap, but that each time we add something new we only want to trim at most 1000 entries from the stream at a time.  This helps us balance the time taken to run the trimming command with the need for other clients to have their commands executed by Redis.</p>
+<p>First, let&apos;s create a very basic stream with 10000 entries in it:</p>
+<p><pre class="code">
+127.0.0.1:6379> del demostream
+(integer) 0
+127.0.0.1:6379> 10000 xadd demostream * hello world
+"1680698899048-0"
+"1680698899050-0"
+"1680698899051-0"
+...
+127.0.0.1:6379> xlen demostream
+(integer) 10000
+</pre></p>
+<p>Now, let&apos;s run an <span class="code">XTRIM</span> command that trims the stream towards an approximate 5000 entries, removing 1000 at a time at most:</p>
+<p><pre class="code">
+127.0.0.1:6379> xtrim demostream maxlen ~ 5000 limit 1000
+(integer) 1000
+127.0.0.1:6379> xlen demostream
+(integer) 9000
+</pre></p>
+<p>When we run this command again, we see another 1000 gone:</p>
+<p><pre class="code">
+127.0.0.1:6379> xtrim demostream maxlen ~ 5000 limit 1000
+(integer) 1000
+127.0.0.1:6379> xlen demostream
+(integer) 8000
+</pre></p>
+<p>Finally, let&apos;s run the command without the <span class="code">LIMIT</span> modifier:</p>
+<p><pre class="code">
+127.0.0.1:6379> xtrim demostream maxlen ~ 5000
+(integer) 3000
+127.0.0.1:6379> xlen demostream
+(integer) 5000
+</pre></p>
+<p>This trims more entries in a single command (5000), but that command takes longer to execute.</p>
+<p>Use the <span class="code">LIMIT</span> modifier if you want to have fine control over the throughput in Redis when trimming your stream to an approximate number with either <span class="code">XTRIM</span> or <span class="code">XADD</span>.</p>
+<p>You can also use the <span class="code">LIMIT</span> clause when using the <span class="code">MINID</span> trimming strategy.</p>
+<h2>Additional Resources</h2>
+<p>For more information on the <span class="code">MINID</span> trimming strategy and <span class="code">LIMIT</span> clause, check out the <a href="https://redis.io/commands/xtrim/" target="_blank" class="page-link"><span class="code">XTRIM</span> command page</a> on redis.io.</p>
