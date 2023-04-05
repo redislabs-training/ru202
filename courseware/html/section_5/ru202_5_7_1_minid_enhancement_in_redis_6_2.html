@@ -125,35 +125,35 @@
 <p>Imagine that we want our stream length to trend towards a 5000 entry cap, but that each time we add something new we only want to trim at most 1000 entries from the stream at a time.  This helps us balance the time taken to run the trimming command with the need for other clients to have their commands executed by Redis.</p>
 <p>First, let&apos;s create a very basic stream with 10000 entries in it:</p>
 <p><pre class="code">
-127.0.0.1:6379> del demostream
+127.0.0.1:6379> DEL demostream
 (integer) 0
-127.0.0.1:6379> 10000 xadd demostream * hello world
+127.0.0.1:6379> 10000 XADD demostream * hello world
 "1680698899048-0"
 "1680698899050-0"
 "1680698899051-0"
 ...
-127.0.0.1:6379> xlen demostream
+127.0.0.1:6379> XLEN demostream
 (integer) 10000
 </pre></p>
 <p>Now, let&apos;s run an <span class="code">XTRIM</span> command that trims the stream towards an approximate 5000 entries, removing 1000 at a time at most:</p>
 <p><pre class="code">
-127.0.0.1:6379> xtrim demostream maxlen ~ 5000 limit 1000
+127.0.0.1:6379> XTRIM demostream MAXLEN ~ 5000 LIMIT 1000
 (integer) 1000
-127.0.0.1:6379> xlen demostream
+127.0.0.1:6379> XLEN demostream
 (integer) 9000
 </pre></p>
 <p>When we run this command again, we see another 1000 gone:</p>
 <p><pre class="code">
-127.0.0.1:6379> xtrim demostream maxlen ~ 5000 limit 1000
+127.0.0.1:6379> XTRIM demostream MAXLEN ~ 5000 LIMIT 1000
 (integer) 1000
-127.0.0.1:6379> xlen demostream
+127.0.0.1:6379> XLEN demostream
 (integer) 8000
 </pre></p>
 <p>Finally, let&apos;s run the command without the <span class="code">LIMIT</span> modifier:</p>
 <p><pre class="code">
-127.0.0.1:6379> xtrim demostream maxlen ~ 5000
+127.0.0.1:6379> XTRIM demostream MAXLEN ~ 5000
 (integer) 3000
-127.0.0.1:6379> xlen demostream
+127.0.0.1:6379> XLEN demostream
 (integer) 5000
 </pre></p>
 <p>This trims more entries in a single command (5000), but that command takes longer to execute.</p>
