@@ -7,4 +7,4 @@ This folder contains the HTML documents used for the RU202: Redis Streams course
 
 Thanks,
 
-The Redis University team.
+The Redis Developer Relations team.
