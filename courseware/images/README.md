@@ -7,4 +7,4 @@ This folder contains the images used in HTML documents for the RU202: Redis Stre
 
 Thanks,
 
-The Redis University team.
+The Redis Developer Relations team.
