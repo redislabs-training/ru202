@@ -66,32 +66,32 @@ OK
 <p><pre class="code">
 127.0.0.1:6379> XREADGROUP GROUP consumers consumer1 COUNT 1 STREAMS mystream >
 1) 1) "mystream"
-    2) 1) 1) "1677530033562-0"
-          2) 1) "hello"
+   2) 1) 1) "1677530033562-0"
+         2) 1) "hello"
             2) "world"
 127.0.0.1:6379> XREADGROUP GROUP consumers consumer1 COUNT 1 STREAMS mystream >
 1) 1) "mystream"
-    2) 1) 1) "1677530033564-0"
-          2) 1) "hello"
+   2) 1) 1) "1677530033564-0"
+         2) 1) "hello"
             2) "world"
 127.0.0.1:6379> XREADGROUP GROUP consumers consumer2 COUNT 1 STREAMS mystream >
 1) 1) "mystream"
-    2) 1) 1) "1677530033566-0"
-          2) 1) "hello"
+   2) 1) 1) "1677530033566-0"
+         2) 1) "hello"
             2) "world"
-            127.0.0.1:6379> XINFO GROUPS mystream
-            1)  1) "name"
-                2) "consumers"
-                3) "consumers"
-                4) (integer) 2
-                5) "pending"
-                6) (integer) 3
-                7) "last-delivered-id"
-                8) "1677530033566-0"
-                9) "entries-read"
-                10) (integer) 3
-                11) "lag"
-                12) (integer) 997
+127.0.0.1:6379> XINFO GROUPS mystream
+1)  1) "name"
+    2) "consumers"
+    3) "consumers"
+    4) (integer) 2
+    5) "pending"
+    6) (integer) 3
+    7) "last-delivered-id"
+    8) "1677530033566-0"
+    9) "entries-read"
+   10) (integer) 3
+   11) "lag"
+   12) (integer) 997
 </pre></p>
 <p>Now we can see that the <span class="code">entries-read</span> counter has updated to reflect the 3 entries that the consumers in the group have read between them.  We also observe that the <span class="code">lag</span> value has reduced by 3 to a new value of 997.  We could monitor the value of <span class="code">lag</span> over time and use it to determine whether or not we need to ramp up our throughput by adding more consumer instances to the consumer group for a while.</p>
 <p>Note that the consumers do not need to acknowledge each stream entry read with the <span class="code">XACK</span> command before the <span class="code">lag</span> and <span class="code">entries-read</span> counters are updated.</p>
