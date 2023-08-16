@@ -2,10 +2,12 @@ version: "3.9"
 services:
   redis:
     container_name: "redis_ru202"
-    image: "redis:7.0.8"
-    command: "redis-server --appendonly yes"
+    image: "redis/redis:stack:latest"
     ports:
       - "6379:6379"
+      - "8001:8001"
+    environment:
+      - REDIS_ARGS=--appendonly yes --save ""
     volumes:
       - $PWD/redisdata:/data
     deploy:
