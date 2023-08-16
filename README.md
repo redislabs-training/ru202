@@ -8,7 +8,7 @@ Spotted an error in a text segment, image or video transcript?  Please [report a
 
 ## Environment Setup
 
-To get the most from this course and follow along with the sample code, you'll need to have access to a Redis 6.2 or 7 server and have Python 3 installed.
+To get the most from this course and follow along with the sample code, you'll need to have access to a Redis 7 server and have Python 3 installed.
 
 ### Prerequisites
 
