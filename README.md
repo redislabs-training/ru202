@@ -8,7 +8,7 @@ Spotted an error in a text segment, image or video transcript?  Please [report a
 
 ## Environment Setup
 
-To get the most from this course and follow along with the sample code, you'll need to have access to a Redis 7 server and have Python 3 installed.
+To get the most from this course and follow along with the sample code, you'll need to have access to a Redis Stack 7 server and have Python 3 installed.
 
 ### Prerequisites
 
@@ -16,13 +16,7 @@ In order to run the sample code, you will need:
 
 * [Python 3](https://www.python.org/downloads/).
 * Ability to run the `pip` command for Python 3.
-* Access to a local or remote installation of [Redis](https://redis.io/download) version 6.2 or newer (local preferred).  We've provided a Docker Compose file to make this easy for you.  If you don't want to use Docker, [follow the instructions here](https://redis.io/docs/getting-started/) to install Redis using a package manager.
-
-If you're using Windows, check out the following resources for help with running Redis:
-
-* [Video - Installing Redis on Windows 10](https://www.youtube.com/watch?v=_nFwPTHOMIY)
-* [Redis Blog - Running Redis on Windows 10](https://redis.com/blog/redis-on-windows-10/)
-* [Microsoft - Windows Subsystem for Linux Installation Guide for Windows 10](https://docs.microsoft.com/en-us/windows/wsl/install-win10)
+* Access to a local or remote installation of [Redis Stack](https://redis.io/docs/getting-started/install-stack/). (local preferred).  We've provided a Docker Compose file to make this easy for you.  If you don't want to use Docker, [follow the instructions here](https://redis.io/docs/getting-started/install-stack/) to install Redis Stack using a package manager.
 
 ### Setup
 
@@ -38,9 +32,9 @@ pip install -r requirements.txt
 
 **Note:** Ensure you activate your virtual environment in each new shell/terminal session before running any of the sample code.
 
-#### Starting Redis (Docker)
+#### Starting Redis Stack (Docker)
 
-If you're using Docker to Run Redis, start it like this:
+If you're using Docker to Run Redis Stack, start it like this:
 
 ```bash
 docker-compose up  -d
@@ -60,54 +54,32 @@ When you are done with the container, you can shut it down like this:
 docker-compose down
 ```
 
-Redis will persist your data to an append only file in the `redisdata` folder, so it will be there the next time you start the container.  To erase it, use `rm -rf redisdata`.
-
-#### Starting Redis (when installed by a Package Manager)
-
-If you installed Redis using a package manager, start the Redis server if it isn't already running.  For example, if you installed Redis with the Homebrew package manager for macOS you'd start it like this:
-
-```bash
-brew services start redis
-```
-
-You can now run `redis-cli` to connect to Redis as follows:
-
-```bash
-docker exec -it redis_ru202 redis-cli
-```
-
-Type `quit` to exit `redis-cli` back to your shell.
-
-When you are done with Redis, you can optionally turn off the server.  For example if Redis was installed with the Homebrew package manager for macOS you'd stop the server like this:
-
-```bash
-brew services stop redis
-```
+Redis Stack will persist your data to an append only file in the `redisdata` folder, so it will be there the next time you start the container.  To erase it, use `rm -rf redisdata`.
 
 ### Configuration
 
-By default, the code will assume that Redis is available on `localhost` at port `6379`.  If your Redis instance is running elsewhere, you will need to set the `REDIS_HOST` and/or `REDIS_PORT` environment variables.  For example, here's how to configure these to connect to Redis on `myredishostname` port `6380`:
+By default, the code will assume that Redis Stack is available on `localhost` at port `6379`.  If your Redis Stack instance is running elsewhere, you will need to set the `REDIS_HOST` and/or `REDIS_PORT` environment variables.  For example, here's how to configure these to connect to Redis Stack on `myredishostname` port `6380`:
 
 ```bash
 export REDIS_HOST=myredishostname
 export REDIS_PORT=6380
 ```
 
-If your Redis instance requires a password to connect, also set the `REDIS_PASSWORD` environment variable:
+If your Redis Stack instance requires a password to connect, also set the `REDIS_PASSWORD` environment variable:
 
 ```bash
 export REDIS_PASSWORD=secret123
 ```
 
-If you are using Redis 6 or 7 and need to supply a user name when connecting, you should set the `REDIS_USER` environment variable:
+If you need to supply a user name when connecting, you should set the `REDIS_USER` environment variable:
 
 ```bash
 export REDIS_USER=student
 ```
 
-### Test Your Connection to Redis
+### Test Your Connection to Redis Stack
 
-To test your Redis connection and Python environment, run:
+To test your Redis Stack connection and Python environment, run:
 
 ```bash
 python test_connection.py
@@ -117,7 +89,7 @@ If this command outputs `True`, then you are setup and ready to run the example 
 
 ### Running the Example Code
 
-Throughout the course, you will be asked to run the example code for the various exercises.  Some of these require you to open multiple shell/terminal sessions.  Don't forget to start your Python virtual environment in each new shell session.  You'll also need to set the environment variables `REDIS_HOST`, `REDIS_PORT` and optionally `REDIS_USER` and `REDIS_PASSWORD` if your Redis instance is not running on `localhost:6379`.
+Throughout the course, you will be asked to run the example code for the various exercises.  Some of these require you to open multiple shell/terminal sessions.  Don't forget to start your Python virtual environment in each new shell session.  If your Redis Stack instance is not running on `localhost:6379` then you'll also need to set the environment variables `REDIS_HOST`, `REDIS_PORT` and optionally `REDIS_USER` and `REDIS_PASSWORD`.
 
 ### Optional (but recommended!): RedisInsight
 
@@ -125,7 +97,9 @@ RedisInsight is a graphical management tool for Redis.  It allows you to view an
 
 You don't need to install or use RedisInsight to be successful with this course, but we'd recommend you give it a try.
 
-[Download RedisInsight here](https://redis.com/redis-enterprise/redis-insight/) (it's free!).  Once installed, add a new Redis database and supply the hostname, port and optionally password for the Redis instance that you're using for this course (this will usually be `localhost`, `6379` and no password).
+[Download RedisInsight here](https://redis.com/redis-enterprise/redis-insight/) (it's free!).  Once installed, add a new Redis database and supply the hostname, port and optionally username and password for the Redis instance that you're using for this course (this will usually be `localhost`, `6379` and no username or password).
+
+If you're using the Docker Compose file provided with this course, you can also try out a limited version of RedisInsight in your browser by visiting `http://localhost:8081` - this version can only connect to the Redis Stack instance in the Docker container.  Use the Desktop version of RedisInsight to manage connections to multiple remote and/or local Redis instances.  
 
 ## Questions?
 
