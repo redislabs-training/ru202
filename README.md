@@ -37,7 +37,7 @@ pip install -r requirements.txt
 If you're using Docker to Run Redis Stack, start it like this:
 
 ```bash
-docker-compose up  -d
+docker-compose up -d
 ```
 
 You can now run `redis-cli` to connect to Redis as follows:
