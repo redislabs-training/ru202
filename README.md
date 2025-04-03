@@ -1,6 +1,6 @@
 # RU202 Redis Streams
 
-This repository contains the source code for the [RU202 Redis Streams Course](https://university.redis.com/courses/ru202/) at [Redis University](https://university.redis.com/). 
+This repository contains the source code for the [Redis Streams](https://university.redis.io/learningpath/grnomm8jaglgcu) learning path on [Redis University](https://university.redis.com/). 
 
 ## Reporting Errata
 
