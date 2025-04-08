@@ -1,4 +1,4 @@
-# RU202 Redis Streams
+# Redis University: Redis Streams
 
 This repository contains the source code for the [Redis Streams](https://university.redis.io/learningpath/grnomm8jaglgcu) learning path on [Redis University](https://university.redis.com/). 
 
